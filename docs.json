@@ -1,122 +1,99 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "QuantumVoid Trading Dashboard",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
   },
   "favicon": "/favicon.svg",
-  "navigation": {
-    "tabs": [
-      {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
-            ]
-          },
-          {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
+  "colors": {
+    "primary": "#9333EA",
+    "light": "#A855F7",
+    "dark": "#7E22CE",
+    "anchors": {
+      "from": "#9333EA",
+      "to": "#A855F7"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Dashboard",
+      "url": "https://trade.quantumvoid.org"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Start Trading",
+    "url": "https://trade.quantumvoid.org"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "quickstart",
+        "pumpkin-token"
+      ]
+    },
+    {
+      "group": "Exchange Setup",
+      "pages": [
+        "exchanges/blofin",
+        "exchanges/bybit",
+        "exchanges/htx",
+        "exchanges/weex"
+      ]
+    },
+    {
+      "group": "Bot Configuration",
+      "pages": [
+        "bot-config/presets",
+        "bot-config/strategies",
+        "bot-config/parameters",
+        "bot-config/risk-management"
+      ]
+    },
+    {
+      "group": "Features",
+      "pages": [
+        "features/dashboard",
+        "features/bot-management",
+        "features/trading-console",
+        "features/optimal-symbols"
+      ]
+    },
+    {
+      "group": "Troubleshooting",
+      "pages": [
+        "troubleshooting/common-errors",
+        "troubleshooting/faq"
+      ]
+    },
+    {
+      "group": "API Documentation",
+      "pages": [
+        "api-reference/introduction",
+        "api-reference/authentication"
+      ]
+    },
+    {
+      "group": "Endpoints",
+      "pages": [
+        "api-reference/endpoints/bot-start",
+        "api-reference/endpoints/bot-stop",
+        "api-reference/endpoints/bot-status",
+        "api-reference/endpoints/pumpkin-balance"
       ]
     }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+  ],
+  "footerSocials": {
+    "twitter": "https://twitter.com/quantumvoidlabs",
+    "github": "https://github.com/donewiththedollar",
+    "telegram": "https://t.me/quantumvoidlabs"
   }
 }
