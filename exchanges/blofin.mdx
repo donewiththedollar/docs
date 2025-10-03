@@ -1,0 +1,122 @@
+---
+title: 'BloFin Setup Guide'
+description: 'Complete guide to setting up BloFin exchange with QuantumVoid bot'
+---
+
+# How to Start a New BloFin Bot
+
+Welcome to the **Pumpkin Token Algorithmic Trading Bot Guide**! This step-by-step walkthrough will help you set up your bot securely and efficiently. Follow these instructions exactly to avoid issues. You'll need a Sui wallet with at least **$100 worth of Pumpkin tokens** ready.
+
+---
+
+## Step 1: Sign Up for BloFin
+
+1. Open your browser and go to **[https://partner.blofin.com/d/quantumvoidlabs](https://partner.blofin.com/d/quantumvoidlabs)**
+2. Sign up using the referral code **`quantumvoidlabs`** (it should appear in the dropdown for 5% cash back)
+3. Agree to the terms and conditions
+4. Verify you're human to complete registration
+
+<Tip>This referral code ensures you get that extra 5% cash back—don't skip it!</Tip>
+
+---
+
+## Step 2: Set Up Two-Factor Authentication (2FA)
+
+Your new account will prompt you immediately about low security. **This is mandatory for safety.**
+
+1. Enable 2FA on all your devices and accounts using Google Authenticator (or similar)
+2. **Save your Google Authenticator backup code securely**—you'll need it if you lose access
+3. Once saved, click **"I have saved the backup key properly"**
+
+<Warning>2FA protects against unauthorized access. Never share your backup code!</Warning>
+
+---
+
+## Step 3: Create Your Exchange API Key
+
+1. In the BloFin dashboard, look at the top right next to **Assets**—hover over the figurine icon and select **API**
+2. Click **+ Create API Key**
+3. In the **Application Name** dropdown, select **"Quantum Void Labs"** as the 3rd party
+4. Name your key something memorable (e.g., `qvlbot`)
+5. In the **Permissions** section, **checkmark the Trade permission** to allow the bot to trade
+6. Enter a simple **passphrase** you'll remember (you'll need it later)
+7. Click **Next**
+8. Verify with your email and Google Authenticator prompt, then submit
+
+**A popup will show your API Key and Secret Key. Copy these immediately—you'll paste them into the bot dashboard next.**
+
+---
+
+## Step 4: Prepare Your Sui Wallet and Navigate to the Bot Dashboard
+
+1. Ensure your Sui wallet has at least **$100 worth of Pumpkin tokens**
+2. Open a new browser window and go to **[trade.quantumvoid.org](https://trade.quantumvoid.org)** (keeps things organized)
+3. Click **BloFin Perps** or **Multi Exchange Perps** button
+4. Click **Connect Sui Wallet**, then connect and sign the authorization
+
+---
+
+## Step 5: Add BloFin Credentials to the Bot
+
+1. Click **Add BloFin Credentials**
+2. Paste your **API Key** and **Secret Key** from Step 3
+3. Enter the **passphrase** you created earlier
+4. Click **Save Credentials**
+
+<Tip>Double-check your pastes—no typos here, or the bot won't connect!</Tip>
+
+---
+
+## Step 6: Configure Your Bot Settings
+
+1. Click **Bot Management**
+2. Scroll down to **Bot Configurations**—you'll see icons like `<>` (JSON editor), a pencil, and others
+3. Click the **`<>`** icon to open a new window with the JSON config
+4. Edit and customize your settings here (e.g., symbols, strategies—refer to bot docs for details)
+
+---
+
+## Step 7: Deposit Funds into BloFin
+
+1. Back in BloFin, click **Assets > Funding**
+2. Choose your deposit asset (recommended: **USDC on the SUI network** for speed and low fees)
+3. Deposit your funds and wait for them to arrive
+
+<Warning>Always send a small test amount (e.g., $10) before transferring larger sums.</Warning>
+
+---
+
+## Step 8: Convert Funds to USDT-M (Bot's Trading Account)
+
+1. Once deposited, move your USDC to the **Spot** account
+2. Swap it for **USDT** in Spot
+3. Transfer the USDT to the **USDT-M** account (this is where the bot trades)
+
+---
+
+## Step 9: Set Leverage on BloFin Futures
+
+1. Go to **BloFin Futures > USDT-M**
+2. Change the leverage type to **Cross** (instead of Isolated) for shared margin
+3. Set your leverage for each trading symbol (e.g., **10x** is a safe starting point)
+
+---
+
+## Step 10: Launch and Monitor Your Bot
+
+1. Return to the bot dashboard and click **Start** on your bot
+2. Watch orders populate in your BloFin account
+3. For real-time monitoring:
+   - Click **Trading Console > Bot Logs** to view event logs
+4. If you see any **RED errors**, report them to the Telegram group for quick fixes
+
+---
+
+## 🎉 Congratulations—Your Bot is Live!
+
+Monitor it closely at first, and remember: **trading involves risk**. Start small, learn from logs, and reach out in TG for support.
+
+### Final Reminder
+Follow these steps precisely. If something goes wrong, it's often a small detail like a missed permission or test deposit.
+
+**Happy trading with Pumpkin! 🎃**
