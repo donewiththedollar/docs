@@ -1,100 +1,72 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
-  "name": "QuantumVoid Trading Dashboard",
+  "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
-  },
-  "favicon": "/favicon.svg",
+  "name": "QuantumVoid Trading Dashboard",
   "colors": {
     "primary": "#9333EA",
     "light": "#A855F7",
-    "dark": "#7E22CE",
-    "anchors": {
-      "from": "#9333EA",
-      "to": "#A855F7"
+    "dark": "#7E22CE"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Dashboard",
+        "href": "https://trade.quantumvoid.org"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Start Trading",
+      "href": "https://trade.quantumvoid.org"
     }
   },
-  "topbarLinks": [
-    {
-      "name": "Dashboard",
-      "url": "https://trade.quantumvoid.org"
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "pumpkin-token"
+            ]
+          },
+          {
+            "group": "Exchange Setup",
+            "pages": [
+              "exchanges/blofin"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Telegram Support",
+          "href": "https://t.me/quantumvoidlabs",
+          "icon": "telegram"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/donewiththedollar",
+          "icon": "github"
+        }
+      ]
     }
-  ],
-  "topbarCtaButton": {
-    "name": "Start Trading",
-    "url": "https://trade.quantumvoid.org"
   },
-  "tabs": [
-    {
-      "name": "API Reference",
-      "url": "api-reference"
+  "footer": {
+    "socials": {
+      "twitter": "https://twitter.com/quantumvoidlabs",
+      "github": "https://github.com/donewiththedollar",
+      "telegram": "https://t.me/quantumvoidlabs"
     }
-  ],
-  "navigation": [
-    {
-      "group": "Get Started",
-      "pages": [
-        "introduction",
-        "quickstart",
-        "pumpkin-token"
-      ]
-    },
-    {
-      "group": "Exchange Setup",
-      "pages": [
-        "exchanges/blofin",
-        "exchanges/bybit",
-        "exchanges/htx",
-        "exchanges/weex"
-      ]
-    },
-    {
-      "group": "Bot Configuration",
-      "pages": [
-        "bot-config/presets",
-        "bot-config/strategies",
-        "bot-config/parameters",
-        "bot-config/risk-management"
-      ]
-    },
-    {
-      "group": "Features",
-      "pages": [
-        "features/dashboard",
-        "features/bot-management",
-        "features/trading-console",
-        "features/optimal-symbols"
-      ]
-    },
-    {
-      "group": "Troubleshooting",
-      "pages": [
-        "troubleshooting/common-errors",
-        "troubleshooting/faq"
-      ]
-    },
-    {
-      "group": "API Documentation",
-      "pages": [
-        "api-reference/introduction",
-        "api-reference/authentication"
-      ]
-    },
-    {
-      "group": "Endpoints",
-      "pages": [
-        "api-reference/endpoints/bot-start",
-        "api-reference/endpoints/bot-stop",
-        "api-reference/endpoints/bot-status",
-        "api-reference/endpoints/pumpkin-balance"
-      ]
-    }
-  ],
-  "footerSocials": {
-    "twitter": "https://twitter.com/quantumvoidlabs",
-    "github": "https://github.com/donewiththedollar",
-    "telegram": "https://t.me/quantumvoidlabs"
   }
 }
