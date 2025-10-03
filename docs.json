@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "QuantumVoid Trading Dashboard",
+  "name": "Quant Dash",
   "colors": {
     "primary": "#9333EA",
     "light": "#A855F7",
@@ -33,7 +33,7 @@
           {
             "group": "Get Started",
             "pages": [
-              "introduction",
+              "index",
               "quickstart",
               "pumpkin-token"
             ]
