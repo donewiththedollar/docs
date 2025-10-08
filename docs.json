@@ -40,6 +40,12 @@
             ]
           },
           {
+            "group": "Bot Configuration",
+            "pages": [
+              "bot-configuration"
+            ]
+          },
+          {
             "group": "Exchange Setup",
             "pages": [
               "exchanges/blofin"

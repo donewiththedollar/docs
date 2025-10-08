@@ -1,0 +1,328 @@
+---
+title: 'Bot Configuration'
+description: 'Complete guide to configuring your trading bot parameters'
+---
+
+# Bot Configuration Parameters
+
+Understanding bot configuration parameters is essential for optimizing your trading strategy. This guide covers all parameters for both single-symbol and multi-symbol configurations.
+
+<Info>
+  **Multi-symbol configs** give you more control and allow per-symbol customization. Single-symbol configs are simpler but less flexible.
+</Info>
+
+## Core Strategy Parameters
+
+### Grid Configuration
+
+<ParamField path="nr_clusters" type="number" default="4">
+  **Number of grid clusters** - How many layers of orders to place on each side
+
+  - **Conservative**: 2-3 clusters (fewer, safer positions)
+  - **Moderate**: 4 clusters (balanced approach)
+  - **Aggressive**: 5+ clusters (more positions, more risk)
+</ParamField>
+
+<ParamField path="outer_distance" type="number" default="0.04">
+  **Outer grid distance** - How far from current price to place the furthest orders (as decimal)
+
+  - `0.03` = 3% from current price
+  - `0.04` = 4% from current price (recommended)
+  - `0.05` = 5% from current price
+
+  <Tip>Wider grids (0.04-0.05) work better in volatile markets</Tip>
+</ParamField>
+
+<ParamField path="ratio_power" type="number" default="1.6">
+  **Grid distribution power** - Controls how grid orders are spaced
+
+  - `1.0` = Linear spacing (equal distance between orders)
+  - `1.2-1.4` = Slight geometric spacing
+  - `1.6` = Strong geometric spacing (more orders near price)
+
+  Higher values concentrate more orders near the current price.
+</ParamField>
+
+<ParamField path="first_level_distance" type="number" default="0.0025">
+  **First order distance** - Distance to the first grid order (as decimal)
+
+  - `0.002` = 0.2% from price (tight)
+  - `0.0025` = 0.25% from price (recommended)
+  - `0.003` = 0.3% from price (wider)
+</ParamField>
+
+### Position Management
+
+<ParamField path="wallet_exposure" type="number" default="0.1">
+  **Wallet exposure per symbol** - Percentage of wallet to allocate per symbol
+
+  - `0.05` = 5% per symbol (conservative)
+  - `0.1` = 10% per symbol (recommended)
+  - `0.15` = 15% per symbol (aggressive)
+
+  <Warning>
+    With 6 symbols at 10% each = 60% total exposure. Keep total under 100%!
+  </Warning>
+</ParamField>
+
+<ParamField path="initial_entry_size" type="number" default="0.01">
+  **Initial entry size** - Size of first grid order as fraction of exposure
+
+  - `0.005` = 0.5% of exposure
+  - `0.01` = 1% of exposure (recommended)
+  - `0.02` = 2% of exposure (larger first orders)
+</ParamField>
+
+<ParamField path="qty_multiplier" type="number" default="2">
+  **Quantity multiplier** - How much each successive grid order increases
+
+  - `1.5` = Each order 50% larger than previous
+  - `2` = Each order doubles in size (recommended)
+  - `3` = Each order triples in size (aggressive DCA)
+</ParamField>
+
+### Take Profit Settings
+
+<ParamField path="minimum_tp" type="number" default="0.0022">
+  **Minimum take profit** - Minimum profit percentage to close positions
+
+  - `0.0015` = 0.15% profit (tight)
+  - `0.0022` = 0.22% profit (recommended)
+  - `0.003` = 0.3% profit (wider)
+
+  Lower values = more frequent but smaller profits
+</ParamField>
+
+<ParamField path="refresh_threshold" type="number" default="0.05">
+  **Grid refresh threshold** - Price movement % needed to refresh grid
+
+  - `0.03` = Refresh at 3% movement
+  - `0.05` = Refresh at 5% movement (recommended)
+  - `0.08` = Refresh at 8% movement
+</ParamField>
+
+<ParamField path="grid_refresh_interval" type="number" default="180">
+  **Grid refresh interval** - Seconds between grid recalculations
+
+  - `120` = 2 minutes (frequent updates)
+  - `180` = 3 minutes (recommended)
+  - `300` = 5 minutes (less frequent)
+</ParamField>
+
+## Risk Management
+
+### Liquidation Protection
+
+<ParamField path="liquidation_safeguard" type="boolean" default="true">
+  **Enable liquidation safeguard** - Prevents orders too close to liquidation price
+
+  <Check>**Highly recommended** - Always keep this enabled</Check>
+</ParamField>
+
+<ParamField path="liquidation_safeguard_pct_dist" type="number" default="5">
+  **Liquidation distance %** - Minimum distance from liquidation price
+
+  - `5` = Orders must be 5% away from liquidation (recommended)
+  - `10` = Extra safe, 10% buffer
+  - `3` = Risky, only 3% buffer
+
+  <Warning>
+    Never set below 5% - risk of liquidation increases significantly
+  </Warning>
+</ParamField>
+
+### Virtual Chunking (Position Recovery)
+
+<ParamField path="virtual_chunking_enabled" type="boolean" default="false">
+  **Enable virtual chunking** - Advanced position recovery for underwater positions
+
+  When enabled, splits large losing positions into smaller "chunks" for gradual recovery.
+</ParamField>
+
+<ParamField path="virtual_chunking_threshold_pct" type="number" default="3">
+  **Chunking threshold** - Unrealized loss % that triggers chunking
+
+  - `2` = Activate at 2% loss (aggressive recovery)
+  - `3` = Activate at 3% loss (recommended)
+  - `5` = Activate at 5% loss (conservative)
+</ParamField>
+
+<ParamField path="virtual_chunking_chunk_count" type="number" default="5">
+  **Number of chunks** - How many pieces to split position into
+
+  More chunks = more granular recovery but slower
+</ParamField>
+
+<ParamField path="virtual_chunking_profit_target" type="number" default="0.001">
+  **Chunk profit target** - Profit % for each chunk exit
+
+  - `0.0008` = 0.08% profit per chunk (tight)
+  - `0.001` = 0.1% profit per chunk (recommended)
+  - `0.0015` = 0.15% profit per chunk
+</ParamField>
+
+## Trading Modes
+
+<ParamField path="long_mode" type="boolean" default="true">
+  **Enable long trades** - Allow bot to open long (buy) positions
+</ParamField>
+
+<ParamField path="short_mode" type="boolean" default="true">
+  **Enable short trades** - Allow bot to open short (sell) positions
+
+  <Tip>
+    Enable both for balanced trading. Markets trend up and down!
+  </Tip>
+</ParamField>
+
+<ParamField path="vortex_always_both_sides" type="boolean" default="true">
+  **Always maintain both sides** - Keep grids on both long and short simultaneously
+
+  Recommended: `true` for maximum opportunity capture
+</ParamField>
+
+## BloFin-Specific Settings
+
+<ParamField path="round_min_qty_blofin" type="boolean" default="true">
+  **Round to minimum quantity** - Automatically round order sizes to BloFin's minimum
+
+  <Check>Always enable this for BloFin to avoid order rejections</Check>
+</ParamField>
+
+<ParamField path="startup_cleanup_all_symbols" type="boolean" default="true">
+  **Cleanup on startup** - Cancel all existing orders when bot starts
+
+  Recommended: `true` to start with clean state
+</ParamField>
+
+## Multi-Symbol Configuration
+
+Multi-symbol configs allow you to customize parameters per symbol in the `symbol_config` section.
+
+### Example Multi-Symbol Config
+
+```json
+{
+  "symbols": ["DOGEUSDT", "ADAUSDT", "SUIUSDT"],
+  "symbol_config": {
+    "DOGEUSDT": {
+      "wallet_exposure": 0.1,
+      "minimum_tp": 0.0025
+    },
+    "ADAUSDT": {
+      "wallet_exposure": 0.08,
+      "minimum_tp": 0.002
+    },
+    "SUIUSDT": {
+      "wallet_exposure": 0.12,
+      "minimum_tp": 0.003
+    }
+  }
+}
+```
+
+### Per-Symbol Parameters
+
+You can override these parameters per symbol:
+
+- `wallet_exposure` - Different allocation per coin
+- `minimum_tp` - Different profit targets per coin
+- `nr_clusters` - More/fewer grids per coin
+- `outer_distance` - Wider/tighter grids per coin
+
+<Tip>
+  Use higher exposure for stable coins (BTC, ETH) and lower for altcoins
+</Tip>
+
+## Advanced Parameters
+
+<ParamField path="allow_add_smaller" type="boolean" default="false">
+  **Allow smaller additions** - Permit adding to positions with smaller orders
+
+  Usually false - maintains consistent DCA scaling
+</ParamField>
+
+<ParamField path="min_distance" type="number" default="0.0025">
+  **Minimum order distance** - Closest two orders can be to each other
+
+  Prevents orders from clustering too tightly
+</ParamField>
+
+<ParamField path="desired_distance" type="number" default="0.05">
+  **Desired grid spread** - Target total distance for grid
+
+  Works with `outer_distance` to size the grid
+</ParamField>
+
+<ParamField path="no_entry_above" type="number" default="null">
+  **No entry above price** - Don't open positions above this price
+
+  Set to limit entries in overextended markets. Example: `50000` for BTC
+</ParamField>
+
+<ParamField path="no_entry_below" type="number" default="null">
+  **No entry below price** - Don't open positions below this price
+
+  Set a floor to avoid catching falling knives. Example: `30000` for BTC
+</ParamField>
+
+## Configuration Tips
+
+<AccordionGroup>
+  <Accordion icon="shield" title="Start Conservative">
+    Use smaller exposure (5-8%), fewer clusters (2-3), and tighter grids (0.02-0.03) when learning
+  </Accordion>
+
+  <Accordion icon="chart-line" title="Scale Gradually">
+    Increase exposure and clusters only after observing performance for several days
+  </Accordion>
+
+  <Accordion icon="coins" title="Diversify Symbols">
+    Use 4-6 different symbols to spread risk. Avoid correlated pairs (e.g., all memecoins)
+  </Accordion>
+
+  <Accordion icon="rotate" title="Monitor & Adjust">
+    Check bot performance daily. Adjust `minimum_tp` and `outer_distance` based on volatility
+  </Accordion>
+
+  <Accordion icon="bell" title="Enable Safeguards">
+    Always use `liquidation_safeguard: true` with `liquidation_safeguard_pct_dist: 5` minimum
+  </Accordion>
+</AccordionGroup>
+
+## Preset Configurations
+
+Quant Dash provides pre-built configurations for different risk levels:
+
+<CardGroup cols={3}>
+  <Card title="Conservative" icon="shield">
+    - 2-3 clusters
+    - 5-8% exposure
+    - Tight grids
+    - Lower leverage
+  </Card>
+
+  <Card title="Moderate" icon="chart-mixed">
+    - 4 clusters
+    - 10% exposure
+    - Balanced grids
+    - Standard leverage
+  </Card>
+
+  <Card title="Aggressive" icon="rocket">
+    - 5+ clusters
+    - 12-15% exposure
+    - Wide grids
+    - Higher leverage
+  </Card>
+</CardGroup>
+
+<Card title="View Presets" icon="list" href="/quickstart">
+  See all available presets in the Quick Start Guide
+</Card>
+
+---
+
+<Warning>
+  **Always test with small amounts first.** Start with 1-2 symbols at low exposure, monitor for 24-48 hours, then scale up gradually.
+</Warning>
