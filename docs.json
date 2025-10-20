@@ -40,6 +40,14 @@
             ]
           },
           {
+            "group": "Features",
+            "pages": [
+              "features/dashboard-overview",
+              "features/bot-management",
+              "features/trading-console"
+            ]
+          },
+          {
             "group": "Bot Configuration",
             "pages": [
               "bot-configuration"
@@ -48,6 +56,7 @@
           {
             "group": "Exchange Setup",
             "pages": [
+              "exchanges/bybit",
               "exchanges/blofin"
             ]
           }

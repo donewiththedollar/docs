@@ -1,0 +1,178 @@
+---
+title: 'Bybit Setup Guide'
+description: 'Complete guide to setting up Bybit exchange with QuantumVoid bot'
+---
+
+# How to Start a New Bybit Bot
+
+Welcome to the **Bybit Trading Bot Setup Guide**! This step-by-step walkthrough will help you set up your bot securely and efficiently on Bybit. You'll need a Sui wallet with at least **$100 worth of Pumpkin tokens** ready.
+
+---
+
+## Step 1: Sign Up for Bybit
+
+1. Open your browser and go to **[https://partner.bybit.com/b/quantumvoid](https://partner.bybit.com/b/quantumvoid)**
+2. Sign up using the referral link **`quantumvoid`** for exclusive benefits
+3. Complete email verification
+4. Set a strong password and agree to terms of service
+
+<Tip>Using our referral link supports the project and may unlock trading fee discounts!</Tip>
+
+---
+
+## Step 2: Complete KYC Verification (Recommended)
+
+While not always mandatory, KYC increases withdrawal limits and account security.
+
+1. Go to **Account & Security > Identity Verification**
+2. Select your country and verification level (Basic or Advanced)
+3. Upload required documents (government ID, proof of address if needed)
+4. Wait for approval (usually 5-30 minutes)
+
+<Warning>Higher verification levels unlock larger withdrawal limits and better features.</Warning>
+
+---
+
+## Step 3: Set Up Two-Factor Authentication (2FA)
+
+Protect your account with 2FA—this is **strongly recommended** for security.
+
+1. Go to **Account & Security > Two-Factor Authentication**
+2. Download **Google Authenticator** or **Authy** on your phone
+3. Scan the QR code and enter the 6-digit code
+4. **Save your backup key securely**—you'll need it if you lose access to your phone
+
+<Warning>Never share your 2FA backup code with anyone!</Warning>
+
+---
+
+## Step 4: Create Your Bybit API Key
+
+1. In the Bybit dashboard, click your profile icon (top right) and select **API**
+2. Click **Create New Key** under **API Management**
+3. Choose **System-generated API Keys** (recommended for trading bots)
+4. Set the following permissions:
+   - ✅ **Read-Write** (for order placement)
+   - ✅ **Contract Trading** (for USDT perpetual futures)
+   - ❌ **Withdrawal** (disable this for security—bots don't need it)
+5. (Optional) Set **IP Restriction** to your server's IP for extra security
+6. Click **Submit** and complete 2FA verification
+
+**Copy your API Key and Secret immediately—Bybit only shows the Secret once!**
+
+<Tip>Store your API credentials in a password manager—you'll need them for the bot dashboard.</Tip>
+
+---
+
+## Step 5: Prepare Your Sui Wallet and Navigate to the Bot Dashboard
+
+1. Ensure your Sui wallet has at least **$100 worth of Pumpkin tokens**
+2. Open a new browser window and go to **[trade.quantumvoid.org](https://trade.quantumvoid.org)**
+3. Click **Bybit Perps** or **Multi Exchange Perps** button
+4. Click **Connect Sui Wallet**, then authorize the connection
+
+---
+
+## Step 6: Add Bybit Credentials to the Bot
+
+1. In the dashboard, click **Add Bybit Credentials**
+2. Paste your **API Key** from Step 4
+3. Paste your **API Secret** from Step 4
+4. Click **Save Credentials**
+
+<Tip>Double-check your pastes—any typos will prevent the bot from connecting!</Tip>
+
+---
+
+## Step 7: Configure Your Bot Settings
+
+1. Click **Bot Management** in the sidebar
+2. Scroll down to **Bot Configurations**
+3. Click the **`<>`** (JSON editor) icon to open the config editor
+4. Customize your settings:
+   - **Symbols**: Choose trading pairs (e.g., `BTCUSDT`, `ETHUSDT`)
+   - **Wallet Exposure**: Set your risk per symbol (e.g., `0.1` = 10% of balance)
+   - **Strategy**: Select `geometric_long_only` or `vortex_dca`
+5. Save your configuration
+
+---
+
+## Step 8: Deposit Funds into Bybit
+
+1. In Bybit, click **Assets > Deposit**
+2. Select **USDT** (or another stablecoin like USDC)
+3. Choose your preferred network:
+   - **Sui Network** (fast, low fees—recommended)
+   - **Ethereum (ERC20)**, **Polygon**, **Arbitrum**, etc.
+4. Copy the deposit address and send funds from your wallet
+
+<Warning>Always send a small test deposit first (e.g., $10) to verify the address!</Warning>
+
+---
+
+## Step 9: Transfer Funds to USDT Perpetual Account
+
+The bot trades on **USDT Perpetual Futures**, so you need to move funds to that account.
+
+1. Go to **Assets > Transfer**
+2. From: **Funding Account** → To: **USDT Perpetual**
+3. Asset: **USDT**
+4. Amount: Enter the amount you want to trade with
+5. Click **Confirm Transfer**
+
+---
+
+## Step 10: Set Leverage and Margin Mode
+
+1. Go to **Derivatives > USDT Perpetual**
+2. For each symbol you're trading:
+   - Click the **leverage icon** (e.g., `10x`)
+   - Set your desired leverage (start with **5x-10x** for safety)
+   - Change margin mode to **Cross** (recommended for shared margin)
+
+<Tip>Cross margin shares your balance across all positions, reducing liquidation risk.</Tip>
+
+---
+
+## Step 11: Launch and Monitor Your Bot
+
+1. Return to the bot dashboard at **[trade.quantumvoid.org](https://trade.quantumvoid.org)**
+2. Click **Start** on your bot configuration
+3. Watch orders appear in your Bybit account within seconds
+4. Monitor in real-time:
+   - **Dashboard**: View P&L, positions, and performance metrics
+   - **Trading Console > Bot Logs**: See detailed event logs
+5. If you see any **RED errors**, report them in the [Telegram group](https://t.me/pumpkinsui)
+
+---
+
+## 🎉 Congratulations—Your Bybit Bot is Live!
+
+Your bot is now trading on Bybit! Monitor it closely at first, start with small amounts, and scale up as you gain confidence.
+
+### Key Reminders:
+- ✅ **Cross margin mode** is recommended for safer position management
+- ✅ **Start small** and increase exposure gradually
+- ✅ **Monitor logs** regularly for any errors or warnings
+- ✅ **Join Telegram** for community support and updates
+
+**Trading involves risk. Never invest more than you can afford to lose.**
+
+---
+
+## Troubleshooting
+
+### Bot won't connect:
+- Verify API Key and Secret are correct
+- Check API permissions include **Contract Trading**
+- Ensure **IP restrictions** (if set) include your server's IP
+
+### Orders not placing:
+- Confirm funds are in **USDT Perpetual** account (not Funding)
+- Check leverage and margin mode are set for each symbol
+- Verify minimum order sizes meet Bybit's requirements
+
+### Need help?
+Join our [Telegram support group](https://t.me/pumpkinsui) for fast assistance!
+
+**Happy trading with Pumpkin! 🎃**

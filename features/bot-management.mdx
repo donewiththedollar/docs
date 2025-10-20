@@ -1,0 +1,331 @@
+---
+title: 'Bot Management'
+description: 'Configure, monitor, and control your algorithmic trading bots'
+---
+
+# Bot Management
+
+The **Bot Management** interface gives you complete control over your trading bots—from configuration to real-time monitoring and performance optimization.
+
+---
+
+## 🎛️ Configuration Editor
+
+### JSON Configuration
+
+Edit bot settings directly in a user-friendly JSON editor:
+
+```json
+{
+  "strategy": "geometric_long_only",
+  "symbols": ["BTCUSDT", "ETHUSDT", "SOLUSDT"],
+  "wallet_exposure": 0.15,
+  "grid_spacing": 0.005,
+  "geometric_ratio": 1.05,
+  "tp_percentage": 0.005,
+  "execute_orders_enabled": true
+}
+```
+
+### Key Parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `strategy` | Trading algorithm (`geometric_long_only`, `vortex_dca`, `xgrid`) | - |
+| `symbols` | Trading pairs to trade | `[]` |
+| `wallet_exposure` | % of balance per symbol (0.1 = 10%) | `0.1` |
+| `grid_spacing` | Distance between grid levels (0.005 = 0.5%) | `0.005` |
+| `geometric_ratio` | Grid expansion multiplier | `1.05` |
+| `tp_percentage` | Take profit % (0.005 = 0.5%) | `0.005` |
+| `execute_orders_enabled` | Enable live trading (false = paper trading) | `true` |
+
+<Warning>Always test new configurations with small amounts first!</Warning>
+
+---
+
+## 📋 Bot Configuration Manager
+
+### Features:
+- **Multiple Configurations** - Create unlimited bot configs per exchange
+- **Quick Clone** - Duplicate successful configs
+- **Import/Export** - Share configs or backup to file
+- **Version History** - Track configuration changes (coming soon)
+- **Validation** - Real-time error checking before save
+
+### Available Actions:
+- **✏️ Edit** - Modify configuration in simple form view
+- **`<>` JSON** - Advanced JSON editor
+- **▶️ Start** - Launch bot with this configuration
+- **🗑️ Delete** - Remove configuration permanently
+
+---
+
+## 🚀 Bot Instance Control
+
+### Starting a Bot
+
+1. Select a configuration from the list
+2. Click **Start Bot**
+3. Bot initializes and begins placing orders within 30 seconds
+4. Status changes to **Running** with green pulse indicator
+
+### Stopping a Bot
+
+1. Find the running bot instance
+2. Click **Stop Bot**
+3. Bot cancels all open orders
+4. Positions remain open—close manually if needed
+
+<Tip>Stopping a bot doesn't close your positions—manage them separately if needed!</Tip>
+
+---
+
+## 📊 Real-Time Monitoring
+
+### Instance Status Card
+
+Each running bot displays:
+
+**Header:**
+- **Bot Name** - Configuration name
+- **Strategy Badge** - Algorithm type
+- **Symbol Pills** - Trading pairs with color coding
+- **Status Indicator** - Running (🟢) or Stopped (🔴)
+
+**Metrics Row:**
+- **P&L** - Current profit/loss in USDT
+- **Trades** - Number of completed trades
+- **Uptime** - Time since bot started
+
+**Action Buttons:**
+- **Stop** - Halt bot immediately
+- **Settings** - Jump to config editor
+- **Delete** - Remove stopped instance
+
+### Live Updates
+
+- **Auto-Refresh** - Metrics update every 30 seconds
+- **Manual Refresh** - Click refresh icon for instant update
+- **WebSocket (Coming Soon)** - Real-time streaming updates
+
+---
+
+## 🔧 Advanced Configuration Options
+
+### Geometric Long Only Strategy
+
+Specialized for long-only DCA with geometric grid distribution:
+
+```json
+{
+  "strategy": "geometric_long_only",
+  "wallet_exposure": 1.0,
+  "first_entry_offset": 0.001,
+  "grid_spacing": 0.005,
+  "geometric_ratio": 1.05,
+  "minimum_levels": 5,
+  "maximum_levels": 10,
+  "tp_percentage": 0.005,
+  "base_order_size": 0.05,
+  "martingale_multiplier": 2.0,
+  "final_orders_multiplier": 3.0
+}
+```
+
+**Advanced Parameters:**
+- `first_entry_offset` - Distance to first buy order (0.001 = 0.1% below price)
+- `minimum_levels` - Minimum grid levels to place
+- `maximum_levels` - Maximum grid levels
+- `martingale_multiplier` - Size increase for deeper levels
+- `final_orders_multiplier` - Extra size boost for last levels
+
+---
+
+### Vortex DCA Strategy
+
+Multi-grid DCA with position recovery:
+
+```json
+{
+  "strategy": "vortex_dca",
+  "symbols": ["BTCUSDT"],
+  "wallet_exposure": 0.2,
+  "grid_clusters": 3,
+  "orders_per_cluster": 5,
+  "cluster_spacing": 0.02,
+  "tp_percentage": 0.01,
+  "virtual_chunking_enabled": true,
+  "chunking_threshold": 0.03
+}
+```
+
+**Unique Features:**
+- `grid_clusters` - Number of grid clusters (1-5)
+- `orders_per_cluster` - Orders in each cluster
+- `cluster_spacing` - Distance between clusters (0.02 = 2%)
+- `virtual_chunking_enabled` - Enable position recovery mode
+- `chunking_threshold` - Activate recovery at -3% unrealized loss
+
+<Tip>Virtual chunking helps recover from drawdowns by splitting positions into smaller chunks!</Tip>
+
+---
+
+## 🎯 Strategy Selection Guide
+
+### When to Use Each Strategy:
+
+**Geometric Long Only**
+- ✅ Bull markets or neutral trends
+- ✅ Lower volatility assets (BTC, ETH)
+- ✅ Long-term DCA approach
+- ❌ Not suitable for extreme volatility
+
+**Vortex DCA**
+- ✅ High volatility markets
+- ✅ Recovery from drawdowns
+- ✅ Multi-timeframe grid placement
+- ❌ Requires more capital for chunking
+
+**XGrid (Coming Soon)**
+- ✅ Scalping and high-frequency trading
+- ✅ Tight spreads and momentum
+- ✅ Short-term profit taking
+- ❌ Higher exchange fee impact
+
+---
+
+## 🧪 Paper Trading Mode
+
+Test configurations without risking real money:
+
+```json
+{
+  "execute_orders_enabled": false
+}
+```
+
+**Features:**
+- Simulates order placement
+- No real orders sent to exchange
+- Logs what would have been placed
+- Perfect for testing new strategies
+
+<Warning>Remember to set `execute_orders_enabled: true` when ready to go live!</Warning>
+
+---
+
+## 🔄 Multi-Bot Management
+
+### Running Multiple Bots
+
+You can run multiple bots simultaneously:
+
+**Same Exchange, Different Symbols:**
+```
+Bot 1: Bybit - BTCUSDT (Geometric Long Only)
+Bot 2: Bybit - ETHUSDT (Geometric Long Only)
+Bot 3: Bybit - SOLUSDT (Vortex DCA)
+```
+
+**Multiple Exchanges:**
+```
+Bot 1: Bybit - BTCUSDT
+Bot 2: BloFin - ETHUSDT
+Bot 3: HTX - SOLUSDT
+```
+
+### Best Practices:
+- ✅ Limit exposure per symbol (max 20% recommended)
+- ✅ Diversify across symbols and strategies
+- ✅ Monitor total account exposure
+- ❌ Don't over-leverage
+- ❌ Don't run conflicting strategies on same symbol
+
+---
+
+## 🛠️ Troubleshooting
+
+### Bot Won't Start
+
+**Check:**
+1. Exchange credentials are saved
+2. Sufficient balance in trading account
+3. Leverage and margin mode configured
+4. Symbols are valid for the exchange
+5. No syntax errors in JSON config
+
+### Orders Not Placing
+
+**Verify:**
+1. `execute_orders_enabled` is `true`
+2. Minimum order sizes met
+3. Grid prices are within exchange limits
+4. API rate limits not exceeded
+5. No IP restrictions blocking requests
+
+### Bot Stops Unexpectedly
+
+**Common Causes:**
+1. Insufficient balance for next order
+2. API credential expiration
+3. Exchange rate limit hit
+4. Network connectivity issues
+5. Position limit reached
+
+<Tip>Always check the Trading Console > Bot Logs for detailed error messages!</Tip>
+
+---
+
+## 📈 Performance Optimization
+
+### Tips for Better Results:
+
+**Configuration:**
+- Start with conservative exposure (5-10%)
+- Use tighter grids (0.3-0.5%) for stable coins
+- Use wider grids (1-2%) for volatile altcoins
+- Enable virtual chunking for drawdown protection
+
+**Monitoring:**
+- Check logs daily for errors
+- Review P&L weekly
+- Adjust parameters based on market conditions
+- Keep capital reserve for deeper grids
+
+**Risk Management:**
+- Never use 100% of your balance
+- Set stop-loss mental limits
+- Diversify across multiple symbols
+- Use cross margin for better capital efficiency
+
+---
+
+## 🚨 Emergency Controls
+
+### Cleanup Duplicates
+
+If you see duplicate configurations or stale bot instances:
+
+1. Click **Cleanup Duplicates** button on main dashboard
+2. System scans for orphaned configs
+3. Removes duplicates automatically
+4. Fresh start with clean state
+
+### Force Stop All Bots
+
+To stop all bots immediately:
+
+1. Stop each bot individually (safest)
+2. Or use exchange interface to cancel all orders
+3. Never force-quit bot processes—use dashboard controls
+
+---
+
+## 📚 Next Steps
+
+- **[Dashboard Overview](/features/dashboard-overview)** - Explore all dashboard features
+- **[Trading Console](/features/trading-console)** - Monitor logs and positions
+- **[Bot Configuration Guide](/bot-configuration)** - Detailed parameter reference
+- **[Exchange Setup](/exchanges/blofin)** - Set up your first exchange
+
+**Happy bot building! 🤖**
