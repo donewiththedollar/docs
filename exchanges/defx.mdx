@@ -1,0 +1,220 @@
+---
+title: 'Defx Setup Guide'
+description: 'Complete guide to setting up Defx perpetual DEX on Base with QuantumVoid bot'
+---
+
+# How to Start a New Defx Bot
+
+Welcome to the **Defx Trading Bot Setup Guide**! This step-by-step walkthrough will help you set up your bot for trading on Defx, a decentralized perpetual exchange on Base (Ethereum L2). You'll need a Sui wallet with at least **$100 worth of Pumpkin tokens** ready.
+
+---
+
+## Step 1: Set Up MetaMask for Base Network
+
+Defx operates on **Base**, Coinbase's Ethereum Layer 2 network. You'll need a compatible wallet.
+
+1. Install **[MetaMask](https://metamask.io)** browser extension if you don't have it
+2. Create or import your Ethereum wallet
+3. **Add Base Network** to MetaMask:
+   - Click the network dropdown (top of MetaMask)
+   - Click **Add Network** or **Add Network Manually**
+   - Enter Base network details:
+     - **Network Name**: Base
+     - **RPC URL**: `https://mainnet.base.org`
+     - **Chain ID**: `8453`
+     - **Currency Symbol**: ETH
+     - **Block Explorer**: `https://basescan.org`
+4. Click **Save**
+
+<Tip>You can also add Base automatically via [chainlist.org](https://chainlist.org/?search=base) - search "Base" and click Connect Wallet!</Tip>
+
+---
+
+## Step 2: Bridge Funds to Base Network
+
+You'll need ETH on Base for gas fees and USDC for trading.
+
+### Option A: Bridge via Official Base Bridge
+
+1. Go to **[bridge.base.org](https://bridge.base.org)**
+2. Connect your MetaMask wallet
+3. Bridge **ETH** from Ethereum mainnet (you'll need ~$20-50 for gas fees)
+4. Wait 5-10 minutes for the bridge to complete
+
+### Option B: Use Coinbase (Faster & Cheaper)
+
+1. Buy ETH or USDC on **[Coinbase](https://coinbase.com)**
+2. Withdraw directly to **Base Network** (select "Base" as the network)
+3. Paste your MetaMask wallet address
+4. Confirm withdrawal (usually arrives in 1-2 minutes)
+
+<Warning>Always send a small test amount first to verify the address and network!</Warning>
+
+---
+
+## Step 3: Get USDC on Base for Trading
+
+The bot trades with USDC on Base. You can:
+
+1. **Bridge USDC** from Ethereum using [bridge.base.org](https://bridge.base.org)
+2. **Swap ETH for USDC** on Base using a DEX:
+   - Go to **[Uniswap](https://app.uniswap.org)** and switch to Base network
+   - Swap ETH → USDC
+   - Keep some ETH for gas fees (~$10-20 worth)
+
+---
+
+## Step 4: Create Defx Account
+
+1. Go to **[app.defx.com](https://app.defx.com)** (or official Defx URL)
+2. Click **Connect Wallet**
+3. Select **MetaMask** and authorize the connection
+4. Sign the signature request to authenticate
+
+<Tip>Defx is non-custodial—you always maintain control of your funds!</Tip>
+
+---
+
+## Step 5: Deposit USDC into Defx
+
+Before trading on Defx, you need to deposit USDC into their perpetual contract.
+
+1. On the Defx dashboard, click **Deposit** or **Transfer**
+2. Select **USDC** as the asset
+3. Enter the amount you want to deposit
+4. Click **Deposit** and approve the transaction in MetaMask
+5. Wait for the transaction to confirm on Base (~2-5 seconds)
+
+---
+
+## Step 6: Prepare Your Sui Wallet (Pumpkin Token Requirement)
+
+1. Ensure your Sui wallet has at least **$100 worth of Pumpkin tokens**
+2. Open **[trade.quantumvoid.org](https://trade.quantumvoid.org)** in a new tab
+3. Click **Defx Perps** or **Multi Exchange Perps** button
+4. Click **Connect Sui Wallet**, then authorize the connection
+
+---
+
+## Step 7: Connect Your Base Wallet to QuantumVoid Bot
+
+Since Defx is a DEX, the bot needs your **wallet private key** or uses **WalletConnect** for non-custodial trading.
+
+<Warning>**Security Note**: Only provide private keys to trusted platforms. The bot needs signing authority to execute trades on your behalf.</Warning>
+
+### Option A: Wallet Private Key (Direct Integration)
+
+1. In MetaMask, click the three dots → **Account Details** → **Export Private Key**
+2. Enter your MetaMask password
+3. Copy your private key (keep this **extremely secure**)
+4. In the QuantumVoid dashboard, click **Add Defx Credentials**
+5. Paste your Base wallet **private key**
+6. Click **Save Credentials**
+
+### Option B: WalletConnect (If Supported)
+
+1. In the dashboard, click **Connect via WalletConnect**
+2. Scan the QR code with your mobile MetaMask
+3. Approve the connection
+
+<Tip>Private key method gives the bot full trading authority. WalletConnect requires manual approval for each trade.</Tip>
+
+---
+
+## Step 8: Configure Your Bot Settings
+
+1. Click **Bot Management** in the sidebar
+2. Scroll down to **Bot Configurations**
+3. Click the **`<>`** (JSON editor) icon to open the config editor
+4. Customize your settings:
+   - **Symbols**: Choose trading pairs (e.g., `ETH-PERP`, `BTC-PERP`)
+   - **Wallet Exposure**: Set your risk per symbol (e.g., `0.1` = 10% of balance)
+   - **Strategy**: Select `geometric_long_only` or `vortex_dca`
+5. Save your configuration
+
+---
+
+## Step 9: Set Leverage on Defx (Optional)
+
+1. On Defx, navigate to the trading pair you want to trade
+2. Click the **leverage slider** (usually 1x-20x available)
+3. Set your desired leverage (start with **5x-10x** for safety)
+4. Choose **Cross** margin mode (shares margin across all positions)
+
+<Tip>Cross margin reduces liquidation risk by pooling your balance across positions.</Tip>
+
+---
+
+## Step 10: Launch and Monitor Your Bot
+
+1. Return to the QuantumVoid dashboard at **[trade.quantumvoid.org](https://trade.quantumvoid.org)**
+2. Click **Start** on your Defx bot configuration
+3. Watch transactions appear on Base network (view on [BaseScan](https://basescan.org))
+4. Monitor in real-time:
+   - **Dashboard**: View P&L, positions, and performance metrics
+   - **Trading Console > Bot Logs**: See detailed event logs
+5. If you see any **RED errors**, report them in the [Telegram group](https://t.me/pumpkinsui)
+
+---
+
+## 🎉 Congratulations—Your Defx Bot is Live on Base!
+
+Your bot is now trading on Defx! Monitor it closely at first, start with small amounts, and scale up as you gain confidence.
+
+### Key Reminders:
+- ✅ **Keep ETH on Base** for gas fees (transactions are cheap, ~$0.01-0.10)
+- ✅ **Cross margin mode** is recommended for safer position management
+- ✅ **Start small** and increase exposure gradually
+- ✅ **Monitor logs** regularly for any errors or warnings
+- ✅ **Join Telegram** for community support and updates
+
+**Trading involves risk. Never invest more than you can afford to lose.**
+
+---
+
+## Troubleshooting
+
+### Bot won't connect:
+- Verify your Base wallet has ETH for gas fees
+- Check that you've deposited USDC into Defx contract
+- Ensure private key is correct (no extra spaces)
+
+### Transactions failing:
+- Confirm you have enough ETH on Base for gas
+- Check Defx contract has sufficient USDC deposited
+- Verify you haven't hit position limits on Defx
+
+### High gas fees:
+- Base is an L2 with very low fees (~$0.01-0.10 per transaction)
+- If fees are high, check you're on **Base network** (Chain ID 8453), not Ethereum mainnet
+
+### Deposits not showing:
+- Wait 5-10 seconds for Base block confirmation
+- Check transaction on [BaseScan](https://basescan.org)
+- Verify you approved the USDC spending limit
+
+### Need help?
+Join our [Telegram support group](https://t.me/pumpkinsui) for fast assistance!
+
+---
+
+## Why Trade on Defx?
+
+<CardGroup cols={2}>
+  <Card title="Low Fees" icon="coins">
+    Base L2 offers $0.01-0.10 transaction costs
+  </Card>
+  <Card title="Decentralized" icon="shield">
+    Non-custodial trading—you control your funds
+  </Card>
+  <Card title="Fast Execution" icon="bolt">
+    2-5 second block times on Base
+  </Card>
+  <Card title="EVM Compatible" icon="code">
+    Integrates with MetaMask and other EVM wallets
+  </Card>
+</CardGroup>
+
+---
+
+**Happy trading with Pumpkin on Base! 🎃**

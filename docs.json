@@ -57,7 +57,8 @@
             "group": "Exchange Setup",
             "pages": [
               "exchanges/bybit",
-              "exchanges/blofin"
+              "exchanges/blofin",
+              "exchanges/defx"
             ]
           }
         ]
