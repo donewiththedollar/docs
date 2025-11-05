@@ -51,6 +51,160 @@ Understanding bot configuration parameters is essential for optimizing your trad
   - `0.003` = 0.3% from price (wider)
 </ParamField>
 
+### Grid Clustering Algorithms
+
+The Vortex DCA strategy supports intelligent grid placement using three different clustering algorithms. Each algorithm determines where to place your grid levels based on different market analysis methods.
+
+<ParamField path="clustering_enabled" type="boolean" default="false">
+  **Enable clustering** - Activate intelligent grid placement algorithms
+
+  When disabled, uses traditional geometric grid distribution.
+</ParamField>
+
+<ParamField path="clustering_algo" type="string" default="LINEAR">
+  **Clustering algorithm** - Choose how grid levels are calculated
+
+  Available options:
+  - `LINEAR` - Evenly-spaced geometric distribution (default)
+  - `PEAKS_TROUGHS_HIGHLOW` - Historical support/resistance levels
+  - `KMEANS` - Statistical price clustering zones
+</ParamField>
+
+#### LINEAR (Default)
+
+Traditional geometric grid distribution with equal spacing controlled by `ratio_power`.
+
+**Best for:**
+- Stable market conditions
+- Beginners learning grid trading
+- Assets with predictable volatility
+
+**Configuration:**
+```json
+{
+  "clustering_enabled": true,
+  "clustering_algo": "LINEAR"
+}
+```
+
+**Characteristics:**
+- No historical data required
+- Fast computation
+- Predictable, symmetric grid placement
+
+---
+
+#### PEAKS_TROUGHS_HIGHLOW
+
+Analyzes historical price data to identify swing highs and lows, placing grid levels at proven support and resistance zones where price historically reversed.
+
+**Best for:**
+- Range-bound markets
+- Assets with clear support/resistance levels
+- Technical analysis-focused trading
+- Markets with strong price memory
+
+<ParamField path="clustering_period" type="string" default="1M">
+  **Historical lookback period** - How far back to analyze price data
+
+  Options: `1W`, `1M`, `3M`, `6M`, `1Y`
+
+  - `1W-1M` = Responsive to recent market structure (altcoins)
+  - `3M-6M` = Balanced, medium-term S/R levels
+  - `1Y` = Long-term view (Bitcoin, major assets)
+</ParamField>
+
+<ParamField path="clustering_timeframe" type="string" default="5m">
+  **Candle timeframe** - Resolution of historical data
+
+  Options: `1m`, `5m`, `15m`, `1h`, `4h`, `1d`
+
+  - `1m-5m` = High precision, large datasets (liquid pairs)
+  - `15m-1h` = Balanced precision and performance
+  - `4h-1d` = Macro view, lighter data requirements
+</ParamField>
+
+**Configuration Example:**
+```json
+{
+  "clustering_enabled": true,
+  "clustering_algo": "PEAKS_TROUGHS_HIGHLOW",
+  "clustering_period": "3M",
+  "clustering_timeframe": "1m",
+  "nr_clusters": 4
+}
+```
+
+<Tip>
+  Use `3M` with `1m` timeframe for BTC - captures recent swing points with high precision
+</Tip>
+
+---
+
+#### KMEANS
+
+Uses K-Means machine learning algorithm to identify natural price consolidation zones where price historically spent the most time. Grid levels are placed at cluster centroids.
+
+**Best for:**
+- Volatile markets with consolidation zones
+- Assets that range-trade before breakouts
+- Finding hidden liquidity zones
+- Statistical/ML-based trading approaches
+
+**Configuration Example:**
+```json
+{
+  "clustering_enabled": true,
+  "clustering_algo": "KMEANS",
+  "clustering_period": "1W",
+  "clustering_timeframe": "5m",
+  "nr_clusters": 6
+}
+```
+
+**How it works:**
+1. Collects closing prices from historical period
+2. Uses K-Means to cluster prices into `nr_clusters` groups
+3. Places grid levels at each cluster centroid
+4. Levels naturally concentrate where price consolidated
+
+<Warning>
+  K-Means works best with shorter periods (1W-1M) for recent consolidation zones
+</Warning>
+
+---
+
+#### Choosing the Right Algorithm
+
+<AccordionGroup>
+  <Accordion icon="ruler" title="Use LINEAR when">
+    - You're new to grid trading
+    - Market conditions are stable and predictable
+    - You want consistent, geometric grid distribution
+    - Historical patterns aren't reliable for the asset
+  </Accordion>
+
+  <Accordion icon="chart-line" title="Use PEAKS_TROUGHS_HIGHLOW when">
+    - Asset shows clear support/resistance levels
+    - You trust technical analysis
+    - Market is range-bound with defined levels
+    - You want grids at proven reversal zones
+  </Accordion>
+
+  <Accordion icon="brain" title="Use KMEANS when">
+    - Asset is highly volatile with consolidation zones
+    - You want to find hidden liquidity areas
+    - Traditional S/R isn't obvious visually
+    - You trust statistical/ML approaches
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+  All clustering algorithms respect your `outer_distance` and `ratio_power` settings. Historical data is fetched once per grid refresh (default: 3 minutes). If data fetch fails, automatically falls back to LINEAR.
+</Info>
+
+---
+
 ### Position Management
 
 <ParamField path="wallet_exposure" type="number" default="0.1">
