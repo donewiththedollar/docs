@@ -1,0 +1,589 @@
+---
+title: 'Auto-Hedging Configuration'
+description: 'Complete reference for all auto-hedge parameters and settings'
+---
+
+# Auto-Hedging Configuration Guide
+
+This guide covers all configuration parameters for the auto-hedge feature, including recommended values for different trading styles and risk profiles.
+
+---
+
+## 📋 Configuration Parameters
+
+### Core Settings
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `vortex_autohedge_enabled` | boolean | `false` | Enable auto-hedge feature (replaces liquidation safeguard) |
+| `vortex_autohedge_ratio` | float | `0.5` | Percentage of position to hedge (0.5 = 50%) |
+| `vortex_autohedge_on_drawdown_pct` | float | `0.04` | Trigger hedge when position loses this % (0.04 = 4%) |
+| `vortex_autohedge_on_liquidation_distance_pct` | float | `0.10` | Trigger hedge when liquidation is within this % (0.10 = 10%) |
+| `vortex_autohedge_tp_target` | float | `0.002` | Take profit target for hedge orders (0.002 = 0.2%) |
+
+### Trailing Stop Settings
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `vortex_autohedge_trailing_stop_enabled` | boolean | `true` | Enable trailing stop for hedge positions |
+| `vortex_autohedge_trailing_distance_pct` | float | `0.002` | Trailing stop distance (0.002 = 0.2% retrace) |
+
+---
+
+## 🎯 Parameter Deep-Dive
+
+### 1. Enable Auto-Hedge
+
+```json
+{
+  "vortex_autohedge_enabled": true
+}
+```
+
+**Effect:**
+- Replaces liquidation safeguard with auto-hedging
+- Enables continuous monitoring of position drawdown
+- Allows hedge order placement
+
+**When to Enable:**
+- ✅ Aggressive HFT grids with high wallet exposure
+- ✅ Volatile markets where liquidation risk is higher
+- ✅ When you want maximum grid uptime
+- ❌ Conservative low-leverage trading
+- ❌ Spot trading (no short positions available)
+
+<Warning>When enabled, the traditional liquidation safeguard is automatically disabled!</Warning>
+
+---
+
+### 2. Hedge Ratio
+
+```json
+{
+  "vortex_autohedge_ratio": 0.5
+}
+```
+
+**What It Does:**
+Controls what percentage of your NET position gets hedged when triggered.
+
+**Examples:**
+
+| Ratio | NET Position | Hedge Size | Result |
+|-------|--------------|------------|--------|
+| 0.3 | 10,000 LONG | 3,000 SHORT | 7,000 NET LONG |
+| 0.5 | 10,000 LONG | 5,000 SHORT | 5,000 NET LONG |
+| 0.7 | 10,000 LONG | 7,000 SHORT | 3,000 NET LONG |
+| 1.0 | 10,000 LONG | 10,000 SHORT | 0 NET (fully hedged) |
+
+**Recommendations:**
+
+**Conservative (0.7-1.0):**
+```json
+{
+  "vortex_autohedge_ratio": 0.7
+}
+```
+- Higher hedge ratio = more protection
+- Suitable for low-risk tolerance
+- Better for smaller accounts
+
+**Balanced (0.5-0.6):**
+```json
+{
+  "vortex_autohedge_ratio": 0.5
+}
+```
+- Standard 50% hedge
+- Good balance of protection and exposure
+- **Recommended for most users**
+
+**Aggressive (0.3-0.4):**
+```json
+{
+  "vortex_autohedge_ratio": 0.3
+}
+```
+- Lower hedge ratio = more exposure remains
+- For experienced traders
+- Maximizes profit potential but higher risk
+
+---
+
+### 3. Drawdown Trigger
+
+```json
+{
+  "vortex_autohedge_on_drawdown_pct": 0.04
+}
+```
+
+**What It Does:**
+Triggers hedge when your position loses this percentage from entry price.
+
+**Calculation:**
+```
+LONG Position:
+Drawdown = (Entry Price - Current Price) / Entry Price
+
+SHORT Position:
+Drawdown = (Current Price - Entry Price) / Entry Price
+```
+
+**Example:**
+```
+Entry: $0.17000 (LONG)
+Current: $0.16320
+Drawdown: (0.17000 - 0.16320) / 0.17000 = 4.0% ← TRIGGER!
+```
+
+**Recommendations:**
+
+| Risk Profile | Drawdown % | When to Use |
+|--------------|------------|-------------|
+| Very Conservative | 2-3% | Low volatility assets, small accounts |
+| Conservative | 3-4% | **Default recommendation** |
+| Balanced | 4-5% | Moderate volatility, medium accounts |
+| Aggressive | 5-8% | High volatility, experienced traders |
+| Ultra Aggressive | 8-10% | Maximum grid operation, experts only |
+
+**Configuration Examples:**
+
+**Conservative:**
+```json
+{
+  "vortex_autohedge_on_drawdown_pct": 0.03
+}
+```
+Triggers hedge earlier, provides more protection.
+
+**Aggressive:**
+```json
+{
+  "vortex_autohedge_on_drawdown_pct": 0.08
+}
+```
+Allows deeper drawdowns before hedging, maximizes grid fills.
+
+<Tip>For volatile assets like DOGE or meme coins, use 4-5%. For stable assets like BTC, use 3-4%.</Tip>
+
+---
+
+### 4. Liquidation Distance Trigger
+
+```json
+{
+  "vortex_autohedge_on_liquidation_distance_pct": 0.10
+}
+```
+
+**What It Does:**
+Triggers hedge when liquidation price is within this percentage of current price.
+
+**Calculation:**
+```
+LONG Position:
+Liq Distance = (Current Price - Liquidation Price) / Current Price
+
+SHORT Position:
+Liq Distance = (Liquidation Price - Current Price) / Current Price
+```
+
+**Example:**
+```
+Current Price: $0.17200
+Liquidation Price: $0.15500
+Liq Distance: (0.17200 - 0.15500) / 0.17200 = 9.9% ← TRIGGER!
+```
+
+**Recommendations:**
+
+| Leverage | Liq Distance % | Explanation |
+|----------|----------------|-------------|
+| 5x | 15-20% | More buffer before liquidation |
+| 10x | 12-15% | Moderate buffer |
+| 20x | **10-12%** | **Standard for high leverage** |
+| 50x | 5-8% | Very tight buffer, aggressive |
+
+**Configuration Examples:**
+
+**Low Leverage (5x-10x):**
+```json
+{
+  "vortex_autohedge_on_liquidation_distance_pct": 0.15
+}
+```
+
+**Medium Leverage (10x-20x):**
+```json
+{
+  "vortex_autohedge_on_liquidation_distance_pct": 0.10
+}
+```
+
+**High Leverage (20x-50x):**
+```json
+{
+  "vortex_autohedge_on_liquidation_distance_pct": 0.08
+}
+```
+
+<Warning>Critical override: If liquidation distance drops below 3%, hedge triggers immediately regardless of anti-cascade logic!</Warning>
+
+---
+
+### 5. Hedge Take Profit Target
+
+```json
+{
+  "vortex_autohedge_tp_target": 0.002
+}
+```
+
+**What It Does:**
+Sets the profit target for closing hedge positions.
+
+**How It Works:**
+1. Hedge placed at $0.16800
+2. TP target: 0.2%
+3. TP price: $0.16800 × (1 - 0.002) = $0.16764 (for short hedge)
+4. When price recovers to $0.16764, hedge closes with profit
+
+**Recommendations:**
+
+| Target % | Use Case |
+|----------|----------|
+| 0.1% (0.001) | Tight profit taking, high frequency |
+| **0.2% (0.002)** | **Default, balanced approach** |
+| 0.3% (0.003) | Allow more room for recovery |
+| 0.5% (0.005) | Wider targets, trending markets |
+
+**Configuration Examples:**
+
+**Tight (High Frequency):**
+```json
+{
+  "vortex_autohedge_tp_target": 0.001
+}
+```
+- Closes hedges quickly
+- More frequent hedge cycles
+- Good for choppy markets
+
+**Wide (Trending Markets):**
+```json
+{
+  "vortex_autohedge_tp_target": 0.005
+}
+```
+- Allows larger profits from trends
+- Fewer hedge cycles
+- Better for directional moves
+
+---
+
+### 6. Trailing Stop (Advanced)
+
+```json
+{
+  "vortex_autohedge_trailing_stop_enabled": true,
+  "vortex_autohedge_trailing_distance_pct": 0.002
+}
+```
+
+**What It Does:**
+Once hedge reaches profit target, activates trailing stop to lock in profits.
+
+**How It Works:**
+```
+1. Hedge placed: SELL 5,000 @ $0.16800
+2. Initial TP: $0.16764 (0.2% profit)
+3. Price drops to $0.16500 → Profit: 1.8%
+4. Trailing activates, tracks best price
+5. Price retraces to $0.16534 → Retrace: 0.2% ← CLOSE!
+6. Hedge closes @ $0.16534 → Profit: 1.6%
+```
+
+**Without Trailing:**
+```
+Hedge closes at $0.16764 → Profit: 0.2%
+Missed extra 1.4% profit!
+```
+
+**Recommendations:**
+
+**Enable Trailing:**
+- ✅ Trending markets
+- ✅ High volatility
+- ✅ Want to maximize hedge profits
+
+**Disable Trailing:**
+- ❌ Choppy/ranging markets
+- ❌ Want quick hedge exits
+- ❌ Prefer simple TP management
+
+**Configuration:**
+
+```json
+{
+  "vortex_autohedge_trailing_stop_enabled": true,
+  "vortex_autohedge_trailing_distance_pct": 0.002
+}
+```
+
+<Tip>Trailing stop distance should typically match your TP target (both 0.2% is standard).</Tip>
+
+---
+
+## 🎨 Complete Configuration Templates
+
+### Template 1: Conservative (Low Risk)
+
+**Best For:** Beginners, small accounts, low leverage (5x-10x)
+
+```json
+{
+  "vortex_dca": {
+    "vortex_autohedge_enabled": true,
+    "vortex_autohedge_ratio": 0.7,
+    "vortex_autohedge_on_drawdown_pct": 0.03,
+    "vortex_autohedge_on_liquidation_distance_pct": 0.15,
+    "vortex_autohedge_tp_target": 0.002,
+    "vortex_autohedge_trailing_stop_enabled": true,
+    "vortex_autohedge_trailing_distance_pct": 0.002
+  },
+  "wallet_exposure": 0.2,
+  "leverage": 10
+}
+```
+
+**Characteristics:**
+- 70% hedge ratio (strong protection)
+- Triggers early (3% drawdown)
+- Wide liquidation buffer (15%)
+- Lower wallet exposure (20%)
+
+---
+
+### Template 2: Balanced (Medium Risk)
+
+**Best For:** Intermediate traders, medium accounts, medium leverage (10x-20x)
+
+```json
+{
+  "vortex_dca": {
+    "vortex_autohedge_enabled": true,
+    "vortex_autohedge_ratio": 0.5,
+    "vortex_autohedge_on_drawdown_pct": 0.04,
+    "vortex_autohedge_on_liquidation_distance_pct": 0.10,
+    "vortex_autohedge_tp_target": 0.002,
+    "vortex_autohedge_trailing_stop_enabled": true,
+    "vortex_autohedge_trailing_distance_pct": 0.002
+  },
+  "wallet_exposure": 0.5,
+  "leverage": 20
+}
+```
+
+**Characteristics:**
+- 50% hedge ratio (balanced)
+- Standard triggers (4% drawdown, 10% liq distance)
+- Moderate wallet exposure (50%)
+- **Recommended starting point for most users**
+
+---
+
+### Template 3: Aggressive (High Risk)
+
+**Best For:** Experienced traders, larger accounts, high leverage (20x-50x)
+
+```json
+{
+  "vortex_dca": {
+    "vortex_autohedge_enabled": true,
+    "vortex_autohedge_ratio": 0.5,
+    "vortex_autohedge_on_drawdown_pct": 0.06,
+    "vortex_autohedge_on_liquidation_distance_pct": 0.08,
+    "vortex_autohedge_tp_target": 0.003,
+    "vortex_autohedge_trailing_stop_enabled": true,
+    "vortex_autohedge_trailing_distance_pct": 0.003
+  },
+  "wallet_exposure": 0.8,
+  "leverage": 30
+}
+```
+
+**Characteristics:**
+- Allows deeper drawdowns (6%)
+- Tighter liquidation trigger (8%)
+- Higher wallet exposure (80%)
+- Wider TP targets (0.3%)
+
+---
+
+### Template 4: Godmode (Maximum Grid Uptime)
+
+**Best For:** Expert traders, high-frequency grids, ultra-aggressive
+
+```json
+{
+  "vortex_dca": {
+    "vortex_autohedge_enabled": true,
+    "vortex_autohedge_ratio": 0.3,
+    "vortex_autohedge_on_drawdown_pct": 0.08,
+    "vortex_autohedge_on_liquidation_distance_pct": 0.05,
+    "vortex_autohedge_tp_target": 0.002,
+    "vortex_autohedge_trailing_stop_enabled": true,
+    "vortex_autohedge_trailing_distance_pct": 0.002
+  },
+  "wallet_exposure": 1.0,
+  "leverage": 50
+}
+```
+
+**Characteristics:**
+- Low hedge ratio (30% - maintains exposure)
+- Very deep drawdown tolerance (8%)
+- Tight liquidation trigger (5%)
+- Maximum wallet exposure (100%)
+- **⚠️ Experts only!**
+
+<Warning>Godmode configuration requires constant monitoring and significant trading experience. Start with conservative settings!</Warning>
+
+---
+
+## 🔧 Fine-Tuning Tips
+
+### Adjusting for Volatility
+
+**High Volatility Assets (DOGE, Meme Coins):**
+```json
+{
+  "vortex_autohedge_on_drawdown_pct": 0.05,
+  "vortex_autohedge_tp_target": 0.003
+}
+```
+
+**Low Volatility Assets (BTC, ETH):**
+```json
+{
+  "vortex_autohedge_on_drawdown_pct": 0.03,
+  "vortex_autohedge_tp_target": 0.002
+}
+```
+
+### Adjusting for Account Size
+
+**Small Account (<$1,000):**
+```json
+{
+  "vortex_autohedge_ratio": 0.7,
+  "wallet_exposure": 0.15
+}
+```
+
+**Large Account (>$10,000):**
+```json
+{
+  "vortex_autohedge_ratio": 0.5,
+  "wallet_exposure": 0.6
+}
+```
+
+### Adjusting for Market Conditions
+
+**Trending Market:**
+```json
+{
+  "vortex_autohedge_on_drawdown_pct": 0.05,
+  "vortex_autohedge_trailing_stop_enabled": true
+}
+```
+
+**Choppy/Ranging Market:**
+```json
+{
+  "vortex_autohedge_on_drawdown_pct": 0.03,
+  "vortex_autohedge_trailing_stop_enabled": false
+}
+```
+
+---
+
+## 📊 Testing Your Configuration
+
+### 1. Start Small
+```json
+{
+  "symbols": ["DOGEUSDT"],
+  "wallet_exposure": 0.1
+}
+```
+
+### 2. Monitor Logs
+Watch for hedge trigger messages:
+```
+🛡️ AUTO-HEDGE TRIGGER: DRAWDOWN
+🛡️ PLACING HEDGE: sell 5000.0000 @ $0.16118
+✅ HEDGE PLACED: Order #1234567890
+```
+
+### 3. Evaluate Performance
+After 24-48 hours:
+- Did hedges trigger appropriately?
+- Were there too many or too few hedges?
+- Did trailing stops work well?
+
+### 4. Adjust Parameters
+Based on results:
+- Too many hedges → Increase drawdown %
+- Too few hedges → Decrease drawdown %
+- Missed profits → Enable trailing stop
+- Early exits → Increase TP target
+
+---
+
+## ⚠️ Common Mistakes
+
+### ❌ Setting hedge ratio too high (>0.8)
+**Problem:** Over-hedging reduces position exposure too much
+**Solution:** Use 0.5-0.7 for most cases
+
+### ❌ Drawdown trigger too tight (<0.02)
+**Problem:** Excessive hedge cycles, high trading fees
+**Solution:** Use 0.03-0.05 based on volatility
+
+### ❌ Liquidation trigger too wide (>0.20)
+**Problem:** Hedge triggers too late, liquidation risk
+**Solution:** Use 0.08-0.15 based on leverage
+
+### ❌ Disabling trailing stop in trending markets
+**Problem:** Misses extra profits from favorable moves
+**Solution:** Enable trailing for trending assets
+
+### ❌ Using godmode settings without experience
+**Problem:** Excessive risk, potential liquidation
+**Solution:** Start conservative, gradually increase aggression
+
+---
+
+## 🔗 Related Documentation
+
+- **[Auto-Hedging Overview](/risk-management/auto-hedging-overview)** - Feature introduction
+- **[How It Works](/risk-management/auto-hedging-how-it-works)** - Technical deep-dive
+- **[Risk Management Best Practices](/risk-management/risk-management-best-practices)** - Safety guidelines
+- **[Bot Configuration Guide](/bot-configuration)** - Full bot setup
+
+---
+
+## 📞 Need Help?
+
+If you're unsure about your configuration:
+
+1. **Start with the Balanced template** (Template 2)
+2. **Test with small exposure** (10-20% wallet)
+3. **Monitor for 24-48 hours**
+4. **Adjust based on results**
+5. **Join our Telegram** for community support: [t.me/pumpkinsui](https://t.me/pumpkinsui)
+
+**Happy auto-hedging! 🛡️**

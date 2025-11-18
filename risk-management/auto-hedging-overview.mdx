@@ -1,0 +1,310 @@
+---
+title: 'Auto-Hedging Overview'
+description: 'Intelligent position hedging that replaces liquidation safeguards with active risk management'
+---
+
+# Auto-Hedging: Godmode HFT Grid
+
+The **Auto-Hedge** feature transforms the Vortex DCA strategy into a "godmode" high-frequency trading grid by **replacing the liquidation safeguard with intelligent auto-hedging**. Instead of stopping grid placement when approaching liquidation, it automatically hedges positions to protect against liquidation while keeping the grid active.
+
+---
+
+## 🎯 What is Auto-Hedging?
+
+Auto-hedging is an advanced risk management system that:
+
+- **Monitors** your NET position continuously (long qty - short qty)
+- **Triggers** automatic hedge orders when drawdown or liquidation thresholds are hit
+- **Places** opposite-side market orders to protect your position
+- **Keeps** your grid trading active during volatile moves
+- **Recovers** with trailing profit targets on hedge positions
+
+<Info>Auto-hedging works on BloFin, Bybit, and other exchanges that support hedge mode (simultaneous long/short positions).</Info>
+
+---
+
+## 🔄 Traditional vs Auto-Hedge
+
+### Traditional Liquidation Safeguard
+
+```
+Price drops → Approaching liquidation → STOP grid orders
+❌ No new positions
+❌ Exposure remains
+❌ Manual intervention required
+❌ Grid disabled until recovery
+```
+
+### Auto-Hedge Approach
+
+```
+Price drops → Approaching liquidation → HEDGE position automatically
+✅ Grid continues operating
+✅ Risk neutralized
+✅ Automatic recovery
+✅ Profit from hedge closure
+```
+
+---
+
+## ⚡ Key Benefits
+
+### 1. **Uninterrupted Grid Operation**
+Your grid keeps placing orders even during extreme volatility, maximizing profit potential.
+
+### 2. **Active Risk Protection**
+Instead of passive monitoring, auto-hedge actively protects your position by opening opposite trades.
+
+### 3. **Automatic Recovery**
+Hedge positions close automatically with small profits (0.2% default) as price recovers.
+
+### 4. **Anti-Cascade Protection**
+Advanced safety mechanisms prevent repeated hedging of the same drawdown event.
+
+### 5. **Trailing Stop Profit Lock**
+Hedge positions use trailing stops to lock in profits during favorable moves.
+
+---
+
+## 📊 How It Works (Simple Version)
+
+**Step 1: Monitor NET Position**
+```
+Long: 10,000 DOGE @ $0.17000
+Short: 0 DOGE
+NET: 10,000 LONG
+```
+
+**Step 2: Trigger Detection**
+```
+Price drops to $0.16320
+Drawdown: 4.0% ← TRIGGER!
+```
+
+**Step 3: Hedge Placement**
+```
+Place MARKET SELL 5,000 DOGE (50% hedge)
+Result: Long 10,000 | Short 5,000 | NET 5,000 LONG
+Grid continues placing orders!
+```
+
+**Step 4: Hedge Take Profit**
+```
+Hedge filled @ $0.16320
+TP placed @ $0.16287 (0.2% profit)
+```
+
+**Step 5: Recovery**
+```
+Price recovers to $0.16287
+Hedge closes with $16.50 profit
+Position returns to: Long 10,000 | Short 0
+```
+
+---
+
+## 🎛️ Quick Configuration
+
+### Minimum Required Settings
+
+```json
+{
+  "vortex_dca": {
+    "vortex_autohedge_enabled": true,
+    "vortex_autohedge_ratio": 0.5,
+    "vortex_autohedge_on_drawdown_pct": 0.04,
+    "vortex_autohedge_on_liquidation_distance_pct": 0.10
+  }
+}
+```
+
+**What this does:**
+- Enables auto-hedge (replaces liquidation safeguard)
+- Hedges 50% of position when triggered
+- Triggers at 4% drawdown OR when liquidation is within 10%
+
+<Tip>Start with these conservative defaults and adjust based on your risk tolerance!</Tip>
+
+---
+
+## 🔥 Use Cases
+
+### High-Frequency Grid Trading
+Perfect for aggressive HFT grids with high wallet exposure (>50%) on volatile assets.
+
+```json
+{
+  "wallet_exposure": 0.8,
+  "vortex_autohedge_ratio": 0.5,
+  "vortex_autohedge_on_drawdown_pct": 0.05
+}
+```
+
+### Volatile Market Protection
+Protect positions during high volatility while maintaining grid operation.
+
+```json
+{
+  "vortex_autohedge_ratio": 0.7,
+  "vortex_autohedge_on_drawdown_pct": 0.03,
+  "vortex_autohedge_on_liquidation_distance_pct": 0.15
+}
+```
+
+### Maximum Grid Uptime (Godmode)
+Ultimate configuration for maximum grid operation with minimal downtime.
+
+```json
+{
+  "wallet_exposure": 1.0,
+  "vortex_autohedge_ratio": 0.5,
+  "vortex_autohedge_on_drawdown_pct": 0.08,
+  "vortex_autohedge_on_liquidation_distance_pct": 0.05
+}
+```
+
+---
+
+## ⚠️ Important Notes
+
+### Auto-Hedge Replaces Liquidation Safeguard
+
+When `vortex_autohedge_enabled: true`, the liquidation safeguard is **automatically disabled**. You're choosing active risk management over passive monitoring.
+
+<Warning>Auto-hedging requires sufficient margin to place hedge orders. Ensure you have adequate balance!</Warning>
+
+### Exchange Requirements
+
+- **Hedge Mode**: Must be enabled on the exchange
+- **Cross Margin**: Recommended for better capital efficiency
+- **Leverage**: 5x-20x recommended for beginners, up to 50x for advanced users
+
+### Not Suitable For
+
+- ❌ Spot trading (no short positions available)
+- ❌ Very low volatility assets (hedge triggers may be too frequent)
+- ❌ Extremely small accounts (<$500)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Enable Hedge Mode on Exchange
+
+**BloFin:**
+1. Go to Trading Settings
+2. Select "Hedge Mode" (allows simultaneous long/short)
+3. Set margin mode to "Cross"
+
+**Bybit:**
+1. Go to Derivatives → USDT Perpetual
+2. Position Mode → Hedge Mode
+3. Margin Mode → Cross Margin
+
+### 2. Configure Auto-Hedge
+
+Add to your bot configuration:
+
+```json
+{
+  "exchange": "blofin",
+  "strategy": "vortex_dca",
+  "vortex_dca": {
+    "vortex_autohedge_enabled": true,
+    "vortex_autohedge_ratio": 0.5,
+    "vortex_autohedge_on_drawdown_pct": 0.04,
+    "vortex_autohedge_on_liquidation_distance_pct": 0.10,
+    "vortex_autohedge_tp_target": 0.002,
+    "vortex_autohedge_trailing_stop_enabled": true,
+    "vortex_autohedge_trailing_distance_pct": 0.002
+  }
+}
+```
+
+### 3. Start with Small Exposure
+
+Begin with 10-20% wallet exposure to test the system:
+
+```json
+{
+  "wallet_exposure": 0.15,
+  "symbols": ["DOGEUSDT"]
+}
+```
+
+### 4. Monitor Logs
+
+Watch for auto-hedge trigger messages:
+
+```
+[DOGEUSDT] LONG 🛡️ AUTO-HEDGE TRIGGER: DRAWDOWN
+   Position: 12000.0000 @ $0.16800
+   Current: $0.16128 | Drawdown: 4.00%
+
+[DOGEUSDT] LONG 🛡️ PLACING HEDGE: sell 6000.0000 @ $0.16118
+[DOGEUSDT] LONG ✅ HEDGE PLACED: Order #1234567890
+```
+
+---
+
+## 📈 Performance Expectations
+
+### Typical Results
+
+**Without Auto-Hedge:**
+- Grid stops during volatile moves
+- Requires manual monitoring
+- Potential liquidation risk
+- Limited profit during recovery
+
+**With Auto-Hedge:**
+- Grid operates 24/7 during volatility
+- Automatic risk management
+- Protected from liquidation
+- Extra profit from hedge closures
+
+### Example Session
+
+**Scenario:** DOGE volatile move from $0.17000 → $0.16000 → $0.17500
+
+```
+Grid fills:       $450 profit
+Hedge closures:   $85 profit
+Total:            $535 profit
+
+Without auto-hedge:
+Grid profit:      $180 (stopped early)
+Manual stress:    High
+```
+
+---
+
+## 🔗 Learn More
+
+- **[Configuration Guide](/risk-management/auto-hedging-configuration)** - Detailed parameter reference
+- **[How It Works](/risk-management/auto-hedging-how-it-works)** - Technical deep-dive
+- **[Best Practices](/risk-management/risk-management-best-practices)** - Risk management strategies
+- **[Bot Configuration](/bot-configuration)** - Full bot setup guide
+
+---
+
+## ❓ FAQ
+
+### Does auto-hedge work on all exchanges?
+Auto-hedging works on exchanges that support **hedge mode** (simultaneous long/short positions). Currently supported: BloFin, Bybit.
+
+### Will I get liquidated with auto-hedge enabled?
+Auto-hedging significantly reduces liquidation risk by automatically hedging your position. However, extreme price moves can still trigger liquidation if hedges can't be placed fast enough.
+
+### How much margin do I need?
+Ensure you have at least **30% of your position size** available as margin for hedge orders. For aggressive setups, 50%+ is recommended.
+
+### Can I use auto-hedge with virtual chunking?
+Yes! Auto-hedge and virtual chunking work together. Auto-hedge protects from liquidation, while chunking helps recover from underwater positions.
+
+### What happens to hedge orders when bot stops?
+Hedge positions remain open on the exchange. You'll need to manually close them or restart the bot to resume management.
+
+---
+
+**Ready to enable godmode trading? Start with conservative settings and gradually increase exposure!** 🚀

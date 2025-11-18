@@ -54,6 +54,15 @@
             ]
           },
           {
+            "group": "Risk Management",
+            "pages": [
+              "risk-management/auto-hedging-overview",
+              "risk-management/auto-hedging-configuration",
+              "risk-management/auto-hedging-how-it-works",
+              "risk-management/risk-management-best-practices"
+            ]
+          },
+          {
             "group": "Exchange Setup",
             "pages": [
               "exchanges/bybit",

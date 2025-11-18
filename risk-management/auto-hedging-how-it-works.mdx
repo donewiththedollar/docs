@@ -1,0 +1,714 @@
+---
+title: 'How Auto-Hedging Works'
+description: 'Technical deep-dive into the auto-hedge algorithm, trigger logic, and anti-cascade mechanisms'
+---
+
+# How Auto-Hedging Works: Technical Deep-Dive
+
+This page provides a comprehensive technical explanation of the auto-hedge system, including NET position monitoring, trigger logic, cascade prevention, and hedge management.
+
+---
+
+## 🧮 NET Position Monitoring
+
+### Why NET Position?
+
+Vortex DCA runs **independent long and short grids simultaneously**. Auto-hedge monitors the **NET position** (long qty - short qty) to determine which side needs protection.
+
+```
+Long Position:  12,000 DOGE @ $0.16800 avg
+Short Position: 5,000 DOGE @ $0.17200 avg
+NET Position:   7,000 LONG (12,000 - 5,000)
+```
+
+### Separate Long/Short Monitoring
+
+Auto-hedge monitors **each side independently**:
+
+**LONG Side:**
+```python
+long_qty = 12,000
+short_qty = 5,000
+net_qty = long_qty - short_qty = 7,000 LONG
+
+if net_qty > 0:  # Net LONG position exists
+    # Monitor LONG side for drawdown and liquidation
+    drawdown_pct = (entry_price - current_price) / entry_price
+    liq_distance_pct = (current_price - long_liq_price) / current_price
+```
+
+**SHORT Side:**
+```python
+long_qty = 5,000
+short_qty = 12,000
+net_qty = long_qty - short_qty = -7,000 SHORT
+
+if net_qty < 0:  # Net SHORT position exists
+    # Monitor SHORT side for drawdown and liquidation
+    drawdown_pct = (current_price - entry_price) / entry_price
+    liq_distance_pct = (short_liq_price - current_price) / current_price
+```
+
+<Info>This approach ensures hedges are only placed on the side that needs protection, avoiding unnecessary trades.</Info>
+
+---
+
+## 🎯 Trigger Conditions
+
+Auto-hedge triggers when **EITHER** condition is met:
+
+### Condition A: Drawdown Threshold
+
+**Formula:**
+```
+LONG:  drawdown = (entry_price - current_price) / entry_price
+SHORT: drawdown = (current_price - entry_price) / entry_price
+
+Trigger when: drawdown >= autohedge_on_drawdown_pct
+```
+
+**Example (LONG):**
+```
+Entry Price:  $0.17000
+Current Price: $0.16320
+Drawdown: (0.17000 - 0.16320) / 0.17000 = 0.04 (4.0%)
+
+Config threshold: 0.04 (4%)
+Result: 4.0% >= 4.0% ✅ TRIGGER!
+```
+
+**Example (SHORT):**
+```
+Entry Price:  $0.16500
+Current Price: $0.17160
+Drawdown: (0.17160 - 0.16500) / 0.16500 = 0.04 (4.0%)
+
+Config threshold: 0.04 (4%)
+Result: 4.0% >= 4.0% ✅ TRIGGER!
+```
+
+---
+
+### Condition B: Liquidation Distance
+
+**Formula:**
+```
+LONG:  liq_distance = (current_price - liq_price) / current_price
+SHORT: liq_distance = (liq_price - current_price) / current_price
+
+Trigger when: liq_distance <= autohedge_on_liquidation_distance_pct
+```
+
+**Example (LONG):**
+```
+Current Price:     $0.17200
+Liquidation Price: $0.15500
+Liq Distance: (0.17200 - 0.15500) / 0.17200 = 0.0988 (9.88%)
+
+Config threshold: 0.10 (10%)
+Result: 9.88% <= 10% ✅ TRIGGER!
+```
+
+**Example (SHORT):**
+```
+Current Price:     $0.16500
+Liquidation Price: $0.18400
+Liq Distance: (0.18400 - 0.16500) / 0.16500 = 0.1151 (11.51%)
+
+Config threshold: 0.10 (10%)
+Result: 11.51% <= 10% ❌ No trigger
+```
+
+---
+
+### Critical Override
+
+**Special Case:** When liquidation distance drops below **3%**, hedge triggers **immediately** regardless of anti-cascade logic:
+
+```python
+is_critical = liq_distance_pct < 0.03
+
+if is_critical:
+    # Force hedge NOW - ignore anti-cascade checks
+    place_hedge_immediately()
+```
+
+**Example:**
+```
+Liquidation Distance: 2.5%
+Anti-cascade: Last hedge was 10 seconds ago
+Result: 🔴 CRITICAL! Place hedge anyway (override anti-cascade)
+```
+
+<Warning>Critical override ensures emergency protection when liquidation is imminent!</Warning>
+
+---
+
+## 🛡️ Anti-Cascade Protection
+
+The implementation includes **comprehensive cascade prevention** to avoid repeated hedging of the same drawdown event.
+
+### The Cascade Problem
+
+**Without Anti-Cascade:**
+```
+10,000 LONG → Trigger → Hedge 5,000 SHORT
+5,000 NET → Trigger again → Hedge 2,500 SHORT
+2,500 NET → Trigger again → Hedge 1,250 SHORT
+...
+Result: ❌ Cascades to 99%+ hedged!
+```
+
+**With Anti-Cascade:**
+```
+10,000 LONG → Trigger → Hedge 5,000 SHORT
+5,000 NET → Check anti-cascade → ⏸️ SKIP (already hedged)
+Result: ✅ Stays at 50% hedge ratio as configured
+```
+
+---
+
+### Safety Mechanism 1: Original Position Tracking
+
+The bot tracks the **original position size** when a hedge sequence starts:
+
+```python
+# First hedge trigger
+original_qty = 10,000  # Store original position
+hedge_qty = 10,000 * 0.5 = 5,000
+
+# Second trigger (before position changes significantly)
+current_net_qty = 5,000  # After first hedge
+opposite_qty = 5,000     # Current hedge size
+
+# Calculate hedge ratio against ORIGINAL, not current
+hedge_ratio = opposite_qty / original_qty = 5,000 / 10,000 = 0.5 (50%)
+target_ratio = 0.5 (from config)
+
+if hedge_ratio >= target_ratio:
+    # Already at target - SKIP
+    return
+```
+
+**Key Point:** All hedge ratio calculations use the **original position size**, not the current NET position.
+
+---
+
+### Safety Mechanism 2: Hedge Ratio Enforcement
+
+Before placing a new hedge, the system checks if the target ratio is already achieved:
+
+```python
+def check_hedge_ratio(original_qty, opposite_qty, target_ratio):
+    current_ratio = opposite_qty / original_qty
+    tolerance = 0.05  # 5% tolerance
+
+    if current_ratio >= target_ratio * (1 - tolerance):
+        # Already hedged enough
+        return "SKIP"
+    else:
+        # More hedging needed
+        remaining = (original_qty * target_ratio) - opposite_qty
+        return remaining
+```
+
+**Example:**
+```
+Original position: 10,000 LONG
+Target hedge ratio: 0.5 (50%)
+Current opposite: 4,800 SHORT
+
+Current ratio: 4,800 / 10,000 = 0.48 (48%)
+Target with tolerance: 0.5 * 0.95 = 0.475 (47.5%)
+
+Result: 48% >= 47.5% ✅ SKIP (close enough to target)
+```
+
+---
+
+### Safety Mechanism 3: Price/Quantity Movement Checks
+
+Won't re-hedge unless price moved **2%+** OR position changed **20%+** since last hedge:
+
+```python
+last_hedge = {
+    'price': 0.17000,
+    'qty': 10000,
+    'timestamp': <last_hedge_time>
+}
+
+current_price = 0.17034
+current_qty = 10000
+
+# Calculate changes
+price_move_pct = abs(current_price - last_hedge['price']) / last_hedge['price']
+# = abs(0.17034 - 0.17000) / 0.17000 = 0.002 (0.2%)
+
+qty_change_pct = abs(current_qty - last_hedge['qty']) / last_hedge['qty']
+# = abs(10000 - 10000) / 10000 = 0.0 (0%)
+
+if price_move_pct < 0.02 and qty_change_pct < 0.20:
+    # Not enough change - SKIP
+    return
+```
+
+**Example Scenarios:**
+
+**Scenario 1: Price hasn't moved much**
+```
+Last hedge: $0.17000
+Current: $0.17034 (0.2% move)
+Result: ⏸️ SKIP (< 2% threshold)
+```
+
+**Scenario 2: Price moved significantly**
+```
+Last hedge: $0.17000
+Current: $0.16660 (2.0% move)
+Result: ✅ ALLOW new hedge
+```
+
+**Scenario 3: Position grew significantly**
+```
+Last hedge: 10,000 qty
+Current: 12,500 qty (25% increase)
+Result: ✅ ALLOW new hedge
+```
+
+---
+
+### Safety Mechanism 4: Original Quantity Reset
+
+The original quantity resets when position changes by **50%+**:
+
+```python
+if qty_change_pct >= 0.50:
+    # Position changed significantly - start new hedge sequence
+    original_qty = current_qty
+    last_hedge_info = None
+```
+
+**Example:**
+```
+Original tracked: 10,000 LONG
+Grid fills more: 16,000 LONG (60% increase)
+Result: Reset original to 16,000, start fresh hedge sequence
+```
+
+---
+
+## 🎬 Complete Hedge Cycle Example
+
+Let's walk through a complete auto-hedge cycle:
+
+### Initial State
+```
+Price: $0.17000
+Long: 0
+Short: 0
+Grid: Active
+```
+
+### Step 1: Grid Fills (Long Side)
+```
+Price drops to $0.16500
+Long fills accumulate:
+  - 2,000 @ $0.16900
+  - 3,000 @ $0.16700
+  - 5,000 @ $0.16500
+
+Total: 10,000 LONG @ $0.16700 avg
+NET: 10,000 LONG
+```
+
+### Step 2: Further Price Drop - Drawdown Trigger
+```
+Price: $0.16032
+Drawdown: (0.16700 - 0.16032) / 0.16700 = 4.0%
+
+Config threshold: 4.0%
+Result: TRIGGER! 🛡️
+
+Log:
+[DOGEUSDT] LONG 🛡️ AUTO-HEDGE TRIGGER: DRAWDOWN
+   Position: 10000.0000 @ $0.16700
+   Current: $0.16032 | Drawdown: 4.00%
+```
+
+### Step 3: Calculate Hedge Size
+```python
+original_qty = 10,000
+target_ratio = 0.5
+current_opposite_qty = 0
+
+hedge_needed = original_qty * target_ratio - current_opposite_qty
+             = 10,000 * 0.5 - 0
+             = 5,000
+
+Log:
+[DOGEUSDT] LONG 🆕 Starting new hedge sequence - original qty: 10000.0000
+[DOGEUSDT] LONG 📊 Hedge ratio: 0.0% (target: 50%)
+```
+
+### Step 4: Place Hedge Order
+```python
+place_order(
+    symbol='DOGEUSDT',
+    side='sell',
+    amount=5000,
+    price=None,  # MARKET order
+    order_type='market',
+    reduce_only=False
+)
+
+Log:
+[DOGEUSDT] LONG 🛡️ PLACING HEDGE: sell 5000.0000 @ $0.16028
+[DOGEUSDT] LONG ✅ HEDGE PLACED: Order #1234567890
+```
+
+### Step 5: Hedge Fills
+```
+Hedge execution: SELL 5,000 @ $0.16025
+
+Position state:
+Long:  10,000 @ $0.16700
+Short: 5,000 @ $0.16025
+NET:   5,000 LONG
+```
+
+### Step 6: Place Hedge Take Profit
+```python
+hedge_entry = 0.16025
+tp_target = 0.002  # 0.2%
+tp_price = hedge_entry * (1 - tp_target) = 0.16025 * 0.998 = 0.15993
+
+place_order(
+    symbol='DOGEUSDT',
+    side='buy',
+    amount=5000,
+    price=0.15993,
+    order_type='limit',
+    reduce_only=True,
+    position_side='short'
+)
+
+Log:
+[DOGEUSDT] SHORT HEDGE TP: Placing buy 5000.0000 @ $0.15993
+[DOGEUSDT] SHORT HEDGE ✅ TP PLACED: Order #1234567891
+```
+
+### Step 7: Trailing Stop Activates
+```
+Price drops to $0.15800 → Hedge profit: 1.4%
+
+Since 1.4% > 0.2% TP target:
+  Trailing stop activates
+  Best price tracked: $0.15800
+
+Trailing distance: 0.2%
+Trigger price: $0.15800 * 1.002 = $0.15832
+
+Log:
+[DOGEUSDT] SHORT 🎯 TRAILING ACTIVATED
+   Best price: $0.15800 | Trail trigger: $0.15832
+```
+
+### Step 8: Trailing Stop Triggers
+```
+Price retraces to $0.15835 (0.22% from best)
+
+Cancel limit TP order
+Place market order to close hedge:
+
+place_order(
+    symbol='DOGEUSDT',
+    side='buy',
+    amount=5000,
+    price=None,
+    order_type='market',
+    reduce_only=True,
+    position_side='short'
+)
+
+Hedge closes @ $0.15835
+Profit: ($0.16025 - $0.15835) * 5,000 = $95.00
+
+Log:
+[DOGEUSDT] SHORT 🎯 TRAILING STOP HIT
+   Entry: $0.16025 | Exit: $0.15835 | Profit: $95.00
+```
+
+### Step 9: Position After Hedge Close
+```
+Long:  10,000 @ $0.16700
+Short: 0
+NET:   10,000 LONG
+
+Grid: Still active on both sides
+Hedge sequence: Completed
+Original qty tracking: Reset (ready for next cycle)
+```
+
+### Step 10: Grid Continues Operating
+```
+Price recovers to $0.17000
+Long TPs start executing:
+  - 5,000 @ $0.16867 (1% TP)
+  - 3,000 @ $0.16867
+  - 2,000 @ $0.16867
+
+Total grid profit: $267.00
+Total hedge profit: $95.00
+Combined profit: $362.00
+```
+
+---
+
+## ⚙️ Order Types Used
+
+### Hedge Placement: MARKET Order
+
+```python
+{
+    "symbol": "DOGEUSDT",
+    "side": "sell",  # Opposite of NET position
+    "order_type": "market",  # ← Ensures immediate fill
+    "amount": 5000,
+    "price": None,
+    "reduce_only": False,  # Opens new position
+    "position_side": "short"  # Explicit side for hedge mode
+}
+```
+
+**Why MARKET:**
+- Guarantees immediate execution
+- Protects against further drawdown
+- No risk of order not filling
+
+---
+
+### Hedge Take Profit: LIMIT Order (Initial)
+
+```python
+{
+    "symbol": "DOGEUSDT",
+    "side": "buy",  # Closes hedge
+    "order_type": "limit",
+    "amount": 5000,
+    "price": 0.15993,  # 0.2% profit target
+    "reduce_only": True,  # ← Only closes existing hedge
+    "position_side": "short"
+}
+```
+
+**Why LIMIT:**
+- Sets specific profit target
+- Remains active until hit or replaced by trailing stop
+
+---
+
+### Trailing Stop: MARKET Order (When Triggered)
+
+```python
+{
+    "symbol": "DOGEUSDT",
+    "side": "buy",
+    "order_type": "market",  # ← Immediate close
+    "amount": 5000,
+    "price": None,
+    "reduce_only": True,
+    "position_side": "short"
+}
+```
+
+**Why MARKET:**
+- Locks in profit immediately
+- Prevents profit giveback from slippage
+
+---
+
+## 🔧 Exchange-Specific Implementation
+
+### BloFin Parameter Conversion
+
+The strategy uses standardized parameters, but BloFin requires specific formatting:
+
+```python
+# Strategy calls:
+place_order(
+    reduce_only=True,
+    position_side='short'
+)
+
+# BloFin exchange converts to:
+params = {
+    'reduceOnly': 'true',  # ← String, not boolean!
+    'positionSide': 'short',
+    'leverage': '20'
+}
+
+exchange.create_order(
+    symbol='DOGEUSDT',
+    type='market',
+    side='buy',
+    amount=5000,
+    price=None,
+    params=params
+)
+```
+
+**Key Differences:**
+- `reduce_only (bool)` → `reduceOnly (string "true"/"false")`
+- Position side explicitly specified in params
+- Leverage set per order
+
+<Info>The exchange adapter handles all parameter conversions automatically - you don't need to worry about exchange-specific formatting!</Info>
+
+---
+
+## 📊 State Tracking
+
+Auto-hedge maintains several state variables:
+
+```python
+# Original position tracking (per symbol, per side)
+self.last_hedge_info = {
+    'DOGEUSDT_long': {
+        'original_qty': 10000,
+        'price': 0.17000,
+        'qty': 10000,
+        'timestamp': <datetime>
+    },
+    'DOGEUSDT_short': None
+}
+
+# Hedge TP order IDs (for cancellation)
+self.hedge_tp_orders = {
+    'DOGEUSDT_short': '1234567891'
+}
+
+# Best prices for trailing (per symbol, per side)
+self.hedge_best_prices = {
+    'DOGEUSDT_short': 0.15800
+}
+
+# Trailing activation status
+self.hedge_trailing_active = {
+    'DOGEUSDT_short': True
+}
+```
+
+---
+
+## 🔁 Main Loop Integration
+
+Auto-hedge runs in the main strategy loop:
+
+```python
+def run(self):
+    while True:
+        # ... (refresh grids, manage TPs, etc.)
+
+        # AUTO-HEDGE OR LIQUIDATION SAFEGUARD
+        if self.autohedge_enabled:
+            # Check if hedge should trigger
+            self._check_auto_hedge(symbol, positions, current_price)
+
+            # Monitor hedge trailing stops
+            self._monitor_hedge_trailing_stop(symbol, positions, current_price)
+        else:
+            # Traditional liquidation safeguard
+            self._liquidation_safeguard_check(symbol, positions, current_price)
+
+        # ... (continue grid operations)
+        time.sleep(3)  # Check every 3 seconds
+```
+
+**Timing:**
+- Hedge checks run every **3 seconds** (same as TP refresh)
+- Ensures quick response to drawdowns
+- Low overhead (simple calculations)
+
+---
+
+## 📈 Performance Characteristics
+
+### Computational Overhead
+
+**Per Check (every 3 seconds):**
+- Calculate NET position: O(1)
+- Calculate drawdown: O(1)
+- Calculate liq distance: O(1)
+- Anti-cascade checks: O(1)
+
+**Total:** Minimal CPU impact (<0.01% per symbol)
+
+### Memory Usage
+
+**Per Symbol:**
+- Hedge state: ~500 bytes
+- Tracking info: ~300 bytes
+
+**Total:** <1 KB per symbol (negligible)
+
+### Network Calls
+
+**Normal Operation:** 0 API calls (monitoring only)
+
+**When Hedge Triggers:**
+- 1 call: Place hedge market order
+- 1 call: Place hedge TP limit order
+
+**When Trailing Triggers:**
+- 1 call: Cancel TP order
+- 1 call: Place market close order
+
+**Total:** 2-4 API calls per hedge cycle (infrequent)
+
+---
+
+## 🧪 Testing & Validation
+
+### What to Monitor
+
+**In Logs:**
+```
+✅ Hedge triggers at correct thresholds
+✅ Anti-cascade logic prevents repeated hedges
+✅ Hedge ratios match configuration
+✅ Trailing stops activate and trigger correctly
+✅ Orders execute without errors
+```
+
+**In Exchange:**
+```
+✅ Hedge positions open on correct side
+✅ Position sizes match expected amounts
+✅ TP orders placed at correct prices
+✅ Reduce-only flag working properly
+```
+
+### Validation Checklist
+
+- [ ] Drawdown trigger tested at configured %
+- [ ] Liquidation distance trigger tested
+- [ ] Critical override tested (liq < 3%)
+- [ ] Anti-cascade prevents repeated hedges
+- [ ] Hedge ratio enforcement working
+- [ ] Original qty tracking correct
+- [ ] Trailing stop activates at TP target
+- [ ] Trailing stop triggers on retrace
+- [ ] Market orders execute immediately
+- [ ] Positions balance correctly after hedge
+
+---
+
+## 🔗 Related Documentation
+
+- **[Auto-Hedging Overview](/risk-management/auto-hedging-overview)** - Feature introduction
+- **[Configuration Guide](/risk-management/auto-hedging-configuration)** - Parameter reference
+- **[Risk Management Best Practices](/risk-management/risk-management-best-practices)** - Safety guidelines
+
+---
+
+**Now you understand exactly how auto-hedging works under the hood!** 🔧
