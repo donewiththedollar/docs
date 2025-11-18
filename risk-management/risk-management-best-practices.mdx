@@ -108,7 +108,7 @@ Scenario WITH 40% reserve:
 ### When to Enable Auto-Hedge
 
 **✅ Enable Auto-Hedge When:**
-- Using high wallet exposure (>50%)
+- Using high wallet exposure (greater than 50%)
 - Trading volatile assets (DOGE, meme coins)
 - Running aggressive HFT grids
 - Want maximum grid uptime
@@ -116,7 +116,7 @@ Scenario WITH 40% reserve:
 
 **❌ Keep Auto-Hedge Disabled When:**
 - Starting out (use liquidation safeguard first)
-- Using low wallet exposure (<30%)
+- Using low wallet exposure (less than 30%)
 - Trading stable assets with low volatility
 - Prefer simpler, conservative approach
 
@@ -356,8 +356,8 @@ Example: $10,000 account
 **Option 1: Manual Monitoring**
 ```
 Check positions daily
-If symbol down >5%: Close position
-If total down >20%: Stop all bots
+If symbol down greater than 5%: Close position
+If total down greater than 20%: Stop all bots
 ```
 
 **Option 2: Automated (Liquidation Safeguard)**
