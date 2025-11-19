@@ -134,7 +134,7 @@ Drawdown = (Current Price - Entry Price) / Entry Price
 ```
 Entry: $0.17000 (LONG)
 Current: $0.16320
-Drawdown: (0.17000 - 0.16320) / 0.17000 = 4.0% ← TRIGGER!
+Drawdown: (0.17000 - 0.16320) / 0.17000 = 4.0% <- TRIGGER!
 ```
 
 **Recommendations:**
@@ -193,7 +193,7 @@ Liq Distance = (Liquidation Price - Current Price) / Current Price
 ```
 Current Price: $0.17200
 Liquidation Price: $0.15500
-Liq Distance: (0.17200 - 0.15500) / 0.17200 = 9.9% ← TRIGGER!
+Liq Distance: (0.17200 - 0.15500) / 0.17200 = 9.9% <- TRIGGER!
 ```
 
 **Recommendations:**
@@ -298,15 +298,15 @@ Once hedge reaches profit target, activates trailing stop to lock in profits.
 ```
 1. Hedge placed: SELL 5,000 @ $0.16800
 2. Initial TP: $0.16764 (0.2% profit)
-3. Price drops to $0.16500 → Profit: 1.8%
+3. Price drops to $0.16500 -> Profit: 1.8%
 4. Trailing activates, tracks best price
-5. Price retraces to $0.16534 → Retrace: 0.2% ← CLOSE!
-6. Hedge closes @ $0.16534 → Profit: 1.6%
+5. Price retraces to $0.16534 -> Retrace: 0.2% <- CLOSE!
+6. Hedge closes @ $0.16534 -> Profit: 1.6%
 ```
 
 **Without Trailing:**
 ```
-Hedge closes at $0.16764 → Profit: 0.2%
+Hedge closes at $0.16764 -> Profit: 0.2%
 Missed extra 1.4% profit!
 ```
 
@@ -536,10 +536,10 @@ After 24-48 hours:
 
 ### 4. Adjust Parameters
 Based on results:
-- Too many hedges → Increase drawdown %
-- Too few hedges → Decrease drawdown %
-- Missed profits → Enable trailing stop
-- Early exits → Increase TP target
+- Too many hedges -> Increase drawdown %
+- Too few hedges -> Decrease drawdown %
+- Missed profits -> Enable trailing stop
+- Early exits -> Increase TP target
 
 ---
 
