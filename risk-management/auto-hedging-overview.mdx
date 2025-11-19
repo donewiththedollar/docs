@@ -28,7 +28,7 @@ Auto-hedging is an advanced risk management system that:
 ### Traditional Liquidation Safeguard
 
 ```
-Price drops → Approaching liquidation → STOP grid orders
+Price drops -> Approaching liquidation -> STOP grid orders
 ❌ No new positions
 ❌ Exposure remains
 ❌ Manual intervention required
@@ -38,7 +38,7 @@ Price drops → Approaching liquidation → STOP grid orders
 ### Auto-Hedge Approach
 
 ```
-Price drops → Approaching liquidation → HEDGE position automatically
+Price drops -> Approaching liquidation -> HEDGE position automatically
 ✅ Grid continues operating
 ✅ Risk neutralized
 ✅ Automatic recovery
@@ -78,7 +78,7 @@ NET: 10,000 LONG
 **Step 2: Trigger Detection**
 ```
 Price drops to $0.16320
-Drawdown: 4.0% ← TRIGGER!
+Drawdown: 4.0% <- TRIGGER!
 ```
 
 **Step 3: Hedge Placement**
@@ -197,9 +197,9 @@ When `vortex_autohedge_enabled: true`, the liquidation safeguard is **automatica
 3. Set margin mode to "Cross"
 
 **Bybit:**
-1. Go to Derivatives → USDT Perpetual
-2. Position Mode → Hedge Mode
-3. Margin Mode → Cross Margin
+1. Go to Derivatives -> USDT Perpetual
+2. Position Mode -> Hedge Mode
+3. Margin Mode -> Cross Margin
 
 ### 2. Configure Auto-Hedge
 
@@ -265,7 +265,7 @@ Watch for auto-hedge trigger messages:
 
 ### Example Session
 
-**Scenario:** DOGE volatile move from $0.17000 → $0.16000 → $0.17500
+**Scenario:** DOGE volatile move from $0.17000 -> $0.16000 -> $0.17500
 
 ```
 Grid fills:       $450 profit

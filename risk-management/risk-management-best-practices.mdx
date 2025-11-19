@@ -91,14 +91,14 @@ Reserve: $4,000 (40%) ✅ Safe
 **Why Reserves Matter:**
 ```
 Scenario WITHOUT reserve:
-100% deployed → Price drops 10%
-→ No capital to average down
-→ Forced to wait or take loss
+100% deployed -> Price drops 10%
+-> No capital to average down
+-> Forced to wait or take loss
 
 Scenario WITH 40% reserve:
-60% deployed → Price drops 10%
-→ Use 20% reserve to average down
-→ Improve entry price, faster recovery
+60% deployed -> Price drops 10%
+-> Use 20% reserve to average down
+-> Improve entry price, faster recovery
 ```
 
 ---
@@ -170,7 +170,7 @@ Scenario WITH 40% reserve:
   "vortex_autohedge_enabled": true
 }
 ```
-→ Watch for hedge triggers, verify behavior
+-> Watch for hedge triggers, verify behavior
 
 **Day 4-7: Small Exposure**
 ```json
@@ -178,7 +178,7 @@ Scenario WITH 40% reserve:
   "wallet_exposure": 0.10  // Increase to 10%
 }
 ```
-→ Monitor hedge performance, check logs
+-> Monitor hedge performance, check logs
 
 **Day 8-14: Medium Exposure**
 ```json
@@ -187,7 +187,7 @@ Scenario WITH 40% reserve:
   "wallet_exposure": 0.15  // 30% total
 }
 ```
-→ Evaluate profitability, adjust parameters
+-> Evaluate profitability, adjust parameters
 
 **Day 15+: Full Deployment**
 ```json
@@ -196,7 +196,7 @@ Scenario WITH 40% reserve:
   "wallet_exposure": 0.2  // 60% total
 }
 ```
-→ Monitor closely, optimize settings
+-> Monitor closely, optimize settings
 
 ---
 
@@ -322,11 +322,11 @@ Enable virtual chunking to systematically recover from underwater positions:
 
 **How It Works:**
 ```
-Position: -$300 (3% loss) → Virtual chunking activates
+Position: -$300 (3% loss) -> Virtual chunking activates
 Split into 4 chunks:
-  Chunk 1: -$75 → Place 3x attack order
-  TP at 0.1% → Profit $7.50, chunk closed
-  Chunk 2: -$75 → Repeat
+  Chunk 1: -$75 -> Place 3x attack order
+  TP at 0.1% -> Profit $7.50, chunk closed
+  Chunk 2: -$75 -> Repeat
   ...
 Total position gradually recovered
 ```
@@ -440,7 +440,7 @@ Profit Factor:
   "symbols": ["DOGEUSDT"]
 }
 ```
-→ 100x leverage + 100% exposure = Almost guaranteed liquidation
+-> 100x leverage + 100% exposure = Almost guaranteed liquidation
 
 **✅ Right:**
 ```json
@@ -450,7 +450,7 @@ Profit Factor:
   "symbols": ["DOGEUSDT", "BTCUSDT", "ETHUSDT"]
 }
 ```
-→ Moderate leverage + diversified = Sustainable
+-> Moderate leverage + diversified = Sustainable
 
 ---
 
@@ -586,14 +586,14 @@ Conservative Kelly: 28% * 0.25 = 7% per position
   DOGEUSDT
   SHIBUSDT
   PEPEUSDT
-→ All meme coins, highly correlated
+-> All meme coins, highly correlated
 
 ✅ Good Diversification:
   BTCUSDT (store of value)
   ETHUSDT (smart contract platform)
   SOLUSDT (high-performance L1)
   DOGEUSDT (meme coin)
-→ Different sectors, lower correlation
+-> Different sectors, lower correlation
 ```
 
 ### Dynamic Position Sizing
@@ -602,11 +602,11 @@ Adjust exposure based on performance:
 
 ```python
 if monthly_return > 10%:
-    # Winning → Increase exposure slightly
+    # Winning -> Increase exposure slightly
     wallet_exposure *= 1.1  # +10%
 
 elif monthly_return < -10%:
-    # Losing → Decrease exposure
+    # Losing -> Decrease exposure
     wallet_exposure *= 0.8  # -20%
 ```
 

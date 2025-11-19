@@ -152,17 +152,17 @@ The implementation includes **comprehensive cascade prevention** to avoid repeat
 
 **Without Anti-Cascade:**
 ```
-10,000 LONG → Trigger → Hedge 5,000 SHORT
-5,000 NET → Trigger again → Hedge 2,500 SHORT
-2,500 NET → Trigger again → Hedge 1,250 SHORT
+10,000 LONG -> Trigger -> Hedge 5,000 SHORT
+5,000 NET -> Trigger again -> Hedge 2,500 SHORT
+2,500 NET -> Trigger again -> Hedge 1,250 SHORT
 ...
 Result: ❌ Cascades to 99%+ hedged!
 ```
 
 **With Anti-Cascade:**
 ```
-10,000 LONG → Trigger → Hedge 5,000 SHORT
-5,000 NET → Check anti-cascade → ⏸️ SKIP (already hedged)
+10,000 LONG -> Trigger -> Hedge 5,000 SHORT
+5,000 NET -> Check anti-cascade -> ⏸️ SKIP (already hedged)
 Result: ✅ Stays at 50% hedge ratio as configured
 ```
 
@@ -399,7 +399,7 @@ Log:
 
 ### Step 7: Trailing Stop Activates
 ```
-Price drops to $0.15800 → Hedge profit: 1.4%
+Price drops to $0.15800 -> Hedge profit: 1.4%
 
 Since 1.4% greater than 0.2% TP target:
   Trailing stop activates
@@ -472,7 +472,7 @@ Combined profit: $362.00
 {
     "symbol": "DOGEUSDT",
     "side": "sell",  # Opposite of NET position
-    "order_type": "market",  # ← Ensures immediate fill
+    "order_type": "market",  # <- Ensures immediate fill
     "amount": 5000,
     "price": None,
     "reduce_only": False,  # Opens new position
@@ -496,7 +496,7 @@ Combined profit: $362.00
     "order_type": "limit",
     "amount": 5000,
     "price": 0.15993,  # 0.2% profit target
-    "reduce_only": True,  # ← Only closes existing hedge
+    "reduce_only": True,  # <- Only closes existing hedge
     "position_side": "short"
 }
 ```
@@ -513,7 +513,7 @@ Combined profit: $362.00
 {
     "symbol": "DOGEUSDT",
     "side": "buy",
-    "order_type": "market",  # ← Immediate close
+    "order_type": "market",  # <- Immediate close
     "amount": 5000,
     "price": None,
     "reduce_only": True,
@@ -542,7 +542,7 @@ place_order(
 
 # BloFin exchange converts to:
 params = {
-    'reduceOnly': 'true',  # ← String, not boolean!
+    'reduceOnly': 'true',  # <- String, not boolean!
     'positionSide': 'short',
     'leverage': '20'
 }
@@ -558,7 +558,7 @@ exchange.create_order(
 ```
 
 **Key Differences:**
-- `reduce_only (bool)` → `reduceOnly (string "true"/"false")`
+- `reduce_only (bool)` -> `reduceOnly (string "true"/"false")`
 - Position side explicitly specified in params
 - Leverage set per order
 
