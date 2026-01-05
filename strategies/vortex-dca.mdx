@@ -1,0 +1,368 @@
+---
+title: "Vortex DCA Strategy"
+description: "Complete guide to the Vortex Dollar-Cost Averaging strategy"
+---
+
+# Vortex DCA Strategy
+
+Vortex DCA is an intelligent dollar-cost averaging system that automatically accumulates positions during price dips while managing risk through geometric grid spacing and optional auto-hedging.
+
+## How It Works
+
+### The Basic Concept
+
+Instead of buying all at once (and risking bad timing), Vortex DCA spreads your purchases across multiple price levels:
+
+```
+Your Budget: $1000
+         │
+    ┌────┴────┐
+    │ VORTEX  │
+    │   DCA   │
+    └────┬────┘
+         │
+    $250 at $100.00 (current price)
+    $250 at $98.00  (2% dip)
+    $250 at $95.00  (5% dip)
+    $250 at $91.00  (9% dip)
+         │
+    Average Entry: Lower than $100!
+```
+
+### Geometric Grid Spacing
+
+Unlike simple DCA, Vortex uses **geometric spacing** - orders are placed closer together near the current price and wider apart as price moves further away:
+
+```
+Price    │ Order Size │ Distance from Previous
+─────────┼────────────┼───────────────────────
+$100.00  │ $100       │ Entry
+$99.50   │ $120       │ 0.5% (tight)
+$98.80   │ $144       │ 0.7% (wider)
+$97.80   │ $173       │ 1.0% (wider still)
+$96.50   │ $207       │ 1.3% (widest)
+```
+
+**Why?** Small dips are common - you want to catch them. Large dips are rare but significant - bigger orders at those levels maximize your advantage.
+
+---
+
+## Key Parameters
+
+### Grid Configuration
+
+<ParamField path="nr_clusters" type="integer" default="4">
+  Number of buy orders in the grid. More clusters = more granular entries.
+
+  **Recommended:**
+  - Conservative: 3-4 clusters
+  - Moderate: 4-5 clusters
+  - Aggressive: 5-6 clusters
+</ParamField>
+
+<ParamField path="outer_distance" type="float" default="0.02">
+  How far from current price to place the furthest order (as decimal).
+
+  `0.02` = 2% below current price
+
+  **Example:** If price is $100, outer order at $98
+</ParamField>
+
+<ParamField path="ratio_power" type="float" default="1.6">
+  Controls the geometric curve of order spacing.
+
+  - `1.0` = Linear (equal spacing)
+  - `1.2` = Slight curve
+  - `1.6` = Moderate curve (recommended)
+  - `2.0` = Aggressive curve (orders clustered near entry)
+</ParamField>
+
+<ParamField path="wallet_exposure" type="float" default="0.40">
+  Maximum percentage of wallet to use per symbol.
+
+  `0.40` = 40% of available balance
+
+  <Warning>
+  Higher exposure = higher profit potential but also higher risk.
+  Start with 10-20% for new users.
+  </Warning>
+</ParamField>
+
+### Take Profit Settings
+
+<ParamField path="minimum_tp" type="float" default="0.002">
+  Minimum take-profit target (as decimal).
+
+  `0.002` = 0.2% profit target
+
+  **Note:** Actual TP is calculated dynamically based on fees and position size.
+</ParamField>
+
+<ParamField path="grid_refresh_interval" type="integer" default="120">
+  Seconds between grid recalculations.
+
+  The grid follows price - if price moves significantly, orders are repositioned.
+</ParamField>
+
+### Position Sizing
+
+<ParamField path="initial_entry_size" type="float" default="0.01">
+  Size of the first entry as percentage of wallet exposure.
+</ParamField>
+
+<ParamField path="qty_multiplier" type="float" default="1.2">
+  Each subsequent order is this multiple of the previous.
+
+  `1.2` = 20% larger per level
+
+  **Example:** $100 → $120 → $144 → $173...
+</ParamField>
+
+---
+
+## Position Recovery: Virtual Chunking
+
+<Note>
+Virtual Chunking is Vortex DCA's secret weapon for recovering underwater positions.
+</Note>
+
+### What Is It?
+
+When a position goes significantly underwater (e.g., 8%+ loss), Virtual Chunking activates:
+
+```
+Position: 100 units at $100 (now trading at $92)
+Loss: -8%
+         │
+    ┌────┴────┐
+    │ VIRTUAL │
+    │CHUNKING │
+    └────┬────┘
+         │
+    Split into 5 "chunks" of 20 units each
+    Target small profit (0.3%) per chunk
+    Use "attack" orders to average down
+```
+
+### How It Works
+
+1. **Detection**: Position underwater exceeds threshold (default 8%)
+2. **Chunking**: Virtually split position into N pieces
+3. **Attack Orders**: Place large buy orders to average down
+4. **Small TPs**: Take 0.3% profit on each chunk
+5. **Repeat**: Continue until position recovered
+
+### Virtual Chunking Parameters
+
+<ParamField path="virtual_chunking_enabled" type="boolean" default="false">
+  Enable the position recovery system.
+</ParamField>
+
+<ParamField path="virtual_chunking_threshold_pct" type="float" default="8.0">
+  Percentage underwater before chunking activates.
+</ParamField>
+
+<ParamField path="virtual_chunking_chunk_count" type="integer" default="5">
+  Number of virtual chunks to create.
+</ParamField>
+
+<ParamField path="virtual_chunking_profit_target" type="float" default="0.003">
+  Profit target per chunk (0.3%).
+</ParamField>
+
+<ParamField path="virtual_chunking_attack_multiplier" type="float" default="2.5">
+  Size multiplier for "attack" averaging orders.
+</ParamField>
+
+---
+
+## Auto-Hedging
+
+Auto-hedging opens an opposing position when your main position is in danger, protecting against further losses.
+
+### When Does It Trigger?
+
+```
+Trigger Conditions (OR):
+├── Drawdown > 10% (configurable)
+└── Distance to liquidation < 10% (configurable)
+```
+
+### How It Works
+
+```
+Main Position: LONG 100 units, -12% underwater
+         │
+    ┌────┴────┐
+    │  HEDGE  │
+    │ TRIGGER │
+    └────┬────┘
+         │
+    Open SHORT position (30% of main size)
+    Set TP at 0.3% profit
+    Close hedge when main recovers
+```
+
+### Auto-Hedge Parameters
+
+<ParamField path="vortex_autohedge_enabled" type="boolean" default="false">
+  Enable auto-hedging.
+</ParamField>
+
+<ParamField path="vortex_autohedge_ratio" type="float" default="0.3">
+  Hedge size as percentage of main position. `0.3` = 30%
+</ParamField>
+
+<ParamField path="vortex_autohedge_on_drawdown_pct" type="float" default="0.10">
+  Trigger hedge when drawdown exceeds this percentage.
+</ParamField>
+
+<ParamField path="vortex_autohedge_on_liquidation_distance_pct" type="float" default="0.10">
+  Trigger hedge when within this distance of liquidation.
+</ParamField>
+
+<ParamField path="vortex_autohedge_tp_target" type="float" default="0.003">
+  Take-profit target for hedge position (0.3%).
+</ParamField>
+
+---
+
+## Example Configurations
+
+### Conservative (Beginners)
+
+```json
+{
+  "nr_clusters": 4,
+  "outer_distance": 0.06,
+  "ratio_power": 1.2,
+  "wallet_exposure": 0.15,
+  "minimum_tp": 0.003,
+  "qty_multiplier": 1.2,
+  "virtual_chunking_enabled": false,
+  "vortex_autohedge_enabled": false
+}
+```
+
+**Characteristics:**
+- Wide grid (6% outer distance)
+- Low wallet exposure (15%)
+- Higher minimum TP (0.3%)
+- No advanced recovery features
+
+### Balanced (Intermediate)
+
+```json
+{
+  "nr_clusters": 4,
+  "outer_distance": 0.04,
+  "ratio_power": 1.4,
+  "wallet_exposure": 0.30,
+  "minimum_tp": 0.002,
+  "qty_multiplier": 1.4,
+  "virtual_chunking_enabled": true,
+  "virtual_chunking_threshold_pct": 8.0,
+  "vortex_autohedge_enabled": true,
+  "vortex_autohedge_on_drawdown_pct": 0.10
+}
+```
+
+**Characteristics:**
+- Moderate grid (4% outer distance)
+- Medium wallet exposure (30%)
+- Position recovery enabled
+- Auto-hedging on 10% drawdown
+
+### Aggressive (Experienced)
+
+```json
+{
+  "nr_clusters": 5,
+  "outer_distance": 0.02,
+  "ratio_power": 1.6,
+  "wallet_exposure": 0.45,
+  "minimum_tp": 0.0015,
+  "qty_multiplier": 1.8,
+  "virtual_chunking_enabled": true,
+  "virtual_chunking_threshold_pct": 5.0,
+  "vortex_autohedge_enabled": true,
+  "vortex_autohedge_on_drawdown_pct": 0.08
+}
+```
+
+**Characteristics:**
+- Tight grid (2% outer distance)
+- High wallet exposure (45%)
+- Quick recovery activation (5%)
+- Early hedging (8% drawdown)
+
+---
+
+## Best Practices
+
+### Do's
+
+<Check>
+  **Start small** - Use 10-20% wallet exposure until comfortable
+</Check>
+
+<Check>
+  **Pick liquid symbols** - Higher volume = better fills
+</Check>
+
+<Check>
+  **Use auto-hedging** for capital > $1000
+</Check>
+
+<Check>
+  **Monitor daily** during learning period
+</Check>
+
+### Don'ts
+
+<Warning>
+  **Don't** use 100% wallet exposure - leave room for recovery
+</Warning>
+
+<Warning>
+  **Don't** trade illiquid symbols - wide spreads eat profits
+</Warning>
+
+<Warning>
+  **Don't** ignore positions for weeks - check at least weekly
+</Warning>
+
+---
+
+## Troubleshooting
+
+### "Bot not placing orders"
+
+1. Check wallet exposure - may have insufficient balance
+2. Verify symbol is supported on your exchange
+3. Check if price is within your `no_entry_above`/`no_entry_below` limits
+
+### "Position keeps growing without TP"
+
+1. Market is trending strongly against you
+2. Consider enabling auto-hedging
+3. Check if virtual chunking is enabled for recovery
+
+### "Orders keep getting cancelled"
+
+1. Grid refresh is repositioning orders as price moves
+2. Normal behavior - orders follow price
+3. Reduce `refresh_threshold` for less frequent updates
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Bot Configuration" icon="gear" href="/bot-configuration">
+    Full parameter reference
+  </Card>
+  <Card title="Risk Management" icon="shield" href="/risk-management/risk-management-best-practices">
+    Learn risk management
+  </Card>
+</CardGroup>

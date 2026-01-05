@@ -1,0 +1,320 @@
+---
+title: "Glossary"
+description: "Trading terms and platform concepts explained"
+---
+
+# Glossary
+
+A comprehensive glossary of trading terms and Quant Dash-specific concepts.
+
+---
+
+## A
+
+### ATR (Average True Range)
+A volatility indicator measuring the average range of price movement over a period. Used to set dynamic stop losses and position sizing.
+
+### Auto-Hedging
+Automatic opening of an opposing position when your main position exceeds a loss threshold. Protects against further losses while waiting for recovery.
+
+### Ask
+The lowest price at which someone is willing to sell. Also called the "offer" price.
+
+---
+
+## B
+
+### Basis Points (bps)
+One basis point = 0.01%. Used to express small percentages.
+- 100 bps = 1%
+- 10 bps = 0.1%
+- 1 bp = 0.01%
+
+### Bid
+The highest price at which someone is willing to buy.
+
+### Breakeven
+The price at which your position has zero profit or loss after fees.
+
+---
+
+## C
+
+### Cascade
+A rapid series of liquidations causing accelerated price movement. Often triggers a "domino effect" of forced selling/buying.
+
+### Cluster (Grid Cluster)
+A group of orders placed at specific price levels in a DCA strategy.
+
+### Counter Position
+A position opened opposite to your main position, typically to hedge or scalp during adverse moves.
+
+### Cross Margin
+A margin mode where all available balance is used as collateral for positions. Higher risk of total liquidation but more efficient capital use.
+
+---
+
+## D
+
+### DCA (Dollar-Cost Averaging)
+An investment strategy of spreading purchases over time/price levels to reduce the impact of volatility.
+
+### Decay Factor
+In geometric sizing, the multiplier applied to each subsequent level. `0.92` means each level is 92% the size of the previous.
+
+### Donchian Channel
+A technical indicator showing the highest high and lowest low over a period. Used for breakout detection.
+
+### Drawdown
+The decline from a peak to a trough in your portfolio value. Usually expressed as a percentage.
+
+---
+
+## E
+
+### EMA (Exponential Moving Average)
+A moving average that gives more weight to recent prices. Faster to react than SMA.
+
+### Entry Price
+The average price at which you opened your position.
+
+---
+
+## F
+
+### Funding Rate
+A periodic payment between long and short position holders in perpetual futures. Positive rate = longs pay shorts; negative = shorts pay longs.
+
+### Fill
+When your order executes and becomes a position. A "partial fill" means only some of your order executed.
+
+---
+
+## G
+
+### Geometric Grid
+A grid where spacing between orders increases geometrically (exponentially) as you move away from current price.
+
+### Grid Refresh
+The process of canceling existing orders and placing new ones as price moves.
+
+### GTFO (Get The F*** Out)
+An exit strategy that aggressively closes positions when conditions turn adverse.
+
+---
+
+## H
+
+### Hedge Mode
+An exchange feature allowing simultaneous long AND short positions on the same symbol.
+
+### HFT (High-Frequency Trading)
+Trading strategies that execute many trades per second. In Quant Dash, refers to fast-cycling market making.
+
+---
+
+## I
+
+### Inventory
+Your current position size. "High inventory" means you're heavily positioned.
+
+### Inventory Skew
+Adjusting bid/ask prices based on your current position to encourage rebalancing.
+
+### Isolated Margin
+A margin mode where only the assigned margin is at risk for each position. Limits loss but may cause earlier liquidation.
+
+---
+
+## L
+
+### Leverage
+Multiplier for your position size relative to margin. 10x leverage = control $10,000 with $1,000 margin.
+
+### Liquidation
+Forced closure of your position when margin is insufficient. Results in loss of position and possibly additional fees.
+
+### Liquidation Price
+The price at which your position will be forcibly closed by the exchange.
+
+### Loss Management Tiers
+Progressive risk reduction based on loss depth:
+- Tier 1 (100 bps): Widen spreads
+- Tier 2 (300 bps): Stop new entries
+- Tier 3 (600 bps): Exit priority only
+
+---
+
+## M
+
+### Maker
+An order that adds liquidity to the order book (typically limit orders). Usually has lower fees.
+
+### Market Making
+A strategy of providing liquidity by placing both buy and sell orders, profiting from the spread.
+
+### Margin
+The collateral required to open and maintain a leveraged position.
+
+### Microprice
+A refined mid-price calculation weighted by order book depth on each side.
+
+---
+
+## N
+
+### NATR (Normalized ATR)
+ATR expressed as a percentage of price. Allows comparison across different price levels.
+
+### Net Delta
+The combined directional exposure of all your positions.
+
+---
+
+## O
+
+### OBI (Order Book Imbalance)
+The ratio of bid volume to ask volume in the order book. High OBI suggests buying pressure.
+
+### Order Book
+The list of all open buy and sell orders for a trading pair, organized by price.
+
+### Outer Distance
+In Vortex DCA, how far from current price to place the furthest order.
+
+---
+
+## P
+
+### Panic Threshold
+The inventory level at which the bot becomes more aggressive about exiting positions.
+
+### Perpetual Futures (Perps)
+Futures contracts with no expiration date. Settled via funding rate mechanism.
+
+### Position Size
+The total value or quantity of your open position.
+
+---
+
+## Q
+
+### Quote
+A bid/ask price pair offered by a market maker.
+
+### Quote Size
+The size of each individual order in your trading grid.
+
+---
+
+## R
+
+### Ratio Power
+In geometric grids, the exponent controlling how quickly spacing increases.
+
+### Reactive Spacing
+Dynamic order spacing that adjusts based on market conditions (volatility, depth, flow).
+
+### Refresh Threshold
+The price movement percentage that triggers grid recalculation.
+
+---
+
+## S
+
+### SLAM
+A high-velocity market making technique that quickly enters and exits during momentum moves.
+
+### Slippage
+The difference between expected price and actual execution price.
+
+### Spread
+The difference between bid and ask prices. Market makers profit from this.
+
+### Stop Loss
+An order to close a position when price reaches a certain level, limiting losses.
+
+---
+
+## T
+
+### Take Profit (TP)
+An order to close a position when price reaches a profit target.
+
+### Taker
+An order that removes liquidity from the order book (typically market orders). Usually has higher fees.
+
+### Time Decay (Position)
+The principle that positions held longer without profit should be closed more aggressively.
+
+### Trap Detector
+A system that identifies when your position is being "trapped" by adverse price movement.
+
+---
+
+## U
+
+### Underwater
+A position that is currently at a loss. "5% underwater" = 5% unrealized loss.
+
+---
+
+## V
+
+### Virtual Chunking
+A position recovery technique that mentally divides a losing position into chunks and recovers each separately.
+
+### Volatility
+The degree of price movement. Higher volatility = larger price swings.
+
+### Vortex DCA
+Quant Dash's intelligent DCA strategy with geometric spacing and recovery features.
+
+---
+
+## W
+
+### Wallet Exposure
+The percentage of your total wallet allocated to a symbol or strategy.
+
+### Whale
+A trader with large capital who can significantly move prices.
+
+### Whale Wall
+A large order visible in the order book, often providing support or resistance.
+
+### Whiplash
+Rapid back-and-forth price movement that can trigger multiple entries/exits.
+
+---
+
+## X
+
+### XGrid
+Quant Dash's momentum-based strategy using EMA crossovers and Donchian channels.
+
+### XGrid Counter Scalp
+Opening positions opposite to your main position when XGrid signals a trend reversal.
+
+---
+
+## Numbers
+
+### 11/23 EMA
+The default EMA periods used by XGrid for crossover detection.
+
+### 100 bps
+One percent (100 basis points).
+
+---
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card title="FAQ" icon="circle-question" href="/faq">
+    Frequently asked questions
+  </Card>
+  <Card title="Telegram Support" icon="telegram" href="https://t.me/pumpkinsui">
+    Get help from the community
+  </Card>
+</CardGroup>

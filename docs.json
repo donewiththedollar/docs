@@ -40,6 +40,15 @@
             ]
           },
           {
+            "group": "Strategies",
+            "pages": [
+              "strategies/overview",
+              "strategies/vortex-dca",
+              "strategies/perp-market-maker",
+              "strategies/xgrid"
+            ]
+          },
+          {
             "group": "Features",
             "pages": [
               "features/dashboard-overview",
@@ -67,7 +76,17 @@
             "pages": [
               "exchanges/bybit",
               "exchanges/blofin",
+              "exchanges/htx",
+              "exchanges/weex",
               "exchanges/defx"
+            ]
+          },
+          {
+            "group": "Help & Support",
+            "pages": [
+              "faq",
+              "troubleshooting",
+              "glossary"
             ]
           }
         ]

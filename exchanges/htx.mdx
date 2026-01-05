@@ -1,0 +1,212 @@
+---
+title: "HTX (Huobi) Setup"
+description: "Connect your HTX account to Quant Dash"
+---
+
+# HTX (Huobi) Exchange Setup
+
+HTX (formerly Huobi) is a major cryptocurrency exchange supporting perpetual futures trading. This guide covers API setup and configuration.
+
+## Prerequisites
+
+<Steps>
+  <Step title="Create HTX Account">
+    If you don't have an account, register at [htx.com](https://www.htx.com)
+  </Step>
+  <Step title="Complete KYC">
+    Identity verification is required for derivatives trading
+  </Step>
+  <Step title="Enable Futures Trading">
+    Navigate to Derivatives → USDT-M Futures and enable trading
+  </Step>
+  <Step title="Fund Your Account">
+    Transfer USDT to your USDT-M Futures wallet
+  </Step>
+</Steps>
+
+---
+
+## Creating API Keys
+
+### Step 1: Access API Management
+
+1. Log in to HTX
+2. Click your profile icon (top right)
+3. Select **API Management**
+4. Click **Create API Key**
+
+### Step 2: Configure Permissions
+
+<Warning>
+**Security First**: Only enable the permissions you need.
+
+For Quant Dash, you need:
+- **Read** - Always required
+- **Trade** - Required for placing orders
+- **DO NOT enable Withdraw** - Never needed, keeps funds secure
+</Warning>
+
+Select these permissions:
+- [x] Read Info
+- [x] Trade
+- [ ] Withdraw ← **Leave unchecked!**
+
+### Step 3: Set IP Restrictions (Recommended)
+
+For maximum security, restrict API access to specific IPs:
+
+1. Select **Bind IP addresses**
+2. Add your server's IP address
+3. This prevents unauthorized access even if keys are leaked
+
+### Step 4: Save Your Credentials
+
+<Note>
+You will receive:
+- **API Key** (Access Key)
+- **Secret Key**
+
+**Save both immediately** - the Secret Key is only shown once!
+</Note>
+
+---
+
+## Adding HTX to Quant Dash
+
+### Via Dashboard
+
+1. Navigate to **Settings** → **Exchanges**
+2. Click **Add Exchange**
+3. Select **HTX** from the dropdown
+4. Enter your credentials:
+   - **API Key**: Your Access Key
+   - **API Secret**: Your Secret Key
+5. Click **Test Connection**
+6. If successful, click **Save**
+
+### Configuration Example
+
+```json
+{
+  "exchange": {
+    "name": "htx",
+    "api_key": "your-api-key",
+    "api_secret": "your-secret-key",
+    "testnet": false
+  }
+}
+```
+
+---
+
+## HTX-Specific Settings
+
+### Supported Features
+
+| Feature | Supported | Notes |
+|---------|-----------|-------|
+| USDT-M Perpetuals | Yes | Primary market |
+| Hedge Mode | Yes | Long + Short simultaneously |
+| Cross Margin | Yes | Default mode |
+| Isolated Margin | Yes | Per-position margin |
+| Maximum Leverage | 125x | Varies by symbol |
+
+### Symbol Format
+
+HTX uses standard symbol format:
+- Dashboard: `BTCUSDT`
+- API: `BTC-USDT`
+
+The bot handles conversion automatically.
+
+### Rate Limits
+
+<Warning>
+HTX has strict rate limits:
+- 10 requests per second for order placement
+- 20 requests per second for market data
+
+The bot includes built-in rate limiting to stay within these bounds.
+</Warning>
+
+---
+
+## Transferring Funds
+
+### To Futures Wallet
+
+1. Go to **Assets** → **Transfer**
+2. From: **Spot Account**
+3. To: **USDT-M Futures**
+4. Enter amount and confirm
+
+<Note>
+Funds must be in the USDT-M Futures wallet before the bot can trade.
+</Note>
+
+### Checking Balance
+
+Your futures balance shows:
+- **Available Balance**: Can be used for new positions
+- **Used Margin**: Locked for open positions
+- **Unrealized PnL**: Current position profit/loss
+
+---
+
+## Troubleshooting
+
+### "Invalid API Key"
+
+1. Verify you copied the full key (no spaces)
+2. Check if key is expired or deleted
+3. Ensure you're using the correct account (main vs sub-account)
+
+### "Insufficient Balance"
+
+1. Check funds are in **USDT-M Futures** wallet (not Spot)
+2. Verify available margin after existing positions
+3. Reduce position size or close existing trades
+
+### "Order Rejected"
+
+1. Check symbol is correct and tradeable
+2. Verify leverage settings match exchange limits
+3. Ensure order size meets minimum requirements
+
+### "Rate Limit Exceeded"
+
+1. Reduce number of simultaneous bots
+2. Increase quote refresh interval
+3. Reduce geometric sizing levels
+
+---
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="No Withdraw Permission" icon="shield">
+    Never enable withdraw - keeps funds secure even if keys leak
+  </Card>
+  <Card title="IP Restriction" icon="lock">
+    Bind API to specific IPs for maximum security
+  </Card>
+  <Card title="Regular Rotation" icon="rotate">
+    Rotate API keys every 90 days
+  </Card>
+  <Card title="Monitor Activity" icon="eye">
+    Check API logs regularly for unusual activity
+  </Card>
+</CardGroup>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configure Bot" icon="gear" href="/bot-configuration">
+    Set up your trading bot
+  </Card>
+  <Card title="Choose Strategy" icon="chart-line" href="/strategies/overview">
+    Select a trading strategy
+  </Card>
+</CardGroup>

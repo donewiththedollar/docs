@@ -1,0 +1,377 @@
+---
+title: "Troubleshooting"
+description: "Solutions to common issues with Quant Dash"
+---
+
+# Troubleshooting Guide
+
+Solutions to common problems and how to diagnose issues.
+
+---
+
+## Quick Diagnostics
+
+Before diving into specific issues, check these basics:
+
+<Steps>
+  <Step title="Check Bot Status">
+    Dashboard → Your Bot → Status indicator
+    - Green = Running
+    - Red = Error
+    - Yellow = Warning
+  </Step>
+  <Step title="Check Exchange Connection">
+    Settings → Exchanges → Test Connection
+  </Step>
+  <Step title="Check Logs">
+    Trading Console → View recent log entries
+  </Step>
+  <Step title="Check Balance">
+    Ensure funds are in Futures wallet, not Spot
+  </Step>
+</Steps>
+
+---
+
+## Connection Issues
+
+### "API Key Invalid" or "Authentication Failed"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Incorrect API key or secret
+  - Extra spaces in copied credentials
+  - API key expired or deleted
+  - Wrong account (main vs sub-account)
+
+  **Solutions:**
+  1. Re-copy credentials from exchange (no extra spaces)
+  2. Verify key exists and is active on exchange
+  3. Check you're using the correct account
+  4. For WEEX: Verify passphrase is exactly correct (case-sensitive)
+  5. Create new API key if issues persist
+</Accordion>
+
+### "Connection Timeout" or "Network Error"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Exchange API temporarily down
+  - Internet connectivity issues
+  - IP restriction on API key
+
+  **Solutions:**
+  1. Check exchange status page
+  2. Wait a few minutes and retry
+  3. Verify IP whitelist includes your server
+  4. Try from a different network
+</Accordion>
+
+### "Rate Limit Exceeded"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Too many API requests per second
+  - Running too many bots simultaneously
+  - Grid refresh too frequent
+
+  **Solutions:**
+  1. Reduce number of active bots
+  2. Increase `grid_refresh_interval` (e.g., 120 → 180 seconds)
+  3. Reduce `geometric_max_levels` (fewer orders)
+  4. Stagger bot start times
+</Accordion>
+
+---
+
+## Bot Won't Start
+
+### "Insufficient Balance"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Funds in Spot wallet instead of Futures
+  - Existing positions using all margin
+  - Wallet exposure exceeds available balance
+
+  **Solutions:**
+  1. Transfer funds: Spot → Futures wallet
+  2. Check available balance (not total balance)
+  3. Reduce `wallet_exposure` setting
+  4. Close some existing positions
+</Accordion>
+
+### "Symbol Not Found"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Typo in symbol name
+  - Symbol not available on selected exchange
+  - Symbol delisted or trading paused
+
+  **Solutions:**
+  1. Verify exact symbol format (e.g., `BTCUSDT` not `BTC/USDT`)
+  2. Check symbol exists on your exchange
+  3. Try a different, known-good symbol
+</Accordion>
+
+### "Position Mode Mismatch"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Exchange in Hedge Mode but bot expects One-Way
+  - Vice versa
+
+  **Solutions:**
+  1. Check exchange position mode setting
+  2. BloFin/Bybit: Can change in exchange settings
+  3. Match bot configuration to exchange mode
+</Accordion>
+
+---
+
+## Orders Not Placing
+
+### "Order Size Too Small"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - `quote_size_usdt` below exchange minimum
+  - Calculated order size rounds to zero
+
+  **Solutions:**
+  1. Increase `quote_size_usdt` (minimum $5-10 for most exchanges)
+  2. Check exchange minimum order size for symbol
+  3. Increase `wallet_exposure` for larger orders
+</Accordion>
+
+### "Orders Immediately Cancelled"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Grid refresh repositioning orders
+  - Orders placed outside valid price range
+  - Post-only orders crossing spread
+
+  **Solutions:**
+  1. Increase `refresh_threshold` (less frequent updates)
+  2. Check `outer_distance` isn't too extreme
+  3. Verify spread is wide enough for maker orders
+</Accordion>
+
+### "No Orders Placed"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Spread too tight for profitable trading
+  - Loss management tier blocking new entries
+  - Price outside `no_entry_above`/`no_entry_below` limits
+
+  **Solutions:**
+  1. Check `min_profitable_spread_bps` vs actual spread
+  2. Check loss management state in logs
+  3. Verify price limits aren't blocking entry
+  4. Wait for better market conditions
+</Accordion>
+
+---
+
+## Position Issues
+
+### "Position Keeps Growing Without TP"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Strong trend against your position
+  - TP target too aggressive
+  - Fees eating into profit
+
+  **Solutions:**
+  1. Enable auto-hedging for protection
+  2. Lower `minimum_tp` target
+  3. Reduce `qty_multiplier` for slower averaging
+  4. Enable virtual chunking for recovery
+  5. Consider manual intervention in strong trends
+</Accordion>
+
+### "Position Stuck Underwater"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Market moved strongly against position
+  - Recovery mechanisms not enabled
+
+  **Solutions:**
+  1. Enable `virtual_chunking_enabled`
+  2. Enable `vortex_autohedge_enabled`
+  3. Check loss management tier (may be in defend mode)
+  4. Wait for market to recover
+  5. Consider partial manual close to reduce exposure
+</Accordion>
+
+### "Unexpected Liquidation"
+
+<Accordion title="Causes and Solutions">
+  **Causes:**
+  - Leverage too high
+  - Wallet exposure too high
+  - Auto-hedge didn't trigger in time
+  - Flash crash / extreme volatility
+
+  **Prevention:**
+  1. Use lower leverage (10-20x for beginners)
+  2. Keep wallet exposure under 30%
+  3. Enable liquidation safeguard
+  4. Set `emergency_liq_close_bps` to close before liq
+  5. Enable auto-hedging with early trigger
+</Accordion>
+
+---
+
+## Performance Issues
+
+### "Profits Lower Than Expected"
+
+<Accordion title="Causes and Solutions">
+  **Possible reasons:**
+  - Fees higher than accounted for
+  - Spread too tight
+  - Market conditions unfavorable
+  - Too conservative settings
+
+  **Solutions:**
+  1. Verify fee settings match exchange rates
+  2. Increase `base_spread_bps`
+  3. Try different symbols with more volatility
+  4. Adjust to more aggressive preset (cautiously)
+  5. Review during favorable market conditions
+</Accordion>
+
+### "High Number of Losses"
+
+<Accordion title="Causes and Solutions">
+  **Possible reasons:**
+  - Strategy mismatched with market conditions
+  - Settings too aggressive
+  - Trending market (bad for MM)
+
+  **Solutions:**
+  1. Switch strategy (MM → DCA in trends)
+  2. Use more conservative preset
+  3. Reduce position sizes
+  4. Enable defensive features (loss tiers, auto-hedge)
+  5. Pause during unfavorable conditions
+</Accordion>
+
+---
+
+## Log Messages
+
+### Common Log Messages Explained
+
+```
+"Spread too tight"
+→ Market spread is below minimum profitable. Wait or reduce min_spread.
+
+"Position limit reached"
+→ At max_position_usdt. Won't add more until position reduces.
+
+"Loss tier 2 active"
+→ In defensive mode due to losses. Fewer new entries.
+
+"Grid refresh triggered"
+→ Normal - price moved enough to reposition orders.
+
+"Fill detected"
+→ Order was executed. Good - trading is happening!
+
+"TP placed"
+→ Take-profit order placed for position.
+
+"Whale wall detected at X"
+→ Large order found in orderbook. May place orders nearby.
+```
+
+---
+
+## Exchange-Specific Issues
+
+### BloFin
+
+<Accordion title="Common BloFin Issues">
+  **"Password required"**
+  - BloFin needs API password (created when making key)
+  - Re-enter password exactly as created
+
+  **"Broker ID error"**
+  - Usually handled automatically
+  - Contact support if persists
+</Accordion>
+
+### Bybit
+
+<Accordion title="Common Bybit Issues">
+  **"Reduce only order rejected"**
+  - Position mode mismatch
+  - Check hedge mode setting
+
+  **"Leverage error"**
+  - Bybit has different max leverage per symbol
+  - Reduce leverage and retry
+</Accordion>
+
+### HTX
+
+<Accordion title="Common HTX Issues">
+  **"Contract not found"**
+  - Symbol format might be wrong
+  - Use `BTCUSDT` not `BTC-USDT`
+</Accordion>
+
+### WEEX
+
+<Accordion title="Common WEEX Issues">
+  **"Invalid passphrase"**
+  - Passphrase is case-sensitive
+  - Must be exactly as created
+  - If forgotten, create new API key
+</Accordion>
+
+---
+
+## When to Contact Support
+
+Contact support if:
+- Issues persist after trying all solutions
+- You see unexpected behavior not listed here
+- You suspect a bug in the platform
+- Exchange connectivity issues last > 1 hour
+
+**Before contacting:**
+1. Check this troubleshooting guide
+2. Note exact error messages
+3. Check logs for relevant entries
+4. Try basic fixes (restart, reconnect)
+
+**Support channels:**
+- [Telegram Group](https://t.me/pumpkinsui)
+- [GitHub Issues](https://github.com/donewiththedollar)
+
+---
+
+## Preventive Measures
+
+<CardGroup cols={2}>
+  <Card title="Start Small" icon="seedling">
+    Test with minimum capital until you understand behavior
+  </Card>
+  <Card title="Use Presets" icon="sliders">
+    Start with conservative presets, adjust gradually
+  </Card>
+  <Card title="Monitor Daily" icon="eye">
+    Check positions at least once per day initially
+  </Card>
+  <Card title="Enable Protection" icon="shield">
+    Use auto-hedge and loss management features
+  </Card>
+</CardGroup>

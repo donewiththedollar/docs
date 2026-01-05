@@ -1,0 +1,314 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about Quant Dash"
+---
+
+# Frequently Asked Questions
+
+Quick answers to common questions about Quant Dash.
+
+---
+
+## Getting Started
+
+<Accordion title="How much capital do I need to start?">
+  **Minimum recommended**: $500 USDT
+
+  **Breakdown:**
+  - $100+ in PUMPKIN tokens (for platform access)
+  - $400+ for trading (more is better for diversification)
+
+  **By strategy:**
+  - Vortex DCA: $500+ recommended
+  - Perp Market Maker: $1,000+ recommended
+  - Multiple symbols: $2,000+ recommended
+</Accordion>
+
+<Accordion title="What exchanges are supported?">
+  Currently supported:
+  - **BloFin** - Primary exchange, best integration
+  - **Bybit** - Full support, popular choice
+  - **HTX (Huobi)** - Perpetual futures
+  - **WEEX** - Perpetual futures
+  - **Defx** - Decentralized exchange on Base
+
+  Each exchange has a dedicated setup guide in the [Exchange Setup](/exchanges/bybit) section.
+</Accordion>
+
+<Accordion title="Do I need coding skills?">
+  **No!** Quant Dash is designed for non-technical users.
+
+  - Use the dashboard to configure bots
+  - Select from pre-built presets
+  - Advanced users can edit JSON configs if desired
+</Accordion>
+
+<Accordion title="Is my money safe?">
+  **Your funds never leave your exchange account.**
+
+  - API keys have NO withdrawal permission
+  - Even if keys are compromised, funds cannot be withdrawn
+  - We never have access to your private keys or passwords
+  - All trading happens directly on your exchange account
+</Accordion>
+
+---
+
+## PUMPKIN Token
+
+<Accordion title="What is the PUMPKIN token?">
+  PUMPKIN is a utility token on the Sui blockchain that grants access to Quant Dash.
+
+  - **Required**: Hold $100+ worth to use the platform
+  - **Not spent**: Just hold in your wallet, not consumed
+  - **Tradeable**: Can be sold anytime on DEXs
+</Accordion>
+
+<Accordion title="Where do I buy PUMPKIN?">
+  PUMPKIN trades on Sui DEXs:
+
+  1. Get a Sui wallet (Sui Wallet, Suiet, etc.)
+  2. Buy SUI tokens (from CEX or bridge)
+  3. Swap SUI for PUMPKIN on a Sui DEX
+
+  See the [PUMPKIN Token Guide](/pumpkin-token) for step-by-step instructions.
+</Accordion>
+
+<Accordion title="Why is there a token requirement?">
+  Token-gating serves multiple purposes:
+  - Prevents spam/abuse
+  - Aligns user interests with platform
+  - Creates sustainable development funding
+  - Limits access to serious traders
+</Accordion>
+
+---
+
+## Trading & Strategies
+
+<Accordion title="Which strategy should I use?">
+  **Quick guide:**
+
+  | Your Situation | Recommended Strategy |
+  |---------------|---------------------|
+  | Beginner | Vortex DCA (Conservative preset) |
+  | Want to accumulate | Vortex DCA |
+  | Range-bound market | Perp Market Maker |
+  | High volatility | XGrid |
+  | $500-1000 capital | Single strategy, 1-2 symbols |
+  | $2000+ capital | Multiple strategies/symbols |
+
+  See the [Strategy Overview](/strategies/overview) for detailed comparison.
+</Accordion>
+
+<Accordion title="What returns can I expect?">
+  **Honest answer:** Returns vary significantly based on market conditions, strategy, and settings.
+
+  - Market making in good conditions: 0.1-0.5% daily
+  - DCA in trending markets: Depends on entry/exit timing
+  - Bad conditions can result in losses
+
+  **Important:**
+  - Past performance doesn't guarantee future results
+  - Start small to understand behavior
+  - Never risk more than you can afford to lose
+</Accordion>
+
+<Accordion title="Can I run multiple bots?">
+  **Yes!** You can run multiple bots simultaneously:
+
+  - Different symbols on the same exchange
+  - Same symbol on different exchanges (arbitrage)
+  - Different strategies for diversification
+
+  **Recommendation:** Start with one bot, add more as you learn.
+</Accordion>
+
+<Accordion title="How do I know if my bot is working?">
+  Check these indicators:
+
+  1. **Status**: Green = running, Red = error
+  2. **Orders**: Should see open orders in dashboard
+  3. **Logs**: Trading console shows activity
+  4. **Positions**: Track open positions and P&L
+
+  If orders appear and fill, the bot is working correctly.
+</Accordion>
+
+---
+
+## Risk & Safety
+
+<Accordion title="Can I lose money?">
+  **Yes, trading involves risk.**
+
+  Possible loss scenarios:
+  - Market moves strongly against your position
+  - Liquidation if using high leverage
+  - Extended drawdown before recovery
+  - Black swan events (exchange hacks, flash crashes)
+
+  **Mitigation:**
+  - Start with conservative presets
+  - Use auto-hedging for protection
+  - Never risk more than you can afford to lose
+  - Diversify across symbols/strategies
+</Accordion>
+
+<Accordion title="What happens if my bot goes offline?">
+  If the bot disconnects:
+  - Existing positions remain open
+  - Open orders stay on exchange
+  - No new orders placed until reconnect
+  - Positions may not be managed (risk!)
+
+  **Protection:**
+  - Set stop losses on exchange manually
+  - Use auto-hedging for large positions
+  - Monitor positions even when bot is off
+</Accordion>
+
+<Accordion title="How does loss management work?">
+  The bot uses tiered loss management:
+
+  | Loss Level | Action |
+  |------------|--------|
+  | 0-1% | Normal trading |
+  | 1-3% | Widen spreads, reduce size |
+  | 3-6% | Stop new entries, defend only |
+  | 6%+ | Exit priority mode |
+  | 10% | Hard stop - close all |
+
+  See [Risk Management](/risk-management/risk-management-best-practices) for details.
+</Accordion>
+
+<Accordion title="What is liquidation and how do I avoid it?">
+  **Liquidation** = Exchange forcibly closes your position when margin is insufficient.
+
+  **Avoid by:**
+  - Using lower leverage (start with 10x or less)
+  - Keeping wallet exposure under 30%
+  - Enabling auto-hedging
+  - Setting hard stop losses
+  - Monitoring positions regularly
+</Accordion>
+
+---
+
+## Technical Issues
+
+<Accordion title="Bot won't start - what do I check?">
+  Common issues:
+
+  1. **API Keys**: Verify correct and have Trade permission
+  2. **Balance**: Ensure funds in correct wallet (Futures, not Spot)
+  3. **Symbol**: Check symbol is valid and tradeable
+  4. **Exchange**: Verify exchange connection works
+
+  See [Troubleshooting](/troubleshooting) for detailed solutions.
+</Accordion>
+
+<Accordion title="Why are my orders being cancelled?">
+  Normal behavior:
+
+  - Grid refresh repositions orders as price moves
+  - Orders cancel when price moves too far
+  - Rate limiting may cancel excess orders
+
+  If excessive:
+  - Increase `grid_refresh_interval`
+  - Reduce number of grid levels
+  - Check exchange rate limits
+</Accordion>
+
+<Accordion title="What are the system requirements?">
+  Quant Dash is a web application - no installation needed!
+
+  Requirements:
+  - Modern web browser (Chrome, Firefox, Safari, Edge)
+  - Stable internet connection
+  - Exchange account with API access
+
+  No server, VPS, or technical setup required.
+</Accordion>
+
+---
+
+## Account & Billing
+
+<Accordion title="Is there a monthly fee?">
+  No monthly subscription fees.
+
+  - One-time token requirement (PUMPKIN)
+  - No trading fees beyond exchange fees
+  - No hidden charges
+</Accordion>
+
+<Accordion title="Can I use the platform for free?">
+  You need to hold PUMPKIN tokens to access the platform.
+
+  The tokens are:
+  - Your own asset (not spent)
+  - Sellable anytime
+  - A one-time purchase
+</Accordion>
+
+<Accordion title="How do I contact support?">
+  **Community Support:**
+  - [Telegram Group](https://t.me/pumpkinsui)
+
+  **GitHub:**
+  - [Issues & Feature Requests](https://github.com/donewiththedollar)
+
+  Response time: Usually within 24 hours.
+</Accordion>
+
+---
+
+## Advanced
+
+<Accordion title="Can I create custom strategies?">
+  Currently, you can:
+  - Customize presets extensively
+  - Adjust 100+ parameters
+  - Create your own config files
+
+  Fully custom strategies require code changes (advanced users only).
+</Accordion>
+
+<Accordion title="Is there an API?">
+  Yes! The dashboard uses a REST API that advanced users can access:
+  - WebSocket for real-time updates
+  - REST for configuration and control
+
+  Documentation coming soon.
+</Accordion>
+
+<Accordion title="Can I run my own instance?">
+  The platform is currently hosted - self-hosting is not supported.
+
+  Benefits of hosted:
+  - No server management
+  - Automatic updates
+  - 24/7 uptime
+  - No technical setup
+</Accordion>
+
+---
+
+## Still Have Questions?
+
+<CardGroup cols={2}>
+  <Card title="Telegram Community" icon="telegram" href="https://t.me/pumpkinsui">
+    Get help from other users
+  </Card>
+  <Card title="Glossary" icon="book" href="/glossary">
+    Learn trading terms
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
+    Fix common issues
+  </Card>
+  <Card title="Documentation" icon="file-lines" href="/">
+    Browse all docs
+  </Card>
+</CardGroup>

@@ -1,0 +1,254 @@
+---
+title: "WEEX Setup"
+description: "Connect your WEEX exchange account to Quant Dash"
+---
+
+# WEEX Exchange Setup
+
+WEEX is a cryptocurrency derivatives exchange offering perpetual futures with competitive fees. This guide covers API setup and configuration.
+
+## Prerequisites
+
+<Steps>
+  <Step title="Create WEEX Account">
+    Register at [weex.com](https://www.weex.com)
+  </Step>
+  <Step title="Complete Verification">
+    Complete identity verification for full trading access
+  </Step>
+  <Step title="Enable Futures">
+    Navigate to Futures trading and enable your account
+  </Step>
+  <Step title="Fund Account">
+    Deposit USDT to your futures wallet
+  </Step>
+</Steps>
+
+---
+
+## Creating API Keys
+
+### Step 1: Access API Settings
+
+1. Log in to WEEX
+2. Go to **Account** → **API Management**
+3. Click **Create New API Key**
+
+### Step 2: Set Permissions
+
+<Warning>
+**Critical Security Settings**:
+
+Only enable:
+- [x] **Read** - Required
+- [x] **Trade** - Required for orders
+- [ ] **Withdraw** - **NEVER enable this!**
+</Warning>
+
+### Step 3: Create Passphrase
+
+<Note>
+WEEX requires a **passphrase** in addition to API key and secret.
+
+This is an extra security layer - choose a strong passphrase and save it securely.
+</Note>
+
+1. Enter a secure passphrase (8+ characters)
+2. Confirm the passphrase
+3. Complete 2FA verification
+
+### Step 4: Save Credentials
+
+You will receive three values:
+- **API Key**
+- **Secret Key**
+- **Passphrase** (you created this)
+
+<Warning>
+Save all three immediately! The Secret Key is only shown once.
+</Warning>
+
+---
+
+## Adding WEEX to Quant Dash
+
+### Via Dashboard
+
+1. Navigate to **Settings** → **Exchanges**
+2. Click **Add Exchange**
+3. Select **WEEX** from the dropdown
+4. Enter your credentials:
+   - **API Key**: Your API Key
+   - **API Secret**: Your Secret Key
+   - **Passphrase**: Your chosen passphrase
+5. Click **Test Connection**
+6. If successful, click **Save**
+
+### Configuration Example
+
+```json
+{
+  "exchange": {
+    "name": "weex",
+    "api_key": "your-api-key",
+    "api_secret": "your-secret-key",
+    "passphrase": "your-passphrase",
+    "testnet": false
+  }
+}
+```
+
+---
+
+## WEEX-Specific Features
+
+### Supported Features
+
+| Feature | Supported | Notes |
+|---------|-----------|-------|
+| USDT Perpetuals | Yes | Primary market |
+| Hedge Mode | Limited | Check per-symbol |
+| Cross Margin | Yes | Default mode |
+| Isolated Margin | Yes | Available |
+| Maximum Leverage | 100x | Varies by symbol |
+
+### Authentication
+
+WEEX uses HMAC SHA256 signature authentication with:
+1. Timestamp header
+2. Signature header (Base64 encoded)
+3. Passphrase header
+
+The bot handles all authentication automatically - just provide your credentials.
+
+### Symbol Format
+
+- Dashboard input: `BTCUSDT`
+- API format: `BTCUSDT_UMCBL` (handled automatically)
+
+---
+
+## Fee Structure
+
+| Type | Fee |
+|------|-----|
+| Maker | 0.02% (2 bps) |
+| Taker | 0.06% (6 bps) |
+
+<Note>
+Fees may vary based on VIP level. Check your account for current rates.
+</Note>
+
+Configure in your bot:
+```json
+{
+  "perp_market_maker": {
+    "maker_fee_bps": 2,
+    "taker_fee_bps": 6
+  }
+}
+```
+
+---
+
+## Rate Limits
+
+<Warning>
+WEEX enforces rate limits:
+- **Private endpoints**: 10 requests/second
+- **Public endpoints**: 20 requests/second
+
+The bot includes rate limiting, but running many symbols may require adjustment.
+</Warning>
+
+### If You Hit Rate Limits
+
+1. Reduce number of trading symbols
+2. Increase `grid_refresh_interval`
+3. Reduce `geometric_max_levels`
+4. Stagger bot start times
+
+---
+
+## Transferring Funds
+
+### Deposit to Futures
+
+1. Go to **Assets** → **Transfer**
+2. Select **Spot to Futures**
+3. Choose USDT
+4. Enter amount and confirm
+
+### Check Balance
+
+Navigate to **Assets** → **Futures Account** to see:
+- Available balance
+- Position margin
+- Unrealized PnL
+
+---
+
+## Troubleshooting
+
+### "Authentication Failed"
+
+1. Verify all three credentials are correct:
+   - API Key
+   - Secret Key
+   - Passphrase
+2. Check for extra spaces in copied values
+3. Ensure API key hasn't expired
+
+### "Invalid Passphrase"
+
+1. Passphrase is case-sensitive
+2. Re-enter exactly as created
+3. If forgotten, delete and recreate API key
+
+### "Insufficient Margin"
+
+1. Transfer funds from Spot to Futures
+2. Reduce position size
+3. Check available balance vs used margin
+
+### "Order Size Too Small"
+
+1. Check minimum order size for symbol
+2. Increase `quote_size_usdt`
+3. Some symbols require larger minimum orders
+
+### "Position Mode Mismatch"
+
+1. Check if hedge mode is enabled on WEEX
+2. The bot defaults to one-way mode
+3. Adjust position mode in WEEX settings
+
+---
+
+## Security Recommendations
+
+<Card title="Three-Layer Security" icon="shield-check">
+  WEEX's passphrase requirement adds an extra security layer beyond standard API keys.
+  Even if your API key and secret are compromised, the attacker still needs your passphrase.
+</Card>
+
+### Best Practices
+
+1. **Strong Passphrase**: Use 12+ characters with mixed case, numbers, symbols
+2. **No Withdraw Permission**: Never enable - funds stay secure
+3. **IP Whitelisting**: If available, restrict to your server IP
+4. **Regular Rotation**: Change API keys every 90 days
+5. **Monitor Trades**: Check API activity logs periodically
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configure Bot" icon="gear" href="/bot-configuration">
+    Set up trading parameters
+  </Card>
+  <Card title="Choose Strategy" icon="chart-line" href="/strategies/overview">
+    Select your trading strategy
+  </Card>
+</CardGroup>

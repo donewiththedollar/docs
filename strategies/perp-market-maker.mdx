@@ -1,0 +1,393 @@
+---
+title: "Perp Market Maker Strategy"
+description: "Advanced perpetual futures market making with 100+ configurable parameters"
+---
+
+# Perpetual Market Maker Strategy
+
+The Perp Market Maker is a sophisticated two-sided market making strategy that profits from bid-ask spreads while using advanced microstructure analysis to avoid adverse selection.
+
+<Warning>
+This is an advanced strategy with 100+ parameters. We recommend starting with a preset and small position sizes until you understand the behavior.
+</Warning>
+
+## How Market Making Works
+
+### The Basic Concept
+
+Market makers provide liquidity by quoting both buy (bid) and sell (ask) prices. You profit from the **spread** between them:
+
+```
+         ASK: $100.10 ← You SELL here
+              │
+    SPREAD ───┼─── $0.10 (10 bps) = Your profit!
+              │
+         BID: $100.00 ← You BUY here
+```
+
+**Example Trade Cycle:**
+1. You place BID at $100.00, ASK at $100.10
+2. Someone sells to you at $100.00 (you now own the asset)
+3. Someone buys from you at $100.10 (you sell the asset)
+4. Net profit: $0.10 per unit (minus fees)
+
+### Why It's Complex
+
+The challenge: if price moves against you, you lose more than the spread profit.
+
+```
+GOOD SCENARIO:              BAD SCENARIO:
+Price bounces in range      Price trends away
+
+    $100.10 ─ SELL ✓            $100.10 ─ Your ASK (not filled)
+        │                           │
+    $100.00 ─ BUY ✓                 │ Price drops...
+                                    │
+    Profit: $0.10              $99.00 ─ You're stuck long!
+                               Loss: $1.00 (10x the spread)
+```
+
+**This is why the Perp MM has 100+ parameters** - to detect and avoid bad scenarios.
+
+---
+
+## Core Configuration
+
+### Position Limits
+
+<ParamField path="max_position_usdt" type="float" default="1000">
+  Maximum position size in USDT. Hard ceiling - bot will not exceed this.
+</ParamField>
+
+<ParamField path="quote_size_usdt" type="float" default="25">
+  Size of each quote order in USDT.
+</ParamField>
+
+<ParamField path="leverage" type="integer" default="75">
+  Leverage multiplier. Higher = more capital efficiency but higher liquidation risk.
+</ParamField>
+
+### Fee Configuration
+
+<ParamField path="maker_fee_bps" type="integer" default="2">
+  Maker fee in basis points. BloFin: 2 bps, Bybit: 2 bps
+</ParamField>
+
+<ParamField path="taker_fee_bps" type="integer" default="6">
+  Taker fee in basis points. BloFin: 6 bps, Bybit: 5.5 bps
+</ParamField>
+
+<ParamField path="min_profitable_spread_bps" type="integer" default="10">
+  Minimum spread required to quote. Must cover round-trip fees + profit.
+</ParamField>
+
+### Spread Configuration
+
+<ParamField path="base_spread_bps" type="integer" default="15">
+  Base spread from mid-price in basis points.
+</ParamField>
+
+<ParamField path="min_spread_bps" type="integer" default="8">
+  Minimum allowed spread (floor).
+</ParamField>
+
+<ParamField path="max_spread_bps" type="integer" default="50">
+  Maximum allowed spread (ceiling).
+</ParamField>
+
+<ParamField path="inventory_skew_factor" type="float" default="1.5">
+  How much to skew spread based on inventory. Higher = more aggressive rebalancing.
+</ParamField>
+
+---
+
+## Loss Management Tiers
+
+The bot uses a **tiered loss management system** that progressively reduces risk as losses accumulate:
+
+```
+Loss Depth    │ Tier   │ Action
+──────────────┼────────┼─────────────────────────────
+0-100 bps     │ Normal │ Standard trading
+100-300 bps   │ Tier 1 │ Widen spreads, reduce size
+300-600 bps   │ Tier 2 │ Stop new entries, defend only
+600+ bps      │ Tier 3 │ Exit priority, minimal quotes
+1000 bps      │ HARD   │ Emergency close ALL
+```
+
+### Configuration
+
+<ParamField path="loss_management.enabled" type="boolean" default="true">
+  Enable tiered loss management.
+</ParamField>
+
+<ParamField path="loss_management.tier_1_bps" type="integer" default="100">
+  First tier threshold (1% loss).
+</ParamField>
+
+<ParamField path="loss_management.tier_2_bps" type="integer" default="300">
+  Second tier threshold (3% loss).
+</ParamField>
+
+<ParamField path="loss_management.tier_3_bps" type="integer" default="600">
+  Third tier threshold (6% loss).
+</ParamField>
+
+<ParamField path="loss_management.hard_stop_loss_bps" type="integer" default="1000">
+  Emergency exit threshold (10% loss). No exceptions.
+</ParamField>
+
+---
+
+## Time Decay System
+
+Positions that age without profit are progressively exited:
+
+```
+Position Age    │ Action
+────────────────┼────────────────────────────
+< 1 hour        │ Wait for TP
+1-4 hours       │ Tighten TP target
+4-8 hours       │ Exit at breakeven if possible
+8+ hours        │ Force exit (accept small loss)
+```
+
+<ParamField path="time_decay.enabled" type="boolean" default="true">
+  Enable time-based exits.
+</ParamField>
+
+<ParamField path="time_decay.breakeven_after_seconds" type="integer" default="3600">
+  Exit at breakeven after this many seconds (1 hour).
+</ParamField>
+
+<ParamField path="time_decay.exit_loss_after_seconds" type="integer" default="14400">
+  Accept loss exit after this many seconds (4 hours).
+</ParamField>
+
+<ParamField path="time_decay.force_exit_after_seconds" type="integer" default="28800">
+  Force market exit after this many seconds (8 hours).
+</ParamField>
+
+---
+
+## Advanced Detection Systems
+
+### Whale Detection
+
+The bot detects large orders ("whale walls") and positions near them for better fill probability:
+
+```
+Orderbook Depth:
+    │
+    │         ████████████ ← WHALE WALL (large bid)
+    │      ███
+    │   ██
+    │  █
+    └──────────────────────
+       Price
+
+Bot places orders NEAR whale walls for support/resistance.
+```
+
+<ParamField path="whale_frontrun.enabled" type="boolean" default="true">
+  Enable whale wall detection.
+</ParamField>
+
+<ParamField path="whale_frontrun.min_whale_volume_usdt" type="integer" default="3000">
+  Minimum wall size to consider (in USDT).
+</ParamField>
+
+### Trap Detection
+
+Detects when you're being "trapped" - adverse fills that immediately move against you:
+
+<ParamField path="trap_detector.enabled" type="boolean" default="true">
+  Enable trap detection.
+</ParamField>
+
+<ParamField path="trap_detector.toxicity_threshold_bps" type="integer" default="15">
+  Exit if fill toxicity exceeds this level.
+</ParamField>
+
+### Cascade Detection
+
+Detects liquidation cascades (multiple forced liquidations causing rapid price movement):
+
+<ParamField path="cascade_hunter.enabled" type="boolean" default="true">
+  Enable cascade detection.
+</ParamField>
+
+---
+
+## Geometric Multi-Level Quoting
+
+Instead of single quotes, place multiple levels for better fill rates:
+
+```
+Level │ Distance │ Size
+──────┼──────────┼─────
+L1    │ 10 bps   │ $50  (closest to price)
+L2    │ 20 bps   │ $40
+L3    │ 35 bps   │ $32
+L4    │ 55 bps   │ $26
+L5    │ 80 bps   │ $21  (furthest from price)
+```
+
+<ParamField path="geometric_sizing.enabled" type="boolean" default="true">
+  Enable geometric multi-level quoting.
+</ParamField>
+
+<ParamField path="geometric_sizing.decay_factor" type="float" default="0.92">
+  Size reduction per level. `0.92` = each level is 92% of previous.
+</ParamField>
+
+<ParamField path="geometric_sizing.max_levels" type="integer" default="50">
+  Maximum number of quote levels.
+</ParamField>
+
+---
+
+## XGrid Counter Scalp
+
+When the main position is underwater and XGrid detects an opposite trend, the bot can open a counter-position to scalp profits while waiting for recovery:
+
+```
+Main Position: LONG -5% underwater
+XGrid Signal: SHORT (trend down)
+         │
+    ┌────┴────┐
+    │ COUNTER │
+    │  SCALP  │
+    └────┬────┘
+         │
+    Open SHORT position (30-50% of main)
+    Quick TP at 5-10 bps
+    Offset some losses while waiting
+```
+
+<ParamField path="xgrid_counter_scalp.enabled" type="boolean" default="false">
+  Enable counter-trend scalping.
+</ParamField>
+
+<ParamField path="xgrid_counter_scalp.max_counter_pct" type="integer" default="50">
+  Maximum counter position as % of main position.
+</ParamField>
+
+<ParamField path="xgrid_counter_scalp.min_main_age_seconds" type="integer" default="300">
+  Main position must be this old before counter-scalping (5 min).
+</ParamField>
+
+---
+
+## Preset Configurations
+
+### HFT v4 (Recommended for BloFin)
+
+```json
+{
+  "enabled": true,
+  "max_position_usdt": 2000,
+  "quote_size_usdt": 10,
+  "leverage": 75,
+  "base_spread_bps": 15,
+  "min_spread_bps": 8,
+  "maker_fee_bps": 2,
+  "taker_fee_bps": 6,
+  "geometric_sizing": {
+    "enabled": true,
+    "decay_factor": 0.92,
+    "max_levels": 50
+  },
+  "loss_management": {
+    "enabled": true,
+    "tier_1_bps": 100,
+    "tier_2_bps": 300,
+    "tier_3_bps": 600,
+    "hard_stop_loss_bps": 1000
+  },
+  "time_decay": {
+    "enabled": true,
+    "breakeven_after_seconds": 14400,
+    "force_exit_after_seconds": 28800
+  }
+}
+```
+
+### Bybit MM (Recommended for Bybit)
+
+```json
+{
+  "enabled": true,
+  "max_position_usdt": 1500,
+  "quote_size_usdt": 15,
+  "leverage": 50,
+  "base_spread_bps": 18,
+  "min_spread_bps": 10,
+  "maker_fee_bps": 2,
+  "taker_fee_bps": 5.5,
+  "whale_frontrun": {
+    "enabled": true,
+    "min_whale_volume_usdt": 5000
+  }
+}
+```
+
+---
+
+## Risk Management Best Practices
+
+### Position Sizing
+
+<Note>
+Never risk more than 2% of your account on a single position.
+
+**Formula:** `max_position = account_balance * 0.02 / (leverage / 100)`
+
+Example: $10,000 account at 75x leverage → max $150 per position
+</Note>
+
+### Exchange-Specific Notes
+
+**BloFin:**
+- Maker fee: 2 bps, Taker fee: 6 bps
+- Supports hedge mode
+- Password required for API
+
+**Bybit:**
+- Maker fee: 2 bps, Taker fee: 5.5 bps
+- Supports hedge mode
+- Lower maximum leverage (50x vs 75x)
+
+---
+
+## Troubleshooting
+
+### "Spread too tight, not quoting"
+
+Your `min_profitable_spread_bps` is higher than current market spread.
+- Solution: Lower `min_profitable_spread_bps` or trade during higher volatility
+
+### "Position stuck at loss"
+
+1. Check loss management tier - may be in defensive mode
+2. Enable time decay if not already
+3. Check if XGrid counter scalp can help offset losses
+
+### "Orders keep getting cancelled"
+
+1. Check exchange rate limits
+2. Reduce `geometric_max_levels` to place fewer orders
+3. Increase quote refresh interval
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Full Config Reference" icon="gear" href="/bot-configuration">
+    All 100+ parameters explained
+  </Card>
+  <Card title="Loss Management" icon="shield" href="/risk-management/risk-management-best-practices">
+    Risk management deep dive
+  </Card>
+</CardGroup>

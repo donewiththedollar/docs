@@ -1,55 +1,345 @@
 ---
 title: 'Quickstart'
-description: 'Get your first trading bot running in 30 minutes'
+description: 'Get your first profitable trading bot running in 30 minutes'
 ---
 
-## Prerequisites
+# Your First Trading Bot in 30 Minutes
 
-Before you begin, make sure you have:
+This guide walks you through setting up your first automated trading bot. By the end, you'll have a working bot placing real trades.
 
-<Check>Sui wallet installed (Sui Wallet, Suiet, or Ethos)</Check>
-<Check>$100 USD worth of PUMPKIN tokens</Check>
-<Check>Exchange account (BloFin, Bybit, HTX, or WEEX)</Check>
-<Check>Basic understanding of cryptocurrency trading</Check>
+<Note>
+**Estimated time:** 30 minutes
+
+**What you'll need:**
+- $100+ worth of PUMPKIN tokens
+- Exchange account with $500+ for trading
+- 30 minutes of focused time
+</Note>
+
+---
+
+## Choose Your Path
+
+<CardGroup cols={2}>
+  <Card title="I'm a Beginner" icon="seedling">
+    Use the **Conservative Vortex DCA** preset.
+    - Lower risk
+    - Easier to understand
+    - Great for learning
+  </Card>
+  <Card title="I'm Experienced" icon="rocket">
+    Choose from multiple strategies.
+    - Full parameter control
+    - Advanced features
+    - Custom configurations
+  </Card>
+</CardGroup>
+
+**This guide uses the beginner path.** Advanced users can skip to [Bot Configuration](/bot-configuration).
+
+---
+
+## Prerequisites Checklist
+
+Before starting, ensure you have:
+
+<Check>**Sui Wallet** - Sui Wallet, Suiet, or any Sui-compatible wallet</Check>
+<Check>**$100+ in PUMPKIN tokens** - Required for platform access</Check>
+<Check>**Exchange account** - BloFin, Bybit, HTX, WEEX, or Defx</Check>
+<Check>**$500+ trading capital** - In your exchange futures wallet</Check>
 
 <Warning>
-  Never share your API keys or wallet private keys with anyone. QuantumVoid will never ask for your private keys.
+**Security First:** Never share your API keys, wallet private keys, or passwords with anyone. Quant Dash will NEVER ask for your private keys.
 </Warning>
 
-## Step 1: Get PUMPKIN Tokens
+---
+
+## Step 1: Get PUMPKIN Tokens (10 minutes)
+
+<Accordion title="Already have PUMPKIN? Skip to Step 2">
+  If you already hold $100+ worth of PUMPKIN tokens in your Sui wallet, you can skip this step.
+</Accordion>
+
+### 1.1 Set Up Sui Wallet
 
 <Steps>
-  <Step title="Set up Sui Wallet">
-    Install a Sui wallet extension
+  <Step title="Install Wallet Extension">
+    Download [Sui Wallet](https://chrome.google.com/webstore/detail/sui-wallet) or [Suiet](https://suiet.app/)
   </Step>
-
-  <Step title="Acquire PUMPKIN">
-    Purchase PUMPKIN tokens to meet the minimum requirement:
-    - **$100 USD worth** at current price
-    - OR **2.8 million PUMPKIN tokens** (whichever is less)
+  <Step title="Create New Wallet">
+    Follow the wallet setup wizard. **Save your seed phrase securely!**
   </Step>
-
-  <Step title="Verify Balance">
-    Check your balance meets requirements before proceeding
+  <Step title="Get Your Wallet Address">
+    Copy your Sui address - you'll need it to receive tokens
   </Step>
 </Steps>
 
-## Step 2: Connect to QuantumVoid
+### 1.2 Buy SUI Tokens
 
-1. Navigate to trade.quantumvoid.org
-2. Click **"Connect Sui Wallet"**
-3. Approve the connection request
-4. Sign the authentication message
+Get SUI tokens via one of these methods:
+- **From CEX**: Buy SUI on Binance, Coinbase, etc., then withdraw to your Sui wallet
+- **Bridge**: Bridge from other chains using [Portal Bridge](https://portalbridge.com)
 
-## Step 3: Add Exchange Credentials
+### 1.3 Swap for PUMPKIN
 
-Choose your exchange and follow the detailed setup guide
+<Steps>
+  <Step title="Go to a Sui DEX">
+    Visit [Turbos](https://turbos.finance), [Cetus](https://cetus.zone), or [Aftermath](https://aftermath.finance)
+  </Step>
+  <Step title="Connect Your Wallet">
+    Click "Connect Wallet" and approve the connection
+  </Step>
+  <Step title="Swap SUI for PUMPKIN">
+    - Select SUI as input
+    - Select PUMPKIN as output
+    - Enter amount ($100+ worth)
+    - Confirm swap
+  </Step>
+</Steps>
 
-## Step 4: Start Your Bot
+---
 
-1. Navigate to **Bot Management**
-2. Select a preset configuration
-3. Click **"Start Bot"**
-4. Monitor in real-time
+## Step 2: Connect to Quant Dash (2 minutes)
 
-Your bot is now live! 🎉
+<Steps>
+  <Step title="Visit the Dashboard">
+    Go to [trade.quantumvoid.org](https://trade.quantumvoid.org)
+  </Step>
+  <Step title="Connect Wallet">
+    Click **"Connect Sui Wallet"** in the top right
+  </Step>
+  <Step title="Approve Connection">
+    Your wallet will prompt you - click Approve
+  </Step>
+  <Step title="Sign Authentication">
+    Sign the message to verify wallet ownership (no transaction, just signature)
+  </Step>
+</Steps>
+
+<Note>
+The platform verifies your PUMPKIN balance automatically. If you don't meet the minimum requirement, you'll be prompted to acquire more tokens.
+</Note>
+
+---
+
+## Step 3: Add Exchange API Keys (5 minutes)
+
+### 3.1 Create API Keys on Your Exchange
+
+<Tabs>
+  <Tab title="BloFin">
+    1. Log in to BloFin
+    2. Go to **Account** → **API Management**
+    3. Create new API key with:
+       - [x] Read
+       - [x] Trade
+       - [ ] Withdraw (NEVER enable!)
+    4. Set a passphrase
+    5. Copy: API Key, Secret, Password
+
+    [Full BloFin Guide →](/exchanges/blofin)
+  </Tab>
+  <Tab title="Bybit">
+    1. Log in to Bybit
+    2. Go to **Account** → **API**
+    3. Create new API key with:
+       - [x] Read
+       - [x] Trade (Contract)
+       - [ ] Withdraw (NEVER enable!)
+    4. Copy: API Key, Secret
+
+    [Full Bybit Guide →](/exchanges/bybit)
+  </Tab>
+  <Tab title="HTX">
+    1. Log in to HTX
+    2. Go to **Account** → **API Management**
+    3. Create new key with Trade permission
+    4. Copy: API Key, Secret
+
+    [Full HTX Guide →](/exchanges/htx)
+  </Tab>
+  <Tab title="WEEX">
+    1. Log in to WEEX
+    2. Go to **Account** → **API Management**
+    3. Create new key with passphrase
+    4. Copy: API Key, Secret, Passphrase
+
+    [Full WEEX Guide →](/exchanges/weex)
+  </Tab>
+</Tabs>
+
+### 3.2 Add Keys to Quant Dash
+
+<Steps>
+  <Step title="Navigate to Exchanges">
+    Dashboard → **Settings** → **Exchanges**
+  </Step>
+  <Step title="Add New Exchange">
+    Click **"Add Exchange"**
+  </Step>
+  <Step title="Enter Credentials">
+    - Select your exchange
+    - Paste API Key
+    - Paste Secret Key
+    - Enter Password/Passphrase (if required)
+  </Step>
+  <Step title="Test Connection">
+    Click **"Test Connection"** - should show success
+  </Step>
+  <Step title="Save">
+    Click **"Save"** to store credentials securely
+  </Step>
+</Steps>
+
+---
+
+## Step 4: Launch Your First Bot (5 minutes)
+
+### 4.1 Choose a Symbol
+
+For beginners, we recommend:
+- **DOGEUSDT** - High volume, good for learning
+- **1000PEPEUSDT** - Volatile, good profits in good conditions
+
+### 4.2 Select a Preset
+
+<Steps>
+  <Step title="Go to Bot Management">
+    Dashboard → **Bot Management**
+  </Step>
+  <Step title="Click Create Bot">
+    Click **"New Bot"** or **"Create Bot"**
+  </Step>
+  <Step title="Select Exchange">
+    Choose the exchange you just configured
+  </Step>
+  <Step title="Select Symbol">
+    Enter `DOGEUSDT` (or your chosen symbol)
+  </Step>
+  <Step title="Choose Preset">
+    Select **"Vortex DCA - Conservative"** or similar beginner preset
+
+    <Note>
+    Presets come pre-configured with safe settings. You can customize later.
+    </Note>
+  </Step>
+</Steps>
+
+### 4.3 Review Settings
+
+Before starting, review these key settings:
+
+| Setting | Recommended for Beginners | What It Does |
+|---------|--------------------------|--------------|
+| Wallet Exposure | 10-15% | Maximum capital at risk |
+| Leverage | 10-20x | Position multiplier |
+| Nr Clusters | 4 | Number of buy orders |
+
+### 4.4 Start the Bot
+
+<Steps>
+  <Step title="Click Start">
+    Click the **"Start Bot"** button
+  </Step>
+  <Step title="Confirm">
+    Review the confirmation dialog and confirm
+  </Step>
+  <Step title="Watch Status">
+    Status should change to **Running** (green)
+  </Step>
+</Steps>
+
+---
+
+## Step 5: Verify It's Working (5 minutes)
+
+### Check These Indicators
+
+<Check>**Status is Green** - Bot is running without errors</Check>
+<Check>**Orders Visible** - Open orders appear in dashboard</Check>
+<Check>**Logs Updating** - Trading Console shows activity</Check>
+
+### What to Expect
+
+**First few minutes:**
+- Bot analyzes market conditions
+- Places initial grid orders
+- You'll see orders in the dashboard
+
+**First hour:**
+- Some orders may fill (depending on market movement)
+- Position may open
+- P&L starts tracking
+
+**First day:**
+- Multiple fills likely
+- Position may grow and shrink
+- Take-profit orders execute
+
+---
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Understand Strategies" icon="book" href="/strategies/overview">
+    Learn how each strategy works
+  </Card>
+  <Card title="Customize Settings" icon="gear" href="/bot-configuration">
+    Adjust parameters for your style
+  </Card>
+  <Card title="Risk Management" icon="shield" href="/risk-management/risk-management-best-practices">
+    Protect your capital
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
+    Fix common issues
+  </Card>
+</CardGroup>
+
+---
+
+## Common First-Timer Questions
+
+<Accordion title="How long before I see profits?">
+  It depends on market conditions. In active markets, you might see fills within hours. In quiet markets, it might take longer.
+
+  **Don't expect:** Instant profits
+  **Do expect:** Activity within 24 hours in normal conditions
+</Accordion>
+
+<Accordion title="What if my position goes negative?">
+  This is normal! The strategy is designed to average into positions and recover.
+
+  - Small losses are expected
+  - The system has recovery mechanisms
+  - Auto-hedging provides protection (if enabled)
+  - Only panic at 10%+ losses
+</Accordion>
+
+<Accordion title="Should I watch it constantly?">
+  **First week:** Check daily to understand behavior
+  **After learning:** Weekly checks are usually fine
+  **Exception:** Highly volatile markets - check more often
+</Accordion>
+
+<Accordion title="When should I stop the bot?">
+  Consider stopping when:
+  - You want to take profits
+  - Market conditions are extreme
+  - You don't understand what's happening
+  - You're approaching loss limits
+
+  Don't stop just because of small fluctuations - that's normal!
+</Accordion>
+
+---
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="FAQ" icon="circle-question" href="/faq">
+    Common questions answered
+  </Card>
+  <Card title="Telegram Support" icon="telegram" href="https://t.me/pumpkinsui">
+    Get help from the community
+  </Card>
+</CardGroup>

@@ -1,0 +1,191 @@
+---
+title: "Strategy Overview"
+description: "Compare trading strategies and choose the right one for your goals"
+---
+
+# Trading Strategy Overview
+
+Quant Dash offers three powerful automated trading strategies, each optimized for different market conditions and risk profiles.
+
+## Strategy Comparison
+
+| Strategy | Best For | Risk Level | Complexity | Recommended Capital |
+|----------|----------|------------|------------|---------------------|
+| **Vortex DCA** | Accumulation, trending markets | Medium | Low | $500+ |
+| **Perp Market Maker** | Range-bound, low volatility | Medium-High | High | $1,000+ |
+| **XGrid** | High volatility, momentum | High | Medium | $500+ |
+
+## Visual Guide: When to Use Each Strategy
+
+```
+Market Trending Up/Down?
+         │
+    YES ─┴─ NO
+     │      │
+     ▼      ▼
+ VORTEX   Market Moving Sideways?
+  DCA          │
+          YES ─┴─ NO (High Volatility)
+           │      │
+           ▼      ▼
+         PERP    XGRID
+          MM
+```
+
+---
+
+## Vortex DCA (Dollar-Cost Averaging)
+
+<Card title="Best For" icon="chart-line">
+  Accumulating positions during downtrends or volatile markets
+</Card>
+
+### How It Works
+
+Vortex DCA places multiple buy orders at different price levels, creating a "grid" that catches price dips. As price falls, the bot accumulates more at better prices, lowering your average entry.
+
+```
+Current Price: $100
+         │
+    $99  ├── BUY ORDER (small)
+    $98  ├── BUY ORDER (medium)
+    $97  ├── BUY ORDER (larger)
+    $96  ├── BUY ORDER (largest)
+         │
+    Average Entry: Better than $100!
+```
+
+### Key Features
+- **Geometric Grid Spacing**: Orders spread wider as price moves further from entry
+- **Auto-Rebalancing**: Grid refreshes every 2-3 minutes to follow price
+- **Position Recovery**: Virtual chunking system rescues underwater positions
+- **Auto-Hedging**: Optional hedging when drawdown exceeds threshold
+
+<Card title="Learn More" icon="arrow-right" href="/strategies/vortex-dca">
+  Complete Vortex DCA Guide
+</Card>
+
+---
+
+## Perpetual Market Maker
+
+<Card title="Best For" icon="scale-balanced">
+  Earning spread in sideways/ranging markets
+</Card>
+
+### How It Works
+
+The Perp Market Maker acts like a professional market maker, placing both buy AND sell orders around the current price. You profit from the "spread" - the difference between bid and ask prices.
+
+```
+         ASK $100.05 ← SELL ORDER
+              │
+    SPREAD ───┼─── You earn this!
+              │
+         BID $99.95  ← BUY ORDER
+```
+
+### Key Features
+- **Two-Sided Quoting**: Profits from any price movement
+- **Whale Detection**: Places orders near large support/resistance walls
+- **Loss Management Tiers**: Automatic risk reduction when losing
+- **50+ Advanced Signals**: Trap detection, cascade hunting, velocity tracking
+
+### Risk Warning
+<Warning>
+Market making is complex. This strategy has 100+ configurable parameters.
+Start with a preset and small position sizes until you understand the behavior.
+</Warning>
+
+<Card title="Learn More" icon="arrow-right" href="/strategies/perp-market-maker">
+  Complete Perp Market Maker Guide
+</Card>
+
+---
+
+## XGrid (Momentum Scalping)
+
+<Card title="Best For" icon="bolt">
+  Capturing momentum moves in volatile markets
+</Card>
+
+### How It Works
+
+XGrid uses technical analysis (EMA crossovers, Donchian channels) to detect trend direction, then scalps with the trend for quick profits.
+
+```
+EMA 11 crosses ABOVE EMA 23?
+         │
+    YES ─┴─ LONG SIGNAL
+         │
+         ▼
+    Place BUY orders
+    Quick TP at 0.3-0.5%
+```
+
+### Key Features
+- **Trend Detection**: EMA 11/23 crossover with Donchian confirmation
+- **Fast Execution**: 30-second signal caching for quick entries
+- **Volatility Filter**: NATR ensures sufficient movement for profits
+- **Peak/Trough Confirmation**: Validates signals before entry
+
+<Card title="Learn More" icon="arrow-right" href="/strategies/xgrid">
+  Complete XGrid Guide
+</Card>
+
+---
+
+## Strategy Selection Guide
+
+### I'm a Beginner
+<Note>
+Start with **Vortex DCA** using a conservative preset:
+- Lower risk profile
+- Easier to understand
+- Works in most market conditions
+- Built-in position recovery
+</Note>
+
+### I Have $500-1000
+- **Trending Market**: Vortex DCA
+- **Sideways Market**: Perp MM with small position sizes
+- **Volatile Market**: XGrid with tight stops
+
+### I Have $2000+
+- Consider running **multiple strategies** on different symbols
+- Use **auto-hedging** for additional protection
+- Explore **advanced Perp MM settings** for higher returns
+
+### I'm Experienced
+- Full access to 100+ parameters
+- Custom presets for your trading style
+- Combine strategies (e.g., Vortex DCA + XGrid Counter Scalp)
+
+---
+
+## Risk Disclosure
+
+<Warning>
+**Important**: All trading involves risk of loss. Past performance does not guarantee future results.
+
+- Only trade with funds you can afford to lose
+- Start with small position sizes
+- Understand the strategy before going live
+- Monitor your bots regularly
+</Warning>
+
+---
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Vortex DCA" icon="chart-simple" href="/strategies/vortex-dca">
+    Learn DCA strategy in detail
+  </Card>
+  <Card title="Perp MM" icon="scale-balanced" href="/strategies/perp-market-maker">
+    Master market making
+  </Card>
+  <Card title="XGrid" icon="bolt" href="/strategies/xgrid">
+    Understand momentum scalping
+  </Card>
+</CardGroup>
