@@ -67,6 +67,29 @@ Price bounces in range      Price trends away
   Leverage multiplier. Higher = more capital efficiency but higher liquidation risk.
 </ParamField>
 
+### Equity-Based Sizing (New in v7)
+
+<ParamField path="proactive_multilevel.equity_pct" type="float" default="0">
+  **The Growth Engine** - Percentage of account equity to use for grid sizing.
+
+  - `0` = Legacy behavior (uses base_size_pct)
+  - `5.0` = 5% of account equity per grid cycle
+  - `10.0` = 10% of account equity per grid cycle
+
+  **Why it matters:** As your account grows from profits, position sizes automatically scale up!
+</ParamField>
+
+**Effective Exposure Formula:**
+```
+effective_exposure = equity_pct × leverage
+```
+
+**Example:**
+- 5% equity_pct × 75x leverage = 375% effective exposure
+- A 1% adverse move costs: 3.75% of your account
+
+<Tip>Use the **Scaling Agent** (`/set equity_pct 5`) to easily adjust this parameter. See [Scaling Agent docs](/features/scaling-agent).</Tip>
+
 ### Fee Configuration
 
 <ParamField path="maker_fee_bps" type="integer" default="2">
@@ -146,27 +169,41 @@ Positions that age without profit are progressively exited:
 ```
 Position Age    │ Action
 ────────────────┼────────────────────────────
-< 1 hour        │ Wait for TP
-1-4 hours       │ Tighten TP target
-4-8 hours       │ Exit at breakeven if possible
-8+ hours        │ Force exit (accept small loss)
+< 4 hours       │ Wait for TP
+4-8 hours       │ Tighten TP target
+8 hours         │ Exit at breakeven if possible
+8-24 hours      │ Accept small loss exit
+24+ hours       │ Force exit (market order)
 ```
 
 <ParamField path="time_decay.enabled" type="boolean" default="true">
   Enable time-based exits.
 </ParamField>
 
-<ParamField path="time_decay.breakeven_after_seconds" type="integer" default="3600">
-  Exit at breakeven after this many seconds (1 hour).
+<ParamField path="time_decay.force_exit_enabled" type="boolean" default="true">
+  Easy toggle for force exit. Set to `false` to let positions run indefinitely.
 </ParamField>
 
-<ParamField path="time_decay.exit_loss_after_seconds" type="integer" default="14400">
-  Accept loss exit after this many seconds (4 hours).
+<ParamField path="time_decay.breakeven_after_seconds" type="integer" default="28800">
+  Exit at breakeven after this many seconds (8 hours).
 </ParamField>
 
-<ParamField path="time_decay.force_exit_after_seconds" type="integer" default="28800">
-  Force market exit after this many seconds (8 hours).
+<ParamField path="time_decay.exit_loss_after_seconds" type="integer" default="28800">
+  Accept loss exit after this many seconds (8 hours).
 </ParamField>
+
+<ParamField path="time_decay.force_exit_after_seconds" type="integer" default="86400">
+  Force market exit after this many seconds (24 hours).
+</ParamField>
+
+<Note>
+**Standard Time Decay Values (v7):**
+- Breakeven: 8 hours (28800 seconds)
+- Exit Loss: 8 hours (28800 seconds)
+- Force Exit: 24 hours (86400 seconds)
+
+These values prevent positions from aging indefinitely while giving trades adequate time to recover.
+</Note>
 
 ---
 
@@ -281,7 +318,100 @@ XGrid Signal: SHORT (trend down)
 
 ## Preset Configurations
 
-### HFT v4 (Recommended for BloFin)
+### v7 Long Short Counterscalp (Recommended)
+
+The latest preset with equity-based sizing and XGrid counter scalp:
+
+<Tabs>
+  <Tab title="BloFin v7">
+```json
+{
+  "strategy": "perp_mm",
+  "leverage": 75,
+  "proactive_multilevel": {
+    "equity_pct": 5.0,
+    "levels": 5
+  },
+  "spread": {
+    "base_spread_bps": 15,
+    "min_spread_bps": 8
+  },
+  "fees": {
+    "maker_fee_bps": 2,
+    "taker_fee_bps": 6
+  },
+  "xgrid_counter_scalp": {
+    "enabled": true,
+    "max_counter_pct": 50
+  },
+  "reactive_spacing": {
+    "enabled": true,
+    "max_multiplier": 10.0
+  },
+  "loss_management": {
+    "tier_1_bps": 100,
+    "tier_2_bps": 300,
+    "tier_3_bps": 600,
+    "hard_stop_loss_bps": 1000
+  },
+  "time_decay": {
+    "breakeven_after_seconds": 28800,
+    "exit_loss_after_seconds": 28800,
+    "force_exit_after_seconds": 86400,
+    "force_exit_enabled": true
+  }
+}
+```
+  </Tab>
+  <Tab title="Bybit v7">
+```json
+{
+  "strategy": "perp_mm",
+  "leverage": 50,
+  "proactive_multilevel": {
+    "equity_pct": 5.0,
+    "levels": 5
+  },
+  "spread": {
+    "base_spread_bps": 18,
+    "min_spread_bps": 10
+  },
+  "fees": {
+    "maker_fee_bps": 2,
+    "taker_fee_bps": 5.5
+  },
+  "xgrid_counter_scalp": {
+    "enabled": true,
+    "max_counter_pct": 50
+  },
+  "reactive_spacing": {
+    "enabled": true,
+    "max_multiplier": 10.0
+  },
+  "loss_management": {
+    "tier_1_bps": 100,
+    "tier_2_bps": 300,
+    "tier_3_bps": 600,
+    "hard_stop_loss_bps": 1000
+  },
+  "time_decay": {
+    "breakeven_after_seconds": 28800,
+    "exit_loss_after_seconds": 28800,
+    "force_exit_after_seconds": 86400,
+    "force_exit_enabled": true
+  }
+}
+```
+  </Tab>
+</Tabs>
+
+**v7 Key Features:**
+- `equity_pct: 5.0` - Grids sized as 5% of account equity
+- `xgrid_counter_scalp: enabled` - Automatic hedging
+- `reactive_spacing.max_multiplier: 10` - Wide spread range for volatility
+- `time_decay: 8h/8h/24h` - Standard aging exits
+
+### HFT v6 (High Frequency)
 
 ```json
 {
@@ -289,8 +419,8 @@ XGrid Signal: SHORT (trend down)
   "max_position_usdt": 2000,
   "quote_size_usdt": 10,
   "leverage": 75,
-  "base_spread_bps": 15,
-  "min_spread_bps": 8,
+  "base_spread_bps": 12,
+  "min_spread_bps": 7,
   "maker_fee_bps": 2,
   "taker_fee_bps": 6,
   "geometric_sizing": {
@@ -307,27 +437,9 @@ XGrid Signal: SHORT (trend down)
   },
   "time_decay": {
     "enabled": true,
-    "breakeven_after_seconds": 14400,
-    "force_exit_after_seconds": 28800
-  }
-}
-```
-
-### Bybit MM (Recommended for Bybit)
-
-```json
-{
-  "enabled": true,
-  "max_position_usdt": 1500,
-  "quote_size_usdt": 15,
-  "leverage": 50,
-  "base_spread_bps": 18,
-  "min_spread_bps": 10,
-  "maker_fee_bps": 2,
-  "taker_fee_bps": 5.5,
-  "whale_frontrun": {
-    "enabled": true,
-    "min_whale_volume_usdt": 5000
+    "breakeven_after_seconds": 28800,
+    "exit_loss_after_seconds": 28800,
+    "force_exit_after_seconds": 86400
   }
 }
 ```
@@ -384,10 +496,16 @@ Your `min_profitable_spread_bps` is higher than current market spread.
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Scaling Agent" icon="robot" href="/features/scaling-agent">
+    Interactive AI assistant to optimize your settings
+  </Card>
   <Card title="Full Config Reference" icon="gear" href="/bot-configuration">
     All 100+ parameters explained
   </Card>
   <Card title="Loss Management" icon="shield" href="/risk-management/risk-management-best-practices">
     Risk management deep dive
+  </Card>
+  <Card title="Bot Management" icon="sliders" href="/features/bot-management">
+    Start and manage your bots
   </Card>
 </CardGroup>

@@ -53,6 +53,7 @@
             "pages": [
               "features/dashboard-overview",
               "features/bot-management",
+              "features/scaling-agent",
               "features/trading-console"
             ]
           },

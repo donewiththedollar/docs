@@ -1,0 +1,322 @@
+---
+title: 'Scaling Agent'
+description: 'Interactive AI assistant for optimizing your perp market maker settings'
+---
+
+# Scaling Agent
+
+The **Scaling Agent** is an interactive command-line assistant built into the Bot Management tab. It helps you optimize your perp market maker (perp_mm) bot settings through natural conversation and guided commands.
+
+<Info>The Scaling Agent only works with **perp_mm** strategy bots. Vortex DCA and other strategies use different parameters.</Info>
+
+---
+
+## 🚀 Getting Started
+
+### Accessing the Agent
+
+1. Navigate to **Bot Management** tab
+2. Find the **Scaling Agent Console** at the top of the page
+3. Type commands or natural language questions
+4. Press Enter or click Send
+
+### First Time?
+
+If you don't have a running perp_mm bot, the agent will guide you to:
+1. Select an appropriate preset (like "BloFin v7 Long Short Counterscalp")
+2. Configure your exchange credentials
+3. Start your first bot
+
+---
+
+## 💬 Commands Reference
+
+### Quick Profiles
+
+Apply pre-tuned risk profiles instantly:
+
+| Command | Risk Level | equity_pct | Leverage | Expected Returns |
+|---------|------------|------------|----------|------------------|
+| `/scale conservative` | Low | 3% | 10x | 0.5-1% daily |
+| `/scale moderate` | Medium | 5% | 50x | 1-3% daily |
+| `/scale aggressive` | High | 12% | 75x | 3-10% daily |
+| `/scale degen` | Extreme | 20% | 100x | 10-50%+ (or rekt) |
+
+<Warning>**DEGEN mode** uses 100x leverage. You could lose your entire account. Only use with money you can afford to lose!</Warning>
+
+### Fine-Tune Settings
+
+Adjust individual parameters:
+
+```bash
+/set equity_pct 5      # Set equity percentage to 5%
+/set leverage 50       # Set leverage to 50x
+/set base_spread_bps 15    # Set spread to 15 basis points
+/set target_net_bps 11     # Set take-profit to 11 bps
+/set num_levels 7          # Set grid levels to 7
+/set xgrid_enabled true    # Enable XGrid counter scalp
+```
+
+**Available Parameters:**
+
+| Parameter | Range | Description |
+|-----------|-------|-------------|
+| `equity_pct` | 0-50 | % of equity per grid cycle |
+| `leverage` | 1-125 | Position leverage |
+| `base_spread_bps` | 5-100 | Base spread in basis points |
+| `min_spread_bps` | 3-50 | Minimum spread floor |
+| `target_net_bps` | 3-50 | Take-profit target |
+| `num_levels` | 2-20 | Number of grid levels |
+| `hard_stop_loss_bps` | 50-3000 | Hard stop loss |
+| `xgrid_enabled` | true/false | Enable XGrid hedging |
+
+### Analysis Commands
+
+```bash
+/status          # Show current bot settings
+/risk check      # Analyze your risk level
+/profit estimate # Estimate daily returns
+/overview        # Show all bots across exchanges
+/symbols         # Top symbols for market making
+```
+
+### Learn
+
+```bash
+/explain equity_pct  # How equity scaling works
+/explain xgrid       # Counter-scalp hedging explained
+/explain leverage    # Leverage and liquidation risk
+/explain spread      # Understanding spreads and fees
+/explain grid        # Grid levels explained
+```
+
+---
+
+## 🎯 Natural Language
+
+You can also just ask questions naturally:
+
+- **"I want more profit"** - Get scaling recommendations
+- **"Make my bot safer"** - Conservative settings guide
+- **"What's my risk level?"** - Risk analysis
+- **"Explain equity_pct"** - Educational content
+- **"Need more grid levels"** - Grid configuration help
+
+---
+
+## 📊 /overview Command
+
+See all your running bots across exchanges:
+
+```
+/overview
+```
+
+**Returns:**
+- Active exchanges (Bybit, BloFin, etc.)
+- Running bot count
+- Total effective exposure across all bots
+- Per-bot breakdown with config, strategy, exposure
+- Risk warnings if exposure is high
+
+**Example output:**
+```
+**Bot Overview**
+
+**Active Exchanges:** blofin, bybit
+**Running Bots:** 2
+**Total Effective Exposure:** 375% of equity
+
+---
+**🟢 Running Bots:**
+
+**BLOFIN** - perp_mm
+- Config: BloFin v7 Long Short Counterscalp
+- Settings: 5% equity × 75x = **375%** exposure
+- Symbols: ASTER, SOL, XRP
+
+⚠️ **Moderate Risk Level**
+Combined exposure: 375% - This is aggressive but manageable.
+```
+
+---
+
+## 📈 /symbols Command
+
+Get real-time symbol recommendations for market making:
+
+```
+/symbols          # Uses your bot's exchange
+/symbols bybit    # Force Bybit symbols
+```
+
+**Returns top 10 symbols ranked by MM Score:**
+
+| Symbol | Price | 1h Vol | Spread | ATRP | Trend | Score |
+|--------|-------|--------|--------|------|-------|-------|
+| ASTER | $0.08 | $2.1M | 0.05% | 0.32 | 🟢 | 8.5 |
+| SOL | $185 | $15M | 0.02% | 0.28 | 🟢 | 7.2 |
+| XRP | $2.15 | $8M | 0.03% | 0.25 | 🔴 | 6.8 |
+
+**MM Score Formula:**
+```
+(volume / 100K) × (1 / spread) × min(ATRP × 10, 5) × (leverage / 50)
+```
+
+**Best for MM:** High volume, low spread, moderate ATRP (0.1-0.5)
+
+---
+
+## ⚖️ Risk Profiles Explained
+
+### Conservative
+```json
+{
+  "equity_pct": 3.0,
+  "leverage": 10,
+  "base_spread_bps": 25,
+  "target_net_bps": 15,
+  "hard_stop_loss_bps": 200
+}
+```
+- **Best for:** Learning, large accounts, uncertain markets
+- **Effective exposure:** ~30% of equity
+- **1% adverse move costs:** ~0.3% of account
+
+### Moderate
+```json
+{
+  "equity_pct": 5.0,
+  "leverage": 50,
+  "base_spread_bps": 15,
+  "target_net_bps": 11,
+  "hard_stop_loss_bps": 500
+}
+```
+- **Best for:** Balanced risk/reward
+- **Effective exposure:** ~250% of equity
+- **1% adverse move costs:** ~2.5% of account
+
+### Aggressive
+```json
+{
+  "equity_pct": 12.0,
+  "leverage": 75,
+  "base_spread_bps": 10,
+  "target_net_bps": 8,
+  "hard_stop_loss_bps": 800
+}
+```
+- **Best for:** Experienced traders, smaller accounts
+- **Effective exposure:** ~900% of equity
+- **1% adverse move costs:** ~9% of account
+
+### Degen
+```json
+{
+  "equity_pct": 20.0,
+  "leverage": 100,
+  "base_spread_bps": 8,
+  "target_net_bps": 6,
+  "hard_stop_loss_bps": 1500
+}
+```
+- **Best for:** Gambling, "fun money" only
+- **Effective exposure:** ~2000% of equity
+- **1% adverse move costs:** ~20% of account
+
+<Warning>Degen mode requires explicit confirmation. You will be asked to type `/confirm scale degen` before applying.</Warning>
+
+---
+
+## 🧮 Key Concepts
+
+### equity_pct (The Growth Engine)
+
+Controls what % of your account equity is used for grid sizing:
+
+| equity_pct | $1,000 account | $10,000 account |
+|------------|----------------|-----------------|
+| 3% | $30 per cycle | $300 per cycle |
+| 5% | $50 per cycle | $500 per cycle |
+| 10% | $100 per cycle | $1,000 per cycle |
+
+**Why it matters:**
+- As your account grows, positions automatically scale up
+- Combined with leverage: `equity_pct × leverage = effective exposure`
+- At 10% with 75x: effective exposure = 750%
+
+### Effective Exposure Formula
+
+```
+Effective Exposure = equity_pct × leverage
+```
+
+**Example:**
+- 5% equity_pct × 50x leverage = 250% exposure
+- A 1% adverse price move costs: 250% × 1% = **2.5% of your account**
+
+### XGrid Counter Scalp
+
+When enabled, automatically opens counter-positions when market moves against you:
+
+1. You're LONG, market dumps 2%
+2. XGrid opens a SHORT position (counter-scalp)
+3. If market keeps falling, SHORT profits offset LONG losses
+4. If market reverses, original LONG profits
+
+**Best for:** Volatile, choppy markets where direction is uncertain
+
+---
+
+## ⚙️ How It Works
+
+### Config Synchronization
+
+When you modify settings through the Scaling Agent:
+
+1. **JSON file updated** - Bot process reads this on restart
+2. **Database updated** - Frontend JSON editor shows new values
+3. **Backup created** - Previous config saved with timestamp
+
+<Tip>Changes require a **bot restart** to take effect. The running bot uses the config from when it started.</Tip>
+
+### Safety Features
+
+- **Automatic backups** before any change
+- **Validation** prevents invalid configurations
+- **Warnings** for dangerous settings
+- **Confirmation required** for degen mode
+
+---
+
+## 🛠️ Troubleshooting
+
+### "No perp_mm configs found"
+
+Your bot isn't using the perp_mm strategy. The Scaling Agent only works with perp_mm bots.
+
+**Solution:** Start a bot with a perp_mm preset like "BloFin v7 Long Short Counterscalp"
+
+### Changes not appearing in JSON editor
+
+SQLAlchemy JSON column detection issue (rare).
+
+**Solution:** Refresh the page after making changes
+
+### Bot not using new settings
+
+Bots read config at startup only.
+
+**Solution:** Restart your bot after making changes
+
+---
+
+## 📚 Next Steps
+
+- **[Perp Market Maker Strategy](/strategies/perp-market-maker)** - Deep dive into the strategy
+- **[Bot Configuration](/bot-configuration)** - All 100+ parameters explained
+- **[Risk Management](/risk-management/risk-management-best-practices)** - Best practices
+- **[Trading Console](/features/trading-console)** - Monitor your bot logs
+
+**Happy scaling! 🚀**
