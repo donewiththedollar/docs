@@ -43,6 +43,7 @@
             "group": "Strategies",
             "pages": [
               "strategies/overview",
+              "strategies/preset-guide",
               "strategies/vortex-dca",
               "strategies/perp-market-maker",
               "strategies/xgrid"
@@ -77,6 +78,7 @@
             "pages": [
               "exchanges/bybit",
               "exchanges/blofin",
+              "exchanges/blofin-perp-mm-quickstart",
               "exchanges/htx",
               "exchanges/weex",
               "exchanges/defx"

@@ -169,11 +169,11 @@ Positions that age without profit are progressively exited:
 ```
 Position Age    │ Action
 ────────────────┼────────────────────────────
-< 4 hours       │ Wait for TP
-4-8 hours       │ Tighten TP target
-8 hours         │ Exit at breakeven if possible
-8-24 hours      │ Accept small loss exit
-24+ hours       │ Force exit (market order)
+< 24 hours      │ Wait for TP
+24-48 hours     │ Tighten TP target
+48 hours        │ Exit at breakeven if possible
+48-72 hours     │ Accept small loss exit
+72+ hours       │ Force exit (market order)
 ```
 
 <ParamField path="time_decay.enabled" type="boolean" default="true">
@@ -184,8 +184,8 @@ Position Age    │ Action
   Easy toggle for force exit. Set to `false` to let positions run indefinitely.
 </ParamField>
 
-<ParamField path="time_decay.breakeven_after_seconds" type="integer" default="28800">
-  Exit at breakeven after this many seconds (8 hours).
+<ParamField path="time_decay.breakeven_after_seconds" type="integer" default="172800">
+  Exit at breakeven after this many seconds (48 hours).
 </ParamField>
 
 <ParamField path="time_decay.exit_loss_after_seconds" type="integer" default="28800">
@@ -198,9 +198,9 @@ Position Age    │ Action
 
 <Note>
 **Standard Time Decay Values (v7):**
-- Breakeven: 8 hours (28800 seconds)
+- Breakeven: 48 hours (172800 seconds)
 - Exit Loss: 8 hours (28800 seconds)
-- Force Exit: 24 hours (86400 seconds)
+- Force Exit: 48 hours (172800 seconds)
 
 These values prevent positions from aging indefinitely while giving trades adequate time to recover.
 </Note>

@@ -1,0 +1,244 @@
+---
+title: 'BloFin Perp MM Quickstart'
+description: 'Get a perpetual market making bot running on BloFin in 15 minutes'
+---
+
+# BloFin Perp MM Quickstart
+
+This guide gets you running the **Perpetual Market Maker** strategy on BloFin - the most advanced strategy for active traders who want to profit from bid-ask spreads.
+
+<Note>
+**What is Perp MM?** Instead of just buying dips and selling highs, market makers quote BOTH sides - placing buy orders below price AND sell orders above price. You profit from the spread when both sides fill.
+</Note>
+
+---
+
+## Prerequisites
+
+<Check>BloFin account with completed KYC</Check>
+<Check>$500+ USDT in your BloFin USDT-M futures wallet</Check>
+<Check>Sui wallet with $100+ PUMPKIN tokens</Check>
+<Check>API keys created (see [BloFin Setup Guide](/exchanges/blofin) if needed)</Check>
+
+---
+
+## Step 1: Connect to Dashboard (2 min)
+
+<Steps>
+  <Step title="Visit Dashboard">
+    Go to [trade.quantumvoid.org](https://trade.quantumvoid.org)
+  </Step>
+  <Step title="Connect Wallet">
+    Click **Connect Sui Wallet** and sign the authentication message
+  </Step>
+  <Step title="Select BloFin Mode">
+    Click **BloFin Perps** on the main screen
+  </Step>
+</Steps>
+
+---
+
+## Step 2: Add BloFin Credentials (3 min)
+
+If you haven't added credentials yet:
+
+<Steps>
+  <Step title="Open Exchange Settings">
+    Click the **gear icon** or go to **Settings > Exchanges**
+  </Step>
+  <Step title="Add BloFin">
+    Click **Add Exchange** and select **BloFin**
+  </Step>
+  <Step title="Enter Credentials">
+    - **API Key**: Paste from BloFin
+    - **Secret Key**: Paste from BloFin
+    - **Password**: The passphrase you set when creating the key
+  </Step>
+  <Step title="Test & Save">
+    Click **Test Connection** - should show green success. Then **Save**.
+  </Step>
+</Steps>
+
+---
+
+## Step 3: Create Your Bot (5 min)
+
+<Steps>
+  <Step title="Go to Bot Management">
+    Click **Bot Management** in the sidebar
+  </Step>
+  <Step title="Create New Bot">
+    Click **New Bot** or **Create Bot**
+  </Step>
+  <Step title="Select Exchange">
+    Choose **BloFin** from the dropdown
+  </Step>
+  <Step title="Enter Symbol">
+    Type your trading pair. Recommended starters:
+    - `ASTER/USDT:USDT` - Moderate volatility, good for learning
+    - `DOGE/USDT:USDT` - High volume, tight spreads
+  </Step>
+  <Step title="Choose Preset">
+    Select **BloFin v7 Long Short Counterscalp**
+
+    <Tip>
+    This is the recommended preset for BloFin. It uses the latest v7 features including equity-based sizing and automatic counter-scalping.
+    </Tip>
+  </Step>
+</Steps>
+
+---
+
+## Step 4: Understand Your Preset
+
+The **BloFin v7 Long Short Counterscalp** preset is pre-configured with:
+
+| Setting | Value | What It Means |
+|---------|-------|---------------|
+| **equity_pct** | 5% | Uses 5% of your account per grid cycle |
+| **leverage** | 75x | High leverage for capital efficiency |
+| **quote_size** | $7 | Each order is $7 |
+| **max_position** | $2000 | Won't exceed $2000 per side |
+| **time_decay** | 48h/48h | Exits stale positions automatically |
+| **xgrid_counter** | Enabled | Scalps opposite direction when stuck |
+
+### What This Bot Does
+
+```
+Market price: $1.00
+
+Your bot places:
+  BUY  @ $0.9985 (15 bps below) ← Waiting to buy cheap
+  SELL @ $1.0015 (15 bps above) ← Waiting to sell high
+
+When BOTH fill:
+  Bought at $0.9985
+  Sold at $1.0015
+  Profit: $0.0030 per unit (30 bps) minus fees
+```
+
+### Risk Protection Built-In
+
+- **Loss tiers**: Reduces activity as losses grow (1% → 3% → 6% → 10% hard stop)
+- **Time decay**: Forces exit after 24h if position stuck
+- **Counter-scalp**: When main position underwater, opens opposite side to offset losses
+
+---
+
+## Step 5: Start the Bot (1 min)
+
+<Steps>
+  <Step title="Review Configuration">
+    Check the settings look correct
+  </Step>
+  <Step title="Click Start">
+    Hit the **Start Bot** button
+  </Step>
+  <Step title="Confirm">
+    Read the confirmation and click **Confirm**
+  </Step>
+</Steps>
+
+---
+
+## Step 6: Monitor Your Bot
+
+### What to Watch
+
+<Check>**Status: Running** (green) - Bot is active</Check>
+<Check>**Orders appearing** - You should see bid/ask orders within seconds</Check>
+<Check>**No red errors** - Check Trading Console for issues</Check>
+
+### Understanding the Display
+
+```
+Position: LONG 150 ASTER @ $1.0234
+uPnL: -$2.45 (-0.8%)
+Orders: 4 BUY / 4 SELL
+
+SPACING: base=15bps × reactive=1.2x → final=18bps
+```
+
+- **Position**: Your current holdings
+- **uPnL**: Unrealized profit/loss
+- **Orders**: Active quotes on each side
+- **SPACING**: How far orders are from mid-price (wider = safer but fewer fills)
+
+---
+
+## First Hour Expectations
+
+**Normal behavior:**
+- Multiple order placements and cancellations
+- Small positions opening and closing
+- P&L fluctuating between small gains and losses
+
+**Warning signs:**
+- No orders appearing after 1 minute
+- Constant red errors in logs
+- Position growing without any take-profits
+
+---
+
+## Adjusting Settings
+
+### Quick Settings (Scaling Agent)
+
+Use the Trading Console to adjust on-the-fly:
+
+```
+/set equity_pct 3      # Reduce to 3% for smaller positions
+/set equity_pct 7      # Increase to 7% for larger positions
+```
+
+### Common Adjustments
+
+| Want to... | Change | From → To |
+|------------|--------|-----------|
+| Reduce risk | `equity_pct` | 5% → 3% |
+| More aggressive | `equity_pct` | 5% → 8% |
+| Wider spreads | `base_spread_bps` | 15 → 25 |
+| Tighter spreads | `base_spread_bps` | 15 → 10 |
+
+---
+
+## Troubleshooting
+
+<Accordion title="Bot starts but no orders appear">
+Check that:
+1. You have USDT in the **USDT-M futures** wallet (not Spot)
+2. Leverage is set on BloFin for that symbol
+3. Symbol format is correct (e.g., `ASTER/USDT:USDT`)
+</Accordion>
+
+<Accordion title="Orders keep getting cancelled">
+This is often normal - the bot refreshes quotes every 2 seconds. If ALL orders cancel:
+1. Check exchange rate limits
+2. Reduce `geometric_max_levels` in config
+</Accordion>
+
+<Accordion title="Position stuck at loss">
+The bot has built-in recovery:
+1. **Wait** - Time decay will handle it (up to 24h)
+2. **Counter-scalp** - XGrid may open opposite position to offset
+3. **Check tier** - At 6%+ loss, bot enters defensive mode
+</Accordion>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Preset Guide" icon="list" href="/strategies/preset-guide">
+    Compare all available presets
+  </Card>
+  <Card title="Perp MM Deep Dive" icon="book" href="/strategies/perp-market-maker">
+    Full strategy documentation
+  </Card>
+  <Card title="Scaling Agent" icon="robot" href="/features/scaling-agent">
+    AI assistant for live adjustments
+  </Card>
+  <Card title="Risk Management" icon="shield" href="/risk-management/risk-management-best-practices">
+    Protect your capital
+  </Card>
+</CardGroup>

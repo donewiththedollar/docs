@@ -1,0 +1,319 @@
+---
+title: 'Preset Selection Guide'
+description: 'Choose the right trading preset for your goals and risk tolerance'
+---
+
+# Preset Selection Guide
+
+Not sure which preset to use? This guide breaks down each preset in plain English so you can pick the right one.
+
+---
+
+## Quick Decision Tree
+
+```
+What's your experience level?
+│
+├─ Beginner → Vortex DCA Conservative
+│
+├─ Intermediate → Which exchange?
+│   ├─ BloFin → BloFin v7 Long Short Counterscalp
+│   ├─ Bybit → Bybit v7 Long Short Counterscalp
+│   └─ DEFX → DEFX Conservative Single
+│
+└─ Advanced → What's your goal?
+    ├─ Max profit → HFT v6 presets
+    ├─ Auto-hedging → Vortex Auto-Hedge Multi
+    └─ Multiple symbols → Multi-Symbol presets
+```
+
+---
+
+## Preset Categories
+
+### 1. Vortex DCA Presets (Beginner-Friendly)
+
+**What is Vortex DCA?** A one-sided strategy that buys dips and sells when price recovers. Simpler than market making.
+
+<CardGroup cols={2}>
+  <Card title="Conservative Single Symbol">
+    - **Risk**: Low
+    - **Exchange**: Any
+    - **Best for**: Learning the platform
+    - **Wallet exposure**: 5%
+    - **Take profit**: 0.5%
+  </Card>
+  <Card title="Geometric Long Only">
+    - **Risk**: Medium
+    - **Exchange**: Any
+    - **Best for**: Bull market DCA
+    - **Wallet exposure**: 100%
+    - **Take profit**: 0.3-0.5%
+  </Card>
+</CardGroup>
+
+**When to use Vortex DCA:**
+- You're new to algorithmic trading
+- You believe the asset will go up long-term
+- You want simpler P&L to understand
+- You're okay with potentially holding bags
+
+---
+
+### 2. Perp Market Maker Presets (Intermediate+)
+
+**What is Perp MM?** A two-sided strategy that quotes buy AND sell orders, profiting from the spread between them.
+
+#### BloFin v7 Long Short Counterscalp (Recommended for BloFin)
+
+<ParamField path="Risk Level" type="string">
+  Aggressive
+</ParamField>
+
+**Plain English:** This preset makes money by placing orders on both sides of the market. When you get stuck in a losing position, it automatically opens trades in the opposite direction to offset losses while waiting for recovery.
+
+**Key Features:**
+| Feature | What It Does |
+|---------|--------------|
+| **equity_pct: 5%** | Sizes your grid based on 5% of account. As you profit, positions grow automatically. |
+| **75x leverage** | High capital efficiency. A 1% move = 75% position change. |
+| **XGrid Counter Scalp** | When stuck long and price dropping, opens shorts to scalp profits. |
+| **Reactive Spacing** | Widens spreads automatically when orderbook gets thin or volatile. |
+| **24h Force Exit** | Won't let positions age forever - forces exit after 24 hours. |
+| **10% Hard Stop** | Emergency exit if losses hit 10% of position. |
+
+**Who should use this:**
+- Traders comfortable with leverage
+- Those who can check the bot at least once daily
+- Accounts with $500+ capital
+
+---
+
+#### Bybit v7 Long Short Counterscalp
+
+Same as BloFin v7 but tuned for Bybit's fee structure and leverage limits.
+
+**Differences from BloFin:**
+- 50x max leverage (vs 75x on BloFin)
+- Slightly wider base spread (accounts for different liquidity)
+- Same risk management features
+
+---
+
+#### HFT v6 Long Short MM
+
+<ParamField path="Risk Level" type="string">
+  Very Aggressive
+</ParamField>
+
+**Plain English:** High-frequency version with faster quote refresh and tighter spreads. More trades, smaller profits per trade.
+
+**Key Features:**
+- $10 quote size (vs $7 on v7)
+- 2-second refresh cycle
+- Geometric sizing (50 levels)
+- No equity-based scaling
+
+**Who should use this:**
+- Experienced traders only
+- High-volume symbols (DOGE, BTC, ETH)
+- Those comfortable with high trade frequency
+
+---
+
+### 3. Auto-Hedge Presets
+
+**What is Auto-Hedge?** Automatically opens opposite positions when your main position is losing, protecting against large drawdowns.
+
+#### 2026 Vortex Auto-Hedge Multi
+
+<ParamField path="Risk Level" type="string">
+  Moderate
+</ParamField>
+
+**Plain English:** Runs Vortex DCA on multiple symbols. When any position draws down 10% OR gets close to liquidation, the bot automatically hedges to limit losses.
+
+**Default Setup:**
+- Symbols: DOGE + 1000PEPE
+- 40% total wallet exposure (20% each)
+- Hedge triggers at 10% drawdown
+- Also hedges when liquidation price gets close
+
+**Who should use this:**
+- Traders wanting automated risk management
+- Those trading multiple symbols
+- Medium to large accounts ($2000+)
+
+---
+
+### 4. Multi-Symbol Presets
+
+For trading multiple assets simultaneously.
+
+<Tabs>
+  <Tab title="Balanced Multi-Symbol">
+    **Risk:** Moderate
+    **Symbols:** DOGE, MNT
+    **Exposure:** 20% each (40% total)
+
+    Good for diversified exposure across liquid assets.
+  </Tab>
+  <Tab title="5-Symbol Moderate">
+    **Risk:** Moderate
+    **Symbols:** Top trending tokens
+    **Exposure:** 20% per symbol
+
+    Spreads risk across 5 different assets.
+  </Tab>
+  <Tab title="Aggressive Multi-Symbol">
+    **Risk:** High
+    **Symbols:** DOGE, MNT, H, SAPIEN
+    **Exposure:** 20% each (80% total)
+
+    Higher exposure for experienced traders.
+  </Tab>
+</Tabs>
+
+---
+
+### 5. DEFX Presets (Base Network)
+
+For trading on DEFX (Aster DEX on Base).
+
+<CardGroup cols={2}>
+  <Card title="DEFX Conservative Single">
+    - **Risk**: Low
+    - **Symbol**: ASTER/USDC
+    - **Exposure**: 10%
+    - Best for learning DEFX
+  </Card>
+  <Card title="DEFX Chefs Choice Long Only">
+    - **Risk**: High
+    - **Symbol**: ASTER
+    - **Exposure**: 50%
+    - Aggressive long-only with virtual chunking
+  </Card>
+</CardGroup>
+
+---
+
+## Preset Comparison Table
+
+| Preset | Strategy | Risk | Exchange | Best For |
+|--------|----------|------|----------|----------|
+| **Conservative Single** | Vortex DCA | Low | Any | Beginners |
+| **Geometric Long Only** | Vortex DCA | Medium | Any | Bull market DCA |
+| **BloFin v7 Counterscalp** | Perp MM | High | BloFin | Active trading |
+| **Bybit v7 Counterscalp** | Perp MM | High | Bybit | Active trading |
+| **HFT v6** | Perp MM | Very High | Any | High frequency |
+| **Auto-Hedge Multi** | Vortex + Hedge | Moderate | Bybit | Risk management |
+| **Multi-Symbol** | Vortex DCA | Varies | Any | Diversification |
+
+---
+
+## Understanding Key Settings
+
+### equity_pct (v7 presets)
+
+This controls how your position sizes scale with your account.
+
+```
+Account: $1,000
+equity_pct: 5%
+
+Grid uses: $1,000 × 5% = $50 per cycle
+
+After profits, account: $1,200
+Grid uses: $1,200 × 5% = $60 per cycle
+```
+
+**Higher = more aggressive growth, more risk.**
+
+---
+
+### xgrid_counter_scalp
+
+When enabled, if your main position is underwater:
+
+```
+Main position: LONG 100 ASTER, -5% loss
+XGrid detects: Downtrend continuing
+
+Counter position opened: SHORT 50 ASTER
+→ Scalps quick profits while main recovers
+→ Offsets some of the main position's losses
+```
+
+---
+
+### time_decay / force_exit
+
+Prevents positions from aging forever:
+
+| Setting | Typical Value | What Happens |
+|---------|---------------|--------------|
+| breakeven_after | 48 hours | Tries to exit at breakeven |
+| exit_loss_after | 48 hours | Accepts small loss to exit |
+| force_exit_after | 24 hours | Market order exit regardless |
+
+---
+
+## Making Your Choice
+
+### Start Here If...
+
+**You're brand new:**
+→ Use **Conservative Single Symbol** with DOGE
+
+**You have some experience:**
+→ Use **BloFin/Bybit v7 Counterscalp** with your preferred exchange
+
+**You want automation:**
+→ Use **Vortex Auto-Hedge Multi** for hands-off trading
+
+**You want maximum returns (and accept maximum risk):**
+→ Use **HFT v6** presets
+
+---
+
+## Customizing After Selection
+
+Every preset is a starting point. Common adjustments:
+
+<Accordion title="Reduce Risk">
+- Lower `equity_pct` from 5% to 2-3%
+- Increase `base_spread_bps` from 15 to 25+
+- Lower `leverage` from 75x to 25-50x
+- Reduce `max_position_usdt`
+</Accordion>
+
+<Accordion title="Increase Aggression">
+- Raise `equity_pct` from 5% to 8-10%
+- Tighten `base_spread_bps` from 15 to 8-12
+- Increase `quote_size_usdt`
+</Accordion>
+
+<Accordion title="Change Timing">
+- Adjust `force_exit_after_seconds` (default 24h)
+- Modify `breakeven_after_seconds` (default 48h)
+- Set `force_exit_enabled: false` to disable forced exits
+</Accordion>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="BloFin Quickstart" icon="bolt" href="/exchanges/blofin-perp-mm-quickstart">
+    Step-by-step BloFin setup
+  </Card>
+  <Card title="Perp MM Deep Dive" icon="book" href="/strategies/perp-market-maker">
+    All 100+ parameters explained
+  </Card>
+  <Card title="Vortex DCA Guide" icon="chart-line" href="/strategies/vortex-dca">
+    DCA strategy details
+  </Card>
+  <Card title="Scaling Agent" icon="robot" href="/features/scaling-agent">
+    Adjust settings with AI
+  </Card>
+</CardGroup>
