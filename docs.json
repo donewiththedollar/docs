@@ -16,13 +16,13 @@
     "links": [
       {
         "label": "Dashboard",
-        "href": "https://trade.quantumvoid.org"
+        "href": "https://voidx.trade"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Start Trading",
-      "href": "https://trade.quantumvoid.org"
+      "label": "Deploy Bots",
+      "href": "https://voidx.trade"
     }
   },
   "navigation": {

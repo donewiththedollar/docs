@@ -1,6 +1,6 @@
 ---
 title: 'Quickstart'
-description: 'Get your first profitable trading bot running in 30 minutes'
+description: 'Get your first trading bot running in 30 minutes'
 ---
 
 # Your First Trading Bot in 30 Minutes
@@ -11,7 +11,7 @@ This guide walks you through setting up your first automated trading bot. By the
 **Estimated time:** 30 minutes
 
 **What you'll need:**
-- $100+ worth of PUMPKIN tokens
+- Any amount of PUMPKIN tokens (SUI, Solana, or BASE)
 - Exchange account with $500+ for trading
 - 30 minutes of focused time
 </Note>
@@ -22,9 +22,9 @@ This guide walks you through setting up your first automated trading bot. By the
 
 <CardGroup cols={2}>
   <Card title="I'm a Beginner" icon="seedling">
-    Use the **Conservative Vortex DCA** preset.
-    - Lower risk
-    - Easier to understand
+    Use the **Minimalist Alpha** preset.
+    - Simple configuration
+    - Battle-tested defaults
     - Great for learning
   </Card>
   <Card title="I'm Experienced" icon="rocket">
@@ -43,13 +43,13 @@ This guide walks you through setting up your first automated trading bot. By the
 
 Before starting, ensure you have:
 
-<Check>**Sui Wallet** - Sui Wallet, Suiet, or any Sui-compatible wallet</Check>
-<Check>**$100+ in PUMPKIN tokens** - Required for platform access</Check>
+<Check>**Wallet** - SUI, Solana, or EVM wallet</Check>
+<Check>**Any PUMPKIN tokens** - Required for Tier 1 platform access</Check>
 <Check>**Exchange account** - BloFin, Bybit, HTX, WEEX, or Defx</Check>
 <Check>**$500+ trading capital** - In your exchange futures wallet</Check>
 
 <Warning>
-**Security First:** Never share your API keys, wallet private keys, or passwords with anyone. Quant Dash will NEVER ask for your private keys.
+**Security First:** Never share your API keys, wallet private keys, or passwords with anyone. VoidX will NEVER ask for your private keys.
 </Warning>
 
 ---
@@ -57,56 +57,51 @@ Before starting, ensure you have:
 ## Step 1: Get PUMPKIN Tokens (10 minutes)
 
 <Accordion title="Already have PUMPKIN? Skip to Step 2">
-  If you already hold $100+ worth of PUMPKIN tokens in your Sui wallet, you can skip this step.
+  If you already hold any PUMPKIN tokens in your wallet, you can skip this step.
 </Accordion>
 
-### 1.1 Set Up Sui Wallet
+### Option A: SUI Network
 
 <Steps>
-  <Step title="Install Wallet Extension">
+  <Step title="Get a SUI Wallet">
     Download [Sui Wallet](https://chrome.google.com/webstore/detail/sui-wallet) or [Suiet](https://suiet.app/)
   </Step>
-  <Step title="Create New Wallet">
-    Follow the wallet setup wizard. **Save your seed phrase securely!**
+  <Step title="Get SUI Tokens">
+    Buy SUI on Binance, Coinbase, OKX, etc. and withdraw to your wallet
   </Step>
-  <Step title="Get Your Wallet Address">
-    Copy your Sui address - you'll need it to receive tokens
+  <Step title="Swap for PUMPKIN">
+    Use [BlueFin](https://trade.bluefin.io/swap/SUI-PUMPKIN) or [Aftermath](https://aftermath.finance/trade?from=SUI&to=PUMPKIN) to swap SUI for PUMPKIN
   </Step>
 </Steps>
 
-### 1.2 Buy SUI Tokens
-
-Get SUI tokens via one of these methods:
-- **From CEX**: Buy SUI on Binance, Coinbase, etc., then withdraw to your Sui wallet
-- **Bridge**: Bridge from other chains using [Portal Bridge](https://portalbridge.com)
-
-### 1.3 Swap for PUMPKIN
+### Option B: Solana Network
 
 <Steps>
-  <Step title="Go to a Sui DEX">
-    Visit [Turbos](https://turbos.finance), [Cetus](https://cetus.zone), or [Aftermath](https://aftermath.finance)
+  <Step title="Get a Solana Wallet">
+    Download [Phantom](https://phantom.app/) or Solflare
   </Step>
-  <Step title="Connect Your Wallet">
-    Click "Connect Wallet" and approve the connection
+  <Step title="Get SOL Tokens">
+    Buy SOL on any major exchange and withdraw to your wallet
   </Step>
-  <Step title="Swap SUI for PUMPKIN">
-    - Select SUI as input
-    - Select PUMPKIN as output
-    - Enter amount ($100+ worth)
-    - Confirm swap
+  <Step title="Swap for PUMPKIN">
+    Use any Solana DEX to swap SOL for PUMPKIN
   </Step>
 </Steps>
+
+<Info>
+**Alternative for Solana users:** If you have 0.1+ SOL in your wallet, you can access the platform without PUMPKIN.
+</Info>
 
 ---
 
-## Step 2: Connect to Quant Dash (2 minutes)
+## Step 2: Connect to VoidX (2 minutes)
 
 <Steps>
   <Step title="Visit the Dashboard">
-    Go to [trade.quantumvoid.org](https://trade.quantumvoid.org)
+    Go to [voidx.trade](https://voidx.trade)
   </Step>
   <Step title="Connect Wallet">
-    Click **"Connect Sui Wallet"** in the top right
+    Click **"Connect Wallet"** and choose your wallet type (SUI, SOL, or EVM)
   </Step>
   <Step title="Approve Connection">
     Your wallet will prompt you - click Approve
@@ -117,7 +112,7 @@ Get SUI tokens via one of these methods:
 </Steps>
 
 <Note>
-The platform verifies your PUMPKIN balance automatically. If you don't meet the minimum requirement, you'll be prompted to acquire more tokens.
+The platform verifies your PUMPKIN balance automatically. Any amount of PUMPKIN grants Tier 1 access.
 </Note>
 
 ---
@@ -168,7 +163,7 @@ The platform verifies your PUMPKIN balance automatically. If you don't meet the 
   </Tab>
 </Tabs>
 
-### 3.2 Add Keys to Quant Dash
+### 3.2 Add Keys to VoidX
 
 <Steps>
   <Step title="Navigate to Exchanges">
@@ -217,10 +212,10 @@ For beginners, we recommend:
     Enter `DOGEUSDT` (or your chosen symbol)
   </Step>
   <Step title="Choose Preset">
-    Select **"Vortex DCA - Conservative"** or similar beginner preset
+    Select **"Minimalist Alpha"** preset for your exchange (BloFin or Bybit)
 
     <Note>
-    Presets come pre-configured with safe settings. You can customize later.
+    Minimalist Alpha presets use battle-tested defaults. Perfect for beginners.
     </Note>
   </Step>
 </Steps>
@@ -233,7 +228,7 @@ Before starting, review these key settings:
 |---------|--------------------------|--------------|
 | Wallet Exposure | 10-15% | Maximum capital at risk |
 | Leverage | 10-20x | Position multiplier |
-| Nr Clusters | 4 | Number of buy orders |
+| Position Limits | $2,000 max | Maximum position size |
 
 ### 4.4 Start the Bot
 

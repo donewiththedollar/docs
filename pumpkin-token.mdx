@@ -1,95 +1,97 @@
 ---
 title: 'PUMPKIN Token'
-description: 'Understanding the PUMPKIN token access requirement'
+description: 'Understanding PUMPKIN token access and tiers'
 ---
 
 # PUMPKIN Token Access
 
-QuantumVoid Trading Dashboard uses **token-gated access** powered by the PUMPKIN token on the Sui blockchain. This ensures only committed users access the platform while protecting early supporters.
+VoidX Trading Dashboard uses **token-gated access** powered by the PUMPKIN token. Hold any amount of PUMPKIN to unlock platform access.
 
-## Requirements
-
-To access QuantumVoid, you need **EITHER**:
+## Tiered Access
 
 <CardGroup cols={2}>
-  <Card title="USD Value" icon="dollar-sign">
-    **$100 USD worth** of PUMPKIN at current price
+  <Card title="Tier 1" icon="unlock">
+    **Hold ANY PUMPKIN**
+
+    Full access to bot deployment and all current features
   </Card>
-  <Card title="Token Amount" icon="coins">
-    **2.8 million PUMPKIN tokens**
+  <Card title="Higher Tiers" icon="lock">
+    **Coming Soon**
+
+    Additional features and benefits for larger holders
   </Card>
 </CardGroup>
 
 <Info>
-  You only need to meet **whichever requirement is LESS**. This protects early holders from price volatility.
+  **Simple requirement**: Hold any amount of PUMPKIN tokens in your wallet. That's it.
 </Info>
 
-## How It Works
+## Supported Wallets & Chains
 
-### Grandfathered Protection
+PUMPKIN is available on multiple chains. Connect with any of these wallets:
 
-The requirement calculation uses the **minimum** of two values:
-
-```
-Required = MIN(
-  $100 ÷ PUMPKIN_PRICE,  // Tokens needed for $100
-  2,800,000              // Grandfathered amount
-)
-```
-
-### Example Scenarios
-
-<Tabs>
-  <Tab title="Normal Price ($0.0000358)">
-    - $100 ÷ $0.0000358 = **2,793,296 tokens**
-    - Grandfathered: **2,800,000 tokens**
-    - **Requirement: 2.8M tokens** (the lesser amount)
-  </Tab>
-  
-  <Tab title="Price Drops ($0.00001)">
-    - $100 ÷ $0.00001 = **10,000,000 tokens**
-    - Grandfathered: **2,800,000 tokens**
-    - **Requirement: 2.8M tokens** (protects early holders!)
-  </Tab>
-  
-  <Tab title="Price Moons ($0.0001)">
-    - $100 ÷ $0.0001 = **1,000,000 tokens**
-    - Grandfathered: **2,800,000 tokens**
-    - **Requirement: 1M tokens** (cheaper for new users!)
-  </Tab>
-</Tabs>
+<CardGroup cols={3}>
+  <Card title="SUI" icon="coins">
+    Sui Wallet, Suiet, Ethos
+  </Card>
+  <Card title="Solana" icon="sun">
+    Phantom, Solflare
+  </Card>
+  <Card title="BASE" icon="ethereum">
+    MetaMask, Coinbase Wallet
+  </Card>
+</CardGroup>
 
 ## Token Details
 
+### SUI Network
+
 <ParamField path="Contract" type="string">
   `0x09f1c8f05cb47bbcb61133dd2ef00583720694f41d4f8a61c94467d8f5911a14::pumpkin::PUMPKIN`
-</ParamField>
-
-<ParamField path="Blockchain" type="string">
-  Sui Network
 </ParamField>
 
 <ParamField path="Decimals" type="number">
   6
 </ParamField>
 
+### Solana Network
+
+<ParamField path="Contract" type="string">
+  `3o41UUScNQ9zorbJnJRzirc7utQzhCA8QMvTKWo2wWEw`
+</ParamField>
+
 ## Where to Buy
 
+### On SUI
+
+<CardGroup cols={2}>
+  <Card title="BlueFin" icon="arrow-right-arrow-left" href="https://trade.bluefin.io/swap/SUI-PUMPKIN">
+    Swap SUI for PUMPKIN
+  </Card>
+  <Card title="Aftermath" icon="arrow-right-arrow-left" href="https://aftermath.finance/trade?from=SUI&to=PUMPKIN">
+    Trade on Aftermath Finance
+  </Card>
+</CardGroup>
+
+### On Solana
+
+Purchase on any Solana DEX supporting the PUMPKIN token.
+
 <Steps>
-  <Step title="Get SUI">
-    Purchase SUI tokens from a major exchange (Binance, OKX, etc.)
+  <Step title="Get SUI or SOL">
+    Purchase from a major exchange (Binance, OKX, Coinbase, etc.)
   </Step>
-  
-  <Step title="Set up Sui Wallet">
-    Install Sui Wallet, Suiet, or Ethos wallet extension
+
+  <Step title="Set up Wallet">
+    Install a compatible wallet for your chosen chain
   </Step>
-  
+
   <Step title="Swap for PUMPKIN">
-    Use a Sui DEX to swap SUI for PUMPKIN tokens
+    Use a DEX to swap for PUMPKIN tokens
   </Step>
-  
-  <Step title="Verify Balance">
-    Connect your wallet to trade.quantumvoid.org to check if you meet requirements
+
+  <Step title="Connect & Deploy">
+    Connect your wallet at [voidx.trade](https://voidx.trade) and start deploying bots
   </Step>
 </Steps>
 
@@ -97,40 +99,37 @@ Required = MIN(
 
 <Steps>
   <Step title="Connect Wallet">
-    Connect your Sui wallet to trade.quantumvoid.org
+    Connect your SUI, Solana, or EVM wallet to voidx.trade
   </Step>
-  
+
   <Step title="Balance Verification">
     System automatically checks your PUMPKIN balance
   </Step>
-  
+
   <Step title="Access Granted">
-    If requirements met: Full dashboard access
-    
-    If insufficient: Shows how much more PUMPKIN needed
+    Any PUMPKIN balance > 0 grants Tier 1 access
   </Step>
-  
-  <Step title="Start Trading">
-    When starting a bot, final PUMPKIN check ensures access
+
+  <Step title="Deploy Bots">
+    Full access to bot deployment and management
   </Step>
 </Steps>
 
-## Whitelist Bypass
+## Whitelist
 
-Some wallet addresses are **whitelisted** and can bypass the PUMPKIN requirement entirely:
+Some wallet addresses are **whitelisted** and can access the platform without holding PUMPKIN:
 
 - Team members
 - Early supporters
 - VIP users
-- Testing accounts
 
 <Info>
-  Whitelist status is managed by QuantumVoid Labs. Contact support for whitelist inquiries.
+  Whitelist status is managed by Quantum Void Labs. Contact support for inquiries.
 </Info>
 
 ## Security
 
-<Check>Balance checks happen on-chain via Sui RPC</Check>
+<Check>Balance checks happen on-chain via RPC</Check>
 <Check>No tokens are ever transferred or locked</Check>
 <Check>You maintain full custody of your PUMPKIN</Check>
 <Check>Can sell/transfer tokens anytime (but may lose access)</Check>
@@ -138,27 +137,27 @@ Some wallet addresses are **whitelisted** and can bypass the PUMPKIN requirement
 ## FAQ
 
 <AccordionGroup>
+  <Accordion title="How much PUMPKIN do I need?">
+    Any amount. Even 1 PUMPKIN token grants Tier 1 access to the full platform.
+  </Accordion>
+
   <Accordion title="Do I need to keep PUMPKIN in my wallet?">
-    Yes. The balance check happens every time you start a bot. If your balance drops below requirements, you'll lose access.
+    Yes. The balance check happens when you connect and when starting bots. If your balance drops to zero, you'll lose access.
   </Accordion>
 
-  <Accordion title="Can I use PUMPKIN from multiple wallets?">
-    No. Only the connected wallet's balance counts toward the requirement.
+  <Accordion title="Can I use any chain?">
+    Yes! PUMPKIN on SUI, Solana, or BASE all grant access. Use whichever chain you prefer.
   </Accordion>
 
-  <Accordion title="What if PUMPKIN price crashes?">
-    The 2.8M token floor protects you. You'll never need more than 2.8M tokens regardless of price.
+  <Accordion title="What are the higher tiers?">
+    Higher tiers are coming soon and will unlock additional features and benefits for larger PUMPKIN holders. Details will be announced.
   </Accordion>
 
   <Accordion title="What if I'm whitelisted?">
     Whitelisted addresses bypass all PUMPKIN checks completely. No tokens needed.
   </Accordion>
-
-  <Accordion title="Can I check my balance before connecting?">
-    Yes! The `/api/bot/pumpkin-balance` endpoint accepts wallet addresses publicly.
-  </Accordion>
 </AccordionGroup>
 
 <Card title="Get Started" icon="rocket" href="/quickstart">
-  Ready to start trading? Follow the quickstart guide
+  Ready to deploy bots? Follow the quickstart guide
 </Card>
