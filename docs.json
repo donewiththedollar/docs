@@ -94,7 +94,8 @@
             "pages": [
               "faq",
               "troubleshooting",
-              "glossary"
+              "glossary",
+              "contact"
             ]
           }
         ]
@@ -117,7 +118,7 @@
   },
   "footer": {
     "socials": {
-      "twitter": "https://twitter.com/quantumvoidlabs",
+      "x-twitter": "https://x.com/quantumvoidlabs",
       "github": "https://github.com/donewiththedollar",
       "telegram": "https://t.me/pumpkinsui"
     }
