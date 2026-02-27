@@ -1,0 +1,357 @@
+---
+title: 'VOIDX Vaults'
+description: 'Automated trading vaults with zero configuration — browse, connect, deploy'
+---
+
+# VOIDX Vaults
+
+VOIDX Vaults are the fastest way to start trading on the platform. Instead of choosing strategies, tuning parameters, and configuring presets manually, Vaults package everything into a single click. Browse available vaults, connect your wallet, paste your exchange API keys, and deploy — zero configuration required.
+
+Your funds never leave your exchange account. Vaults are **non-custodial** — the platform only places and manages orders on your behalf through read/trade-only API keys.
+
+<Note>
+**No PUMPKIN tokens required.** Unlike the full VOIDX dashboard which requires token-gated access, Vaults are open to anyone with a wallet and an exchange account.
+</Note>
+
+---
+
+## What Are Vaults?
+
+A Vault is a pre-configured trading strategy wrapped in a simple deployment flow. Each vault bundles a specific exchange, strategy, symbol, and set of parameters that have been tested and optimized for consistent performance.
+
+**Traditional bot setup** requires you to:
+1. Understand strategy types (Vortex DCA, Perp MM, XGrid)
+2. Choose from dozens of presets
+3. Configure parameters like equity percentage, grid levels, spacing, and take-profit
+4. Understand features like inventory balancing and drawdown spacing
+
+**Vaults** reduce this to:
+1. Pick a vault card
+2. Paste API credentials
+3. Click deploy
+
+Think of Vaults like a managed fund interface — you choose the vault that matches your exchange and risk appetite, and the strategy runs with professional-grade defaults.
+
+<CardGroup cols={2}>
+  <Card
+    title="BloFin USDT Vault"
+    icon="vault"
+    href="#blofin-usdt-vault"
+  >
+    Perp market making on BloFin with reactive quoting and two-sided mode. Minimum $500 balance. 1.5% equity per trade.
+  </Card>
+  <Card
+    title="Bybit USDT Vault"
+    icon="vault"
+    href="#bybit-usdt-vault"
+  >
+    Perp market making on Bybit with profit chase and profit floor. Minimum $1,000 balance. 3.0% equity per trade.
+  </Card>
+</CardGroup>
+
+---
+
+## Getting Started with Vaults
+
+<Steps>
+  <Step title="Visit voidx.trade">
+    Go to [voidx.trade](https://voidx.trade) in your browser.
+  </Step>
+  <Step title="Click Launch Vault">
+    On the landing page, click the **"Launch Vault"** button to enter the Vaults interface.
+  </Step>
+  <Step title="Connect your wallet">
+    Connect a SUI, Solana, or EVM wallet. This serves as your identity on the platform — no tokens are required.
+  </Step>
+  <Step title="Sign to authenticate">
+    Your wallet will prompt you to sign a message. This verifies ownership — no transaction is made and no funds are moved.
+  </Step>
+  <Step title="Choose a vault">
+    Browse the available vault cards and select the one that matches your exchange account.
+  </Step>
+  <Step title="Enter API credentials">
+    Paste your exchange API key and secret (and passphrase, if required). If you have already saved credentials through the main dashboard, the vault will detect them and show **"Credentials saved"** — you can skip this step.
+
+    <Warning>
+    Only enable **Read** and **Trade** permissions on your API key. Never enable **Withdraw**.
+    </Warning>
+  </Step>
+  <Step title="Deploy and start">
+    Click **"Deploy & Start Bot"**. The vault creates a bot named `Vault-{VaultName}-{timestamp}` and begins trading immediately.
+  </Step>
+</Steps>
+
+<Tip>
+If your exchange already has a running bot, the vault card will show **"Bot already running on [Exchange]"** with a **Manage** button that takes you to the full dashboard for that bot.
+</Tip>
+
+---
+
+## Available Vaults
+
+### BloFin USDT Vault
+
+The BloFin vault runs a **Perpetual Market Maker** strategy with two-sided quoting on the ASTER/USDT:USDT perpetual pair. It uses the `blofin_mm_professional_2level` preset, which is tuned for BloFin's fee structure and order book characteristics.
+
+#### Strategy Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Strategy | Perp Market Maker (`perp_mm`) |
+| Symbol | ASTER/USDT:USDT |
+| Equity per Trade | 1.5% |
+| Grid Levels | 2 |
+| Minimum Balance | $500 USDT |
+
+#### Features Included
+
+<CardGroup cols={2}>
+  <Card title="Drawdown Spacing" icon="arrows-up-down">
+    Automatically widens grid spacing when positions are underwater, reducing the chance of adding to a losing position too aggressively.
+  </Card>
+  <Card title="Inventory Balancing" icon="scale-balanced">
+    Skews quotes toward reducing inventory when the position grows too large in one direction, maintaining a balanced book.
+  </Card>
+  <Card title="Geometric Levels" icon="chart-line">
+    Grid levels are spaced geometrically rather than linearly, placing orders further apart as distance from mid-price increases.
+  </Card>
+  <Card title="Reactive Quoting" icon="bolt">
+    Adjusts spread width and quote aggressiveness in response to real-time volatility and order flow conditions.
+  </Card>
+</CardGroup>
+
+<Card title="Two-Sided Mode" icon="arrows-left-right">
+  Simultaneously quotes on both the bid and ask sides of the order book, earning spread from both directions.
+</Card>
+
+#### Who Is This For?
+
+- Traders with a BloFin account and at least $500 USDT in their futures wallet
+- Anyone who wants to run a market making bot without understanding all the parameters
+- Users looking for a conservative entry point with lower equity exposure (1.5%)
+
+#### Required Credentials
+
+| Field | Description |
+|-------|-------------|
+| API Key | Your BloFin API key |
+| API Secret | Your BloFin API secret |
+| API Passphrase | The passphrase you set when creating the API key |
+
+<Tip>
+Need help creating BloFin API keys? See the [BloFin Exchange Setup Guide](/exchanges/blofin).
+</Tip>
+
+---
+
+### Bybit USDT Vault
+
+The Bybit vault runs a **Perpetual Market Maker** strategy on the ASTER/USDT:USDT perpetual pair. It uses the `bybit_mm_professional_2level` preset, optimized for Bybit's deeper liquidity and fee tiers.
+
+#### Strategy Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Strategy | Perp Market Maker (`perp_mm`) |
+| Symbol | ASTER/USDT:USDT |
+| Equity per Trade | 3.0% |
+| Grid Levels | 2 |
+| Minimum Balance | $1,000 USDT |
+
+#### Features Included
+
+<CardGroup cols={2}>
+  <Card title="Profit Chase (2bp)" icon="bullseye-arrow">
+    When a take-profit target is close to being hit, the bot dynamically trails the price by 2 basis points to capture additional upside.
+  </Card>
+  <Card title="Profit Floor" icon="shield-halved">
+    Once a position reaches a minimum profit threshold, the floor locks in that profit level — the bot will not let a winning position turn into a loss.
+  </Card>
+  <Card title="Drawdown Spacing" icon="arrows-up-down">
+    Widens grid spacing when positions are underwater, reducing exposure during adverse moves.
+  </Card>
+  <Card title="Inventory Balancing" icon="scale-balanced">
+    Skews quotes toward reducing inventory when the position grows too large in one direction.
+  </Card>
+</CardGroup>
+
+<Card title="Geometric Levels" icon="chart-line">
+  Grid levels are spaced geometrically, placing orders further apart as distance from mid-price increases for better risk distribution.
+</Card>
+
+#### Who Is This For?
+
+- Traders with a Bybit account and at least $1,000 USDT in their futures wallet
+- Users who want profit protection features (chase and floor) built in
+- Traders comfortable with slightly higher equity exposure (3.0%) for potentially higher returns
+
+#### Required Credentials
+
+| Field | Description |
+|-------|-------------|
+| API Key | Your Bybit API key |
+| API Secret | Your Bybit API secret |
+
+<Tip>
+Need help creating Bybit API keys? See the [Bybit Exchange Setup Guide](/exchanges/bybit).
+</Tip>
+
+---
+
+## Vault Features Explained
+
+Each vault bundles a combination of advanced trading features. Here is what each one does in plain language.
+
+### Drawdown Spacing
+
+When the bot has an open position that is losing money (underwater), drawdown spacing automatically increases the distance between grid levels. This prevents the bot from placing new orders too close to the current price and piling into a bad position. The deeper the drawdown, the wider the spacing.
+
+### Inventory Balancing
+
+As trades fill, the bot can accumulate a net long or net short position. Inventory balancing adjusts quote prices to favor closing that position — if the bot is net long, it makes the ask price slightly more aggressive (easier to sell) and the bid price slightly less aggressive (harder to buy more). This keeps the book balanced over time.
+
+### Geometric Levels
+
+Instead of placing grid orders at equal intervals (e.g., every $0.10), geometric levels space them exponentially. The first level might be $0.10 away, the second $0.15, the third $0.22, and so on. This means less capital is committed to orders far from the current price, which improves capital efficiency and reduces risk on large moves.
+
+### Reactive Quoting
+
+The bot monitors real-time market conditions — volatility, order flow, and spread width — and adjusts its quoting behavior accordingly. In calm markets, it quotes tighter spreads for more fills. In volatile markets, it widens spreads to avoid being picked off by fast price moves.
+
+### Two-Sided Mode
+
+The bot places orders on both the buy (bid) and sell (ask) sides of the order book simultaneously. This is the core market making behavior — earning the spread from both directions. Without two-sided mode, the bot would only quote on one side, missing half the opportunity.
+
+### Profit Chase
+
+When a position's unrealized profit approaches the take-profit target, profit chase activates a trailing mechanism. Instead of closing immediately at the target, it trails the price by a small amount (2 basis points in the Bybit vault). If the price continues moving favorably, the bot captures additional profit. If it reverses, it closes at the trailed level.
+
+### Profit Floor
+
+Once a position reaches a minimum profit level, the profit floor sets a hard boundary. The bot will close the position before allowing it to fall below that floor. This prevents the frustrating scenario where a position goes from profitable back to break-even or negative.
+
+---
+
+## Managing Your Vault
+
+Once a vault bot is deployed, it appears alongside any other bots you may be running.
+
+### Monitoring
+
+After deployment, the vault bot shows up in the main dashboard with:
+- **Status indicator** — green pulse when running
+- **Current P&L** — real-time profit and loss
+- **Trade count** — number of fills since deployment
+- **Bot name** — formatted as `Vault-{VaultName}-{timestamp}` for easy identification
+
+If you launched the vault without having the full dashboard open, you can access it by connecting your wallet at [voidx.trade](https://voidx.trade) and navigating to the dashboard.
+
+### Switching to Advanced Mode
+
+Vault bots are standard VOIDX bots under the hood. If you want full control over the parameters:
+
+1. Go to the **Bot Management** section in the dashboard
+2. Find your vault bot by its name
+3. Click **Settings** to view and edit the full configuration
+4. Adjust any parameter — equity percentage, grid levels, features, and more
+
+<Note>
+Once you modify a vault bot's settings, it becomes a custom bot. The vault card on the Vaults page will still show the bot as active, but the configuration is now yours to manage.
+</Note>
+
+### Stopping a Vault Bot
+
+To stop a vault bot:
+
+1. Navigate to **Bot Management** in the dashboard
+2. Find the vault bot by name
+3. Click **Stop**
+
+Alternatively, if you are on the Vaults page and the vault shows "Bot already running," click **Manage** to go directly to the bot controls.
+
+<Warning>
+Stopping a bot does not close open positions. You may need to manually close positions on your exchange after stopping the bot.
+</Warning>
+
+---
+
+## Coming Soon
+
+The Vaults system is expanding. Here is what is on the roadmap:
+
+<CardGroup cols={2}>
+  <Card title="DEX Vaults" icon="circle-nodes">
+    Decentralized exchange vaults for on-chain perpetual trading. No CEX account required.
+
+    **Target: Q2 2026**
+  </Card>
+  <Card title="HTX Vault" icon="chart-mixed">
+    Perpetual market making vault for HTX (Huobi) with exchange-specific optimizations.
+
+    **Target: Q2 2026**
+  </Card>
+  <Card title="More CEX Vaults" icon="layer-group">
+    Additional centralized exchange vaults for WEEX and other supported exchanges.
+
+    **Target: Q3 2026**
+  </Card>
+  <Card title="Multi-Strategy Vaults" icon="cubes">
+    Vaults that combine multiple strategies for diversified automated trading.
+
+    **Target: TBD**
+  </Card>
+</CardGroup>
+
+---
+
+## Frequently Asked Questions
+
+<Accordion title="Do I need PUMPKIN tokens to use Vaults?">
+  No. Vaults are open to anyone with a wallet and an exchange account. PUMPKIN tokens are only required for the full VOIDX dashboard with advanced features. Vaults provide a simpler, token-free entry point.
+</Accordion>
+
+<Accordion title="Are my funds safe?">
+  Your funds never leave your exchange account. VOIDX Vaults use read/trade-only API keys to place and manage orders on your behalf. The platform cannot withdraw funds. Your wallet connection serves only as identity — no tokens or funds are transferred through it.
+
+  For maximum security:
+  - Never enable withdrawal permissions on your API key
+  - Use IP whitelisting on your exchange if available
+  - Enable 2FA on your exchange account
+</Accordion>
+
+<Accordion title="Can I customize vault settings after deployment?">
+  Yes. Vault bots are standard VOIDX bots with pre-configured settings. After deployment, you can navigate to Bot Management in the full dashboard, find your vault bot, and modify any parameter. Once you change settings, the bot operates with your custom configuration.
+</Accordion>
+
+<Accordion title="What if I already have a bot running on that exchange?">
+  If you already have a running bot on the same exchange, the vault card will display **"Bot already running on [Exchange]"** with a **Manage** button. Click it to go directly to that bot's controls in the full dashboard. You do not need to deploy a second bot.
+</Accordion>
+
+<Accordion title="How do I stop a vault bot?">
+  Navigate to **Bot Management** in the dashboard, find your vault bot (named `Vault-{VaultName}-{timestamp}`), and click **Stop**. You can also access the bot from the Vaults page by clicking **Manage** on the active vault card.
+
+  Remember that stopping the bot does not close open positions — you may need to close those manually on your exchange.
+</Accordion>
+
+<Accordion title="What is the difference between Vaults and Advanced Mode?">
+  **Vaults** are a simplified entry point — pre-configured strategies that you deploy with a single click. No parameter knowledge required.
+
+  **Advanced Mode** (the full VOIDX dashboard) gives you complete control over 100+ strategy parameters, multiple simultaneous bots, the Scaling Agent, Trading Console, analytics, and more. It requires PUMPKIN tokens for access.
+
+  Vaults are designed for users who want to start trading immediately without a learning curve. Advanced Mode is for traders who want full customization.
+</Accordion>
+
+<Accordion title="What symbol do the vaults trade?">
+  Both the BloFin and Bybit vaults currently trade ASTER/USDT:USDT, a perpetual futures pair. Additional symbols may be available in future vault releases.
+</Accordion>
+
+<Accordion title="What happens if I already have saved credentials from the main dashboard?">
+  If you have previously saved exchange credentials through the multi-exchange dashboard, the vault will automatically detect them and show **"Credentials saved."** You can skip the API key entry step and deploy directly.
+</Accordion>
+
+<Accordion title="What is the minimum balance required?">
+  - **BloFin USDT Vault:** $500 USDT in your BloFin futures wallet
+  - **Bybit USDT Vault:** $1,000 USDT in your Bybit futures wallet
+
+  These minimums ensure the bot has enough capital to place grid orders effectively. Running with less may result in orders too small to execute.
+</Accordion>

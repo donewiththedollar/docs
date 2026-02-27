@@ -17,6 +17,10 @@
       {
         "label": "Dashboard",
         "href": "https://voidx.trade"
+      },
+      {
+        "label": "Launch Vault",
+        "href": "https://voidx.trade"
       }
     ],
     "primary": {
@@ -52,6 +56,7 @@
           {
             "group": "Features",
             "pages": [
+              "features/vaults",
               "features/dashboard-overview",
               "features/bot-management",
               "features/scaling-agent",
