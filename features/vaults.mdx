@@ -63,8 +63,8 @@ Think of Vaults like a managed fund interface — you choose the vault that matc
   <Step title="Connect your wallet">
     Connect a SUI, Solana, or EVM wallet. This serves as your identity on the platform. You must hold any amount of PUMPKIN tokens for Tier 1 access.
   </Step>
-  <Step title="Sign to authenticate">
-    Your wallet will prompt you to sign a message. This verifies ownership — no transaction is made and no funds are moved.
+  <Step title="Sign in to authenticate">
+    After connecting, click **"Sign In to Continue"** to authenticate. Your wallet will prompt you to sign a message — this verifies ownership. No transaction is made and no funds are moved.
   </Step>
   <Step title="Choose a vault">
     Browse the available vault cards and select the one that matches your exchange account.
@@ -85,6 +85,18 @@ Think of Vaults like a managed fund interface — you choose the vault that matc
 If your exchange already has a running bot, the vault card will show **"Bot already running on [Exchange]"** with a **Manage** button that takes you to the full dashboard for that bot.
 </Tip>
 
+### Choosing a Symbol
+
+Each vault comes with a default symbol, but you can change it before deploying. The vault card expands to show a symbol selector with popular options:
+
+**Popular symbols:** BTC, ETH, SOL, DOGE, XRP, SUI, PEPE, LINK, AVAX, ARB, OP, WIF
+
+You can also type any custom symbol in `SYMBOL/USDT:USDT` format if the pair is available on your exchange.
+
+<Tip>
+If you're unsure which symbol to trade, start with the default. The vault presets are optimized for the default symbol's characteristics.
+</Tip>
+
 ---
 
 ## Available Vaults
@@ -98,7 +110,7 @@ The BloFin vault runs a **Perpetual Market Maker** strategy with two-sided quoti
 | Parameter | Value |
 |-----------|-------|
 | Strategy | Perp Market Maker (`perp_mm`) |
-| Symbol | ASTER/USDT:USDT |
+| Default Symbol | ASTER/USDT:USDT (changeable) |
 | Equity per Trade | 1.5% |
 | Grid Levels | 2 |
 | Minimum Balance | $500 USDT |
@@ -153,7 +165,7 @@ The Bybit vault runs a **Perpetual Market Maker** strategy on the ASTER/USDT:USD
 | Parameter | Value |
 |-----------|-------|
 | Strategy | Perp Market Maker (`perp_mm`) |
-| Symbol | ASTER/USDT:USDT |
+| Default Symbol | ASTER/USDT:USDT (changeable) |
 | Equity per Trade | 3.0% |
 | Grid Levels | 2 |
 | Minimum Balance | $1,000 USDT |
@@ -246,6 +258,18 @@ After deployment, the vault bot shows up in the main dashboard with:
 
 If you launched the vault without having the full dashboard open, you can access it by connecting your wallet at [voidx.trade](https://voidx.trade) and navigating to the dashboard.
 
+### Active Bots Overview
+
+When you have running bots, the Vaults page displays an **Active Bots** banner at the top showing all your bots at a glance. Each bot card shows:
+
+- **Exchange** — which exchange the bot is running on
+- **Symbol** — the trading pair
+- **P&L** — current profit and loss
+- **Uptime** — how long the bot has been running
+- **Stop button** — stop any bot directly from the banner
+
+This gives you a quick overview of everything running without switching to the full dashboard.
+
 ### Switching to Advanced Mode
 
 Vault bots are standard VOIDX bots under the hood. If you want full control over the parameters:
@@ -261,13 +285,11 @@ Once you modify a vault bot's settings, it becomes a custom bot. The vault card 
 
 ### Stopping a Vault Bot
 
-To stop a vault bot:
+You can stop a vault bot directly from the vault card — no need to navigate to the full dashboard.
 
-1. Navigate to **Bot Management** in the dashboard
-2. Find the vault bot by name
-3. Click **Stop**
+If a vault shows a running bot, a **Stop Bot** button appears on the vault card itself. Click it to stop the bot immediately.
 
-Alternatively, if you are on the Vaults page and the vault shows "Bot already running," click **Manage** to go directly to the bot controls.
+Alternatively, you can stop any bot from the **Bot Management** section in the full dashboard.
 
 <Warning>
 Stopping a bot does not close open positions. You may need to manually close positions on your exchange after stopping the bot.
@@ -281,17 +303,17 @@ The Vaults system is expanding. Here is what is on the roadmap:
 
 <CardGroup cols={2}>
   <Card title="DEX Vaults" icon="circle-nodes">
-    Decentralized exchange vaults for on-chain perpetual trading. No CEX account required.
+    Automated LP strategies across Uniswap, Raydium, and Cetus. No CEX account required.
 
     **Target: Q2 2026**
   </Card>
   <Card title="HTX Vault" icon="chart-mixed">
-    Perpetual market making vault for HTX (Huobi) with exchange-specific optimizations.
+    Professional market making on HTX perpetual futures with exchange-specific optimizations.
 
     **Target: Q2 2026**
   </Card>
   <Card title="More CEX Vaults" icon="layer-group">
-    Additional centralized exchange vaults for WEEX and other supported exchanges.
+    Additional vaults for WEEX, OKX, and other supported exchanges.
 
     **Target: Q3 2026**
   </Card>
@@ -342,7 +364,7 @@ The Vaults system is expanding. Here is what is on the roadmap:
 </Accordion>
 
 <Accordion title="What symbol do the vaults trade?">
-  Both the BloFin and Bybit vaults currently trade ASTER/USDT:USDT, a perpetual futures pair. Additional symbols may be available in future vault releases.
+  Each vault has a default symbol (currently ASTER/USDT:USDT), but you can select from 12 popular symbols or enter any custom symbol before deploying. Popular options include BTC, ETH, SOL, DOGE, XRP, SUI, PEPE, LINK, AVAX, ARB, OP, and WIF.
 </Accordion>
 
 <Accordion title="What happens if I already have saved credentials from the main dashboard?">
