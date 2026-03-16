@@ -9,6 +9,6 @@
   <!-- L -->
   <path d="M54 4V26H68" stroke="#A855F7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-  <!-- Text: Quant Dash -->
-  <text x="8" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="600" fill="#18181B">QUANT DASH</text>
+  <!-- Text: VOIDX -->
+  <text x="8" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="600" fill="#18181B">VOIDX</text>
 </svg>
