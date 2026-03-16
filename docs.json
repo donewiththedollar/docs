@@ -50,6 +50,7 @@
               "strategies/preset-guide",
               "strategies/vortex-dca",
               "strategies/perp-market-maker",
+              "strategies/glft-market-maker",
               "strategies/xgrid"
             ]
           },

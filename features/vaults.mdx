@@ -47,6 +47,18 @@ Think of Vaults like a managed fund interface — you choose the vault that matc
   >
     Perp market making on Bybit with profit chase and profit floor. Minimum $1,000 balance. 3.0% equity per trade.
   </Card>
+  <Card title="BloFin GLFT Vault" icon="brain" href="#blofin-glft-vault">
+    GLFT optimal market maker on BloFin. Academic quoting with inventory penalty and recovery grid. Minimum $500 balance.
+  </Card>
+  <Card title="BloFin GLFT Multi-Symbol Vault" icon="brain" href="#blofin-glft-multi-symbol-vault">
+    Run GLFT across up to 5 symbols on BloFin. Diversified optimal quoting. Minimum $1,000 balance.
+  </Card>
+  <Card title="Bybit GLFT Vault" icon="brain" href="#bybit-glft-vault">
+    GLFT optimal market maker on Bybit with auto fee detection. Minimum $500 balance.
+  </Card>
+  <Card title="Bybit GLFT Multi-Symbol Vault" icon="brain" href="#bybit-glft-multi-symbol-vault">
+    Run GLFT across up to 5 symbols on Bybit. Auto fee detection. Minimum $1,000 balance.
+  </Card>
 </CardGroup>
 
 ---
@@ -210,6 +222,248 @@ Need help creating Bybit API keys? See the [Bybit Exchange Setup Guide](/exchang
 
 ---
 
+### BloFin GLFT Vault
+
+The BloFin GLFT vault runs the **GLFT Optimal Market Maker** strategy — an academic quoting algorithm based on the Gueant-Lehalle-Fernandez-Tapia equations. It computes optimal bid/ask placement using inventory risk, volatility, and order flow rather than heuristic rules.
+
+#### Strategy Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Strategy | GLFT Optimal MM (`glft_mm`) |
+| Default Symbol | ASTER/USDT:USDT (changeable) |
+| Min Profit | 16 basis points |
+| Quote Size | $10 per order |
+| Max Position | $500 |
+| Leverage | 30x |
+| Grid Levels | 2 |
+| Minimum Balance | $500 USDT |
+
+#### Features Included
+
+<CardGroup cols={2}>
+  <Card title="GLFT Optimal Quoting" icon="brain">
+    Bid/ask spreads derived from academic equations that optimize inventory risk vs profit capture.
+  </Card>
+  <Card title="Inventory Penalty" icon="scale-balanced">
+    Gamma-based penalty that automatically skews quotes to reduce position risk as inventory grows.
+  </Card>
+  <Card title="Regime Detection" icon="chart-mixed">
+    Detects ranging, trending, and volatile markets via ADX and adjusts spread width accordingly.
+  </Card>
+  <Card title="Recovery Grid" icon="rotate">
+    Orderbook-aware DCA that places recovery orders at support/resistance walls with martingale sizing.
+  </Card>
+</CardGroup>
+
+<Card title="Time Decay" icon="clock">
+  Gradually reduces TP targets on aging positions with regime-aware decay rates, preventing positions from being held indefinitely.
+</Card>
+
+#### Who Is This For?
+
+- Traders with a BloFin account and at least $500 USDT in their futures wallet
+- Users who prefer academically-grounded quoting over heuristic market making
+- Anyone looking for an automated strategy that adapts to market regimes without manual tuning
+
+#### Required Credentials
+
+| Field | Description |
+|-------|-------------|
+| API Key | Your BloFin API key |
+| API Secret | Your BloFin API secret |
+| API Passphrase | The passphrase you set when creating the API key |
+
+<Tip>
+Need help creating BloFin API keys? See the [BloFin Exchange Setup Guide](/exchanges/blofin).
+</Tip>
+
+---
+
+### BloFin GLFT Multi-Symbol Vault
+
+The BloFin GLFT Multi-Symbol vault runs the same **GLFT Optimal Market Maker** strategy as the single-symbol vault, but across **up to 5 symbols simultaneously** from a single bot instance. This provides diversified quoting across multiple markets, reducing single-asset risk.
+
+#### Strategy Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Strategy | GLFT Optimal MM (`glft_mm`) |
+| Default Symbols | BTC, ETH, SOL, SUI, XRP (changeable) |
+| Min Profit | 16 basis points |
+| Quote Size | $10 per order |
+| Max Position | $500 per symbol |
+| Leverage | 30x |
+| Grid Levels | 2 |
+| Minimum Balance | $1,000 USDT |
+
+#### Features Included
+
+<CardGroup cols={2}>
+  <Card title="GLFT Optimal Quoting" icon="brain">
+    Bid/ask spreads derived from academic equations that optimize inventory risk vs profit capture.
+  </Card>
+  <Card title="Inventory Penalty" icon="scale-balanced">
+    Gamma-based penalty that automatically skews quotes to reduce position risk as inventory grows.
+  </Card>
+  <Card title="Regime Detection" icon="chart-mixed">
+    Detects ranging, trending, and volatile markets via ADX and adjusts spread width accordingly.
+  </Card>
+  <Card title="Recovery Grid" icon="rotate">
+    Orderbook-aware DCA that places recovery orders at support/resistance walls with martingale sizing.
+  </Card>
+</CardGroup>
+
+<CardGroup cols={2}>
+  <Card title="Time Decay" icon="clock">
+    Gradually reduces TP targets on aging positions with regime-aware decay rates, preventing positions from being held indefinitely.
+  </Card>
+  <Card title="Multi-Symbol (5 pairs)" icon="layer-group">
+    Diversified quoting across multiple markets from a single bot, spreading risk across uncorrelated assets.
+  </Card>
+</CardGroup>
+
+#### Who Is This For?
+
+- Traders with a BloFin account and at least $1,000 USDT in their futures wallet
+- Users who want to diversify across multiple trading pairs from a single deployment
+- Anyone looking for broad market coverage with the GLFT optimal quoting engine
+
+#### Required Credentials
+
+| Field | Description |
+|-------|-------------|
+| API Key | Your BloFin API key |
+| API Secret | Your BloFin API secret |
+| API Passphrase | The passphrase you set when creating the API key |
+
+<Tip>
+Need help creating BloFin API keys? See the [BloFin Exchange Setup Guide](/exchanges/blofin).
+</Tip>
+
+---
+
+### Bybit GLFT Vault
+
+The Bybit GLFT vault runs the same **GLFT Optimal Market Maker** strategy on Bybit. Key differences from the BloFin version include **auto fee detection** (automatically detects your Bybit fee tier instead of hardcoded rates), lower leverage, and tighter minimum profit targets tuned for Bybit's deeper liquidity.
+
+#### Strategy Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Strategy | GLFT Optimal MM (`glft_mm`) |
+| Default Symbol | ASTER/USDT:USDT (changeable) |
+| Min Profit | 14 basis points |
+| Quote Size | $10 per order |
+| Max Position | $500 |
+| Max Drawdown | $200 |
+| Leverage | 20x |
+| Grid Levels | 2 |
+| Minimum Balance | $500 USDT |
+
+#### Features Included
+
+<CardGroup cols={2}>
+  <Card title="GLFT Optimal Quoting" icon="brain">
+    Bid/ask spreads derived from academic equations that optimize inventory risk vs profit capture.
+  </Card>
+  <Card title="Auto Fee Detection" icon="wand-magic-sparkles">
+    Automatically detects your Bybit fee tier and adjusts quoting parameters accordingly — no manual fee configuration needed.
+  </Card>
+  <Card title="Regime Detection" icon="chart-mixed">
+    Detects ranging, trending, and volatile markets via ADX and adjusts spread width accordingly.
+  </Card>
+  <Card title="Recovery Grid" icon="rotate">
+    Orderbook-aware DCA that places recovery orders at support/resistance walls with martingale sizing.
+  </Card>
+</CardGroup>
+
+<Card title="Time Decay" icon="clock">
+  Gradually reduces TP targets on aging positions with regime-aware decay rates, preventing positions from being held indefinitely.
+</Card>
+
+#### Who Is This For?
+
+- Traders with a Bybit account and at least $500 USDT in their futures wallet
+- Users who want GLFT optimal quoting with automatic fee tier detection
+- Traders who prefer Bybit's deeper liquidity and tighter spreads
+
+#### Required Credentials
+
+| Field | Description |
+|-------|-------------|
+| API Key | Your Bybit API key |
+| API Secret | Your Bybit API secret |
+
+<Tip>
+Need help creating Bybit API keys? See the [Bybit Exchange Setup Guide](/exchanges/bybit).
+</Tip>
+
+---
+
+### Bybit GLFT Multi-Symbol Vault
+
+The Bybit GLFT Multi-Symbol vault runs the **GLFT Optimal Market Maker** strategy across **up to 5 symbols simultaneously** on Bybit. It combines multi-symbol diversification with Bybit's auto fee detection for a hands-off, broad-market quoting experience.
+
+#### Strategy Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Strategy | GLFT Optimal MM (`glft_mm`) |
+| Default Symbols | BTC, ETH, SOL, SUI, XRP (changeable) |
+| Min Profit | 14 basis points |
+| Quote Size | $10 per order |
+| Max Position | $500 per symbol |
+| Max Drawdown | $200 per symbol |
+| Leverage | 20x |
+| Grid Levels | 2 |
+| Minimum Balance | $1,000 USDT |
+
+#### Features Included
+
+<CardGroup cols={2}>
+  <Card title="GLFT Optimal Quoting" icon="brain">
+    Bid/ask spreads derived from academic equations that optimize inventory risk vs profit capture.
+  </Card>
+  <Card title="Auto Fee Detection" icon="wand-magic-sparkles">
+    Automatically detects your Bybit fee tier and adjusts quoting parameters accordingly — no manual fee configuration needed.
+  </Card>
+  <Card title="Regime Detection" icon="chart-mixed">
+    Detects ranging, trending, and volatile markets via ADX and adjusts spread width accordingly.
+  </Card>
+  <Card title="Recovery Grid" icon="rotate">
+    Orderbook-aware DCA that places recovery orders at support/resistance walls with martingale sizing.
+  </Card>
+</CardGroup>
+
+<CardGroup cols={2}>
+  <Card title="Time Decay" icon="clock">
+    Gradually reduces TP targets on aging positions with regime-aware decay rates, preventing positions from being held indefinitely.
+  </Card>
+  <Card title="Multi-Symbol (5 pairs)" icon="layer-group">
+    Diversified quoting across multiple markets from a single bot, spreading risk across uncorrelated assets.
+  </Card>
+</CardGroup>
+
+#### Who Is This For?
+
+- Traders with a Bybit account and at least $1,000 USDT in their futures wallet
+- Users who want diversified GLFT quoting with automatic fee detection across multiple pairs
+- Traders looking for broad market coverage with minimal configuration
+
+#### Required Credentials
+
+| Field | Description |
+|-------|-------------|
+| API Key | Your Bybit API key |
+| API Secret | Your Bybit API secret |
+
+<Tip>
+Need help creating Bybit API keys? See the [Bybit Exchange Setup Guide](/exchanges/bybit).
+</Tip>
+
+---
+
 ## Vault Features Explained
 
 Each vault bundles a combination of advanced trading features. Here is what each one does in plain language.
@@ -241,6 +495,18 @@ When a position's unrealized profit approaches the take-profit target, profit ch
 ### Profit Floor
 
 Once a position reaches a minimum profit level, the profit floor sets a hard boundary. The bot will close the position before allowing it to fall below that floor. This prevents the frustrating scenario where a position goes from profitable back to break-even or negative.
+
+### GLFT Optimal Quoting
+
+Instead of heuristic spread rules, GLFT uses the Gueant-Lehalle-Fernandez-Tapia closed-form solution. The engine takes volatility (sigma), order arrival rate (kappa), and risk aversion (gamma) as inputs and outputs the mathematically optimal bid and ask offsets. This produces tighter spreads in calm markets and wider spreads during volatility — automatically, without manual tuning.
+
+### Recovery Grid (Orderbook DCA)
+
+When a position goes underwater, the recovery grid scans the orderbook for support and resistance walls. It places DCA orders at these natural price levels instead of fixed intervals. Order sizing scales with unrealized loss: base size below 5% drawdown, 0.5x position at 5%, 1.0x at 10%, and 1.5x at 20%. This martingale approach averages down more aggressively as positions get deeper, while spike detection prevents catching falling knives.
+
+### Regime Detection
+
+The bot classifies the market as ranging, trending, or volatile using ADX (Average Directional Index) and price slope. In ranging markets, gamma is reduced for tighter spreads. In trending markets, spreads widen on the counter-trend side. In volatile markets, overall spread increases to avoid adverse selection.
 
 ---
 
@@ -364,7 +630,9 @@ The Vaults system is expanding. Here is what is on the roadmap:
 </Accordion>
 
 <Accordion title="What symbol do the vaults trade?">
-  Each vault has a default symbol (currently ASTER/USDT:USDT), but you can select from 12 popular symbols or enter any custom symbol before deploying. Popular options include BTC, ETH, SOL, DOGE, XRP, SUI, PEPE, LINK, AVAX, ARB, OP, and WIF.
+  Each vault has a default symbol (currently ASTER/USDT:USDT for single-symbol vaults), but you can select from 12 popular symbols or enter any custom symbol before deploying. Popular options include BTC, ETH, SOL, DOGE, XRP, SUI, PEPE, LINK, AVAX, ARB, OP, and WIF.
+
+  Multi-symbol vaults default to BTC, ETH, SOL, SUI, and XRP, with each symbol configurable before deployment.
 </Accordion>
 
 <Accordion title="What happens if I already have saved credentials from the main dashboard?">
@@ -374,6 +642,10 @@ The Vaults system is expanding. Here is what is on the roadmap:
 <Accordion title="What is the minimum balance required?">
   - **BloFin USDT Vault:** $500 USDT in your BloFin futures wallet
   - **Bybit USDT Vault:** $1,000 USDT in your Bybit futures wallet
+  - **BloFin GLFT Vault:** $500 USDT in your BloFin futures wallet
+  - **BloFin GLFT Multi-Symbol Vault:** $1,000 USDT in your BloFin futures wallet
+  - **Bybit GLFT Vault:** $500 USDT in your Bybit futures wallet
+  - **Bybit GLFT Multi-Symbol Vault:** $1,000 USDT in your Bybit futures wallet
 
   These minimums ensure the bot has enough capital to place grid orders effectively. Running with less may result in orders too small to execute.
 </Accordion>

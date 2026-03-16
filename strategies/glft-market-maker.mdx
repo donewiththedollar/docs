@@ -1,0 +1,371 @@
+---
+title: 'GLFT Optimal Market Maker'
+description: 'Academic optimal quoting strategy based on Gueant-Lehalle-Fernandez-Tapia equations'
+---
+
+# GLFT Optimal Market Maker
+
+The GLFT strategy is an academic-grade market making engine based on the **Gueant-Lehalle-Fernandez-Tapia** optimal quoting framework. Instead of relying on heuristic rules, GLFT derives optimal bid/ask placement from a closed-form mathematical solution that minimizes inventory risk while maximizing expected profit.
+
+<Warning>
+GLFT is currently in **ALPHA**. It is a fully functional strategy with advanced features, but parameter defaults may evolve as we gather more production data. Start with a conservative preset and small position sizes.
+</Warning>
+
+---
+
+## What is GLFT?
+
+The Gueant-Lehalle-Fernandez-Tapia model (published in 2013) solves the optimal market making problem analytically. Given a market maker's inventory, current volatility, and order arrival rates, it computes the **mathematically optimal** bid and ask prices that balance two competing goals:
+
+1. **Maximize spread capture** - quote tightly to get filled more often
+2. **Minimize inventory risk** - avoid building a large directional position that could lose money
+
+Unlike the Perp Market Maker which uses configurable heuristic rules (100+ parameters), GLFT uses a small set of inputs to derive spreads from equations. The result is a strategy that adapts automatically to market conditions with fewer knobs to turn.
+
+<Note>
+**Academic Foundation**: The GLFT model is one of the most widely cited papers in quantitative market making. It provides a rigorous mathematical framework that professional trading firms use as a starting point for their own strategies.
+</Note>
+
+---
+
+## How It Works
+
+### The GLFT Engine
+
+The core engine computes optimal bid/ask offsets from mid-price using four key inputs:
+
+```
+                    GLFT Optimal Quoting Engine
+                    ──────────────────────────
+                              │
+           ┌──────────────────┼──────────────────┐
+           │                  │                  │
+      ┌────┴────┐      ┌─────┴─────┐      ┌────┴────┐
+      │  Gamma  │      │   Sigma   │      │  Kappa  │
+      │  (risk) │      │   (vol)   │      │ (flow)  │
+      └────┬────┘      └─────┬─────┘      └────┬────┘
+           │                  │                  │
+           └──────────────────┼──────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │ Optimal Spread  │
+                    │   Calculation   │
+                    └────────┬────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              │                               │
+        ASK: mid + δa                  BID: mid - δb
+        (sell offset)                  (buy offset)
+```
+
+**Gamma** (risk aversion, default 0.01) - Controls how aggressively the engine penalizes inventory. Higher gamma = wider spreads, less position risk.
+
+**Sigma** (realized volatility) - Measured from recent price data. Higher volatility = wider optimal spreads to compensate for adverse selection risk.
+
+**Kappa** (order arrival rate) - Estimated from orderbook liquidity depth. Denser orderbooks = higher kappa = tighter optimal spreads because fills are more likely.
+
+### Inventory Skew
+
+The key insight of the GLFT model: **quotes should be asymmetric based on inventory**.
+
+```
+NEUTRAL INVENTORY (q = 0):          LONG INVENTORY (q > 0):
+Symmetric quotes                    Skewed to reduce position
+
+    ASK: $100.08                        ASK: $100.05  ← tighter (want to sell)
+         │                                   │
+    MID: $100.00                        MID: $100.00
+         │                                   │
+    BID: $99.92                         BID: $99.90   ← wider (less buying)
+
+
+SHORT INVENTORY (q < 0):
+Skewed to reduce position
+
+    ASK: $100.10  ← wider (less selling)
+         │
+    MID: $100.00
+         │
+    BID: $99.95   ← tighter (want to buy)
+```
+
+This automatic skewing means the strategy naturally works to reduce inventory risk without needing manual intervention.
+
+---
+
+## Key Features
+
+### GLFT Optimal Quoting
+
+Spreads are derived from the closed-form GLFT equations, not from manually tuned heuristics. The engine adapts in real-time as volatility and orderbook conditions change.
+
+### Inventory Penalty
+
+The gamma parameter controls how strongly the engine penalizes inventory accumulation. At default gamma (0.01), the engine gently skews quotes. Increase gamma to 0.05-0.1 for more aggressive inventory reduction.
+
+### Regime Detection
+
+The engine detects three market regimes via ADX (Average Directional Index) and adjusts behavior:
+
+| Regime | Detection | Gamma Multiplier | Effect |
+|--------|-----------|-------------------|--------|
+| **Ranging** | ADX < 20 | 0.7x | Tighter spreads, more quoting |
+| **Trending** | ADX > 25, directional | 0.7x with trend, 1.5x counter | Favors trend direction |
+| **Volatile** | High NATR | 1.3x | Wider spreads, defensive |
+
+### Recovery Grid
+
+An orderbook-aware DCA system that activates when positions are underwater. Places recovery orders at detected support/resistance levels with martingale sizing. See the [Recovery Grid section](#recovery-grid-1) below for details.
+
+### Grid Breathing
+
+Dynamic spacing that adapts to drawdown conditions:
+- **Drawdown-based**: Grid widens as unrealized loss grows (base 150 bps)
+- **Per-side breathing**: Each side (long/short) breathes independently based on its own P&L
+- **Smoothing**: Gradual transitions prevent whipsaw (alpha_widen: 0.35, alpha_tighten: 0.1)
+
+### Mantis Spread
+
+A composite spread signal that combines three microstructure indicators:
+- **Orderbook imbalance** - Bid vs ask depth ratio
+- **Trade flow** - Recent buy vs sell aggressor volume
+- **Cartea-Jaimungal estimation** - Academic arrival rate model
+
+### Squeeze Detection
+
+Detects short squeeze and long squeeze conditions by monitoring funding rate extremes and open interest changes, then adjusts quoting accordingly.
+
+### Time Decay
+
+Gradually reduces TP targets on aging positions to prevent indefinite holding:
+
+| Regime | Max Loss Time |
+|--------|--------------|
+| Ranging | 320 minutes |
+| Volatile | 240 minutes |
+| Trending | 120 minutes |
+
+TP decay begins after 15 minutes (900 seconds) and increases with position age. Each side ages independently when `salvage_per_side_age` is enabled.
+
+### CJ Estimator
+
+The Cartea-Jaimungal intensity estimator provides a more accurate model of order arrival rates by analyzing recent trade data, improving the kappa parameter estimation beyond simple orderbook depth.
+
+### Dynamic Sizing
+
+Quote size adjusts based on market conditions:
+- **Base size**: $10 USDT per order (conservative) / $25 (aggressive)
+- **Max size**: $15-$20 (conservative) / $30-$40 (aggressive)
+- Scales between base and max based on volatility and fill rates
+
+### Inventory TP
+
+Take-profit targets tighten exponentially as inventory grows. When your position is small, the bot waits for full TP. As position size increases, it accepts progressively smaller profits to reduce exposure faster.
+
+### Multi-Symbol Support
+
+Run the GLFT engine across up to 5 symbols simultaneously from a single bot instance. Each symbol maintains independent state, inventory tracking, and recovery grids.
+
+---
+
+## Supported Exchanges
+
+<CardGroup cols={2}>
+  <Card title="BloFin" icon="building-columns">
+    - Requires API key, secret, and **passphrase**
+    - Maker fee: 2 bps, Taker fee: 6 bps
+    - Supports up to 75x leverage (aggressive preset)
+    - WebSocket orders and data streams
+  </Card>
+  <Card title="Bybit" icon="chart-mixed">
+    - Requires API key and secret only
+    - **Auto fee detection** (no manual fee config needed)
+    - 20x leverage (default for all presets)
+    - WebSocket order management
+  </Card>
+</CardGroup>
+
+---
+
+## Available Presets
+
+GLFT ships with 8 presets covering both exchanges in conservative and aggressive configurations, plus multi-symbol variants.
+
+<Tabs>
+  <Tab title="BloFin">
+| Preset | Risk | Quote Size | Max Position | Leverage | Min Profit |
+|--------|------|-----------|-------------|----------|------------|
+| **Conservative** | Low | $10 | $500 | 20x | 16 bps |
+| **Aggressive** | High | $25 | $2,000 | 75x | 12 bps |
+| **Multi Conservative** | Low | $10 | $500/symbol | 20x | 16 bps |
+| **Multi Aggressive** | High | $25 | $2,000/symbol | 75x | 12 bps |
+  </Tab>
+  <Tab title="Bybit">
+| Preset | Risk | Quote Size | Max Position | Leverage | Min Profit |
+|--------|------|-----------|-------------|----------|------------|
+| **Conservative** | Low | $10 | $500 | 20x | 14 bps |
+| **Aggressive** | High | $10 | $1,000 | 20x | 14 bps |
+| **Multi Conservative** | Low | $10 | $500/symbol | 20x | 14 bps |
+| **Multi Aggressive** | High | $10 | $1,000/symbol | 20x | 14 bps |
+  </Tab>
+</Tabs>
+
+<Tip>
+All GLFT presets appear in the **Suggested Presets** section when deploying a bot. Look for the "ALPHA" tag. See the [Preset Selection Guide](/strategies/preset-guide) for general preset guidance.
+</Tip>
+
+---
+
+## Key Parameters
+
+| Parameter | Description | Conservative | Aggressive |
+|-----------|-------------|-------------|------------|
+| `min_profit_bps` | Minimum profit target in basis points | 14-16 | 12 |
+| `quote_size_usdt` | Base quote size per order | $10 | $25 |
+| `max_position_usdt` | Maximum position per symbol | $500 | $1,000-$2,000 |
+| `leverage` | Leverage multiplier | 20x | 20-75x |
+| `gamma` | Risk aversion (higher = wider spreads) | 0.01 | 0.01 |
+| `grid.levels` | Number of quote levels per side | 2 | 2 |
+| `max_drawdown_usdt` | Hard stop loss per symbol | $100-$200 | $300-$500 |
+| `loop_interval_seconds` | Quote refresh interval | 0.5s | 0.5s |
+
+### Grid Configuration
+
+<ParamField path="grid.levels" type="integer" default="2">
+  Number of quote levels per side. Level 1 sits closest to mid-price, Level 2 is offset by `spacing_bps`.
+</ParamField>
+
+<ParamField path="grid.spacing_bps" type="array" default="[0, 20]">
+  Basis point offset for each grid level from the GLFT optimal price. Level 1 at 0 bps (optimal), Level 2 at 20 bps wider.
+</ParamField>
+
+<ParamField path="grid.size_pct" type="array" default="[0.6, 0.4]">
+  Size allocation per level as fraction of total quote size. 60% at Level 1, 40% at Level 2.
+</ParamField>
+
+<ParamField path="grid.regime_adjust" type="boolean" default="true">
+  Enable regime-based grid adjustments. Multiplies grid parameters by regime-specific factors.
+</ParamField>
+
+<ParamField path="grid.inv_skew" type="boolean" default="true">
+  Enable inventory-based quote skewing. Reduces quoting on the side that would increase inventory.
+</ParamField>
+
+<ParamField path="grid.per_side_breathing" type="boolean" default="true">
+  Each side (long/short) breathes independently based on its own drawdown and duration.
+</ParamField>
+
+---
+
+## Recovery Grid
+
+When a position moves against you, the recovery grid activates to manage the underwater position.
+
+### How It Works
+
+<Steps>
+  <Step title="Detection">
+    The bot detects an underwater position and activates recovery mode. Normal grid quoting on the losing side is suppressed (`suppress_grid_adds: true`).
+  </Step>
+  <Step title="Orderbook Analysis">
+    The `orderbook_dca` mode scans the orderbook for support (for longs) or resistance (for shorts) walls. It selects the **strongest** price levels as recovery entry points.
+  </Step>
+  <Step title="Order Placement">
+    Recovery orders are placed at detected levels, with a minimum distance of 1% from the last fill and 1% between each recovery order. Up to 2 recovery levels are placed.
+  </Step>
+  <Step title="Martingale Sizing">
+    Order size scales with unrealized PnL depth to average down more aggressively at larger drawdowns.
+  </Step>
+</Steps>
+
+### Martingale Size Scaling
+
+| Unrealized PnL % | Size Multiplier | Example (base $10) |
+|-------------------|----------------|---------------------|
+| Below 5% | Base size | $10 |
+| 5% | 0.5x position | $10 + 50% of current position |
+| 10% | 1.0x position | $10 + 100% of current position |
+| 20% | 1.5x position | $10 + 150% of current position |
+
+### Safety Features
+
+- **Spike blocking**: Pauses DCA during sharp price moves (checks 15m candle data)
+- **Dynamic depth**: Recovery range calculated from recent 8-hour price action on 15m timeframe
+- **Minimum distance**: 3% minimum distance from current price to first recovery level
+- **Repost threshold**: Orders only reposted if price moves more than 0.1% from current placement
+
+<Note>
+The recovery grid is **not** a guarantee against losses. In strong trends, recovery orders can increase position size into a losing trade. The `max_drawdown_usdt` hard stop is your ultimate safety net.
+</Note>
+
+---
+
+## Risk Warning
+
+<Warning>
+**Market making involves significant risk.** Key risks specific to GLFT:
+
+- **Inventory risk**: Despite optimal skewing, strong trends can build large positions before the stop loss triggers
+- **Recovery grid risk**: Martingale sizing adds to losing positions - in severe moves this increases total loss
+- **Leverage risk**: Even 20x leverage means a 5% adverse move equals 100% of position value
+- **Liquidity risk**: On low-liquidity tokens, spreads may not be wide enough to cover adverse selection
+- **Alpha status**: GLFT is in active development - parameter defaults may change between updates
+
+Only trade with funds you can afford to lose. Start with the conservative preset and monitor closely.
+</Warning>
+
+---
+
+## Who Is This For?
+
+<CardGroup cols={3}>
+  <Card title="Academic Traders" icon="graduation-cap">
+    Those who want mathematically-derived quoting rather than hand-tuned heuristics
+  </Card>
+  <Card title="Experienced MMs" icon="chart-candlestick">
+    Market makers comfortable with inventory risk who want fewer parameters to manage
+  </Card>
+  <Card title="Multi-Symbol Traders" icon="layer-group">
+    Those who want to run one bot across multiple symbols simultaneously
+  </Card>
+</CardGroup>
+
+**Minimum requirements:**
+- $500+ account balance (conservative preset)
+- Understanding of market making concepts (spreads, inventory, adverse selection)
+- Willingness to monitor positions, especially during the alpha period
+- BloFin or Bybit exchange account with API access
+
+---
+
+## GLFT vs Perp Market Maker
+
+| Aspect | GLFT | Perp MM |
+|--------|------|---------|
+| **Quoting method** | Academic equations | Heuristic rules |
+| **Parameters** | ~20 key settings | 100+ parameters |
+| **Spread derivation** | Automatic from volatility/flow | Manual base_spread_bps |
+| **Inventory management** | Built-in penalty function | Configurable skew factor |
+| **Recovery system** | Orderbook DCA with martingale | XGrid counter scalp |
+| **Best for** | Fewer knobs, academic approach | Full customization |
+| **Complexity** | Medium | High |
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Vaults" icon="vault" href="/features/vaults">
+    Deploy GLFT through managed vaults for hands-off trading
+  </Card>
+  <Card title="Preset Guide" icon="list-check" href="/strategies/preset-guide">
+    Compare all presets across strategies and exchanges
+  </Card>
+  <Card title="Perp Market Maker" icon="scale-balanced" href="/strategies/perp-market-maker">
+    Compare with the heuristic-based Perp MM strategy
+  </Card>
+  <Card title="Bot Management" icon="sliders" href="/features/bot-management">
+    Learn how to deploy, monitor, and manage your bots
+  </Card>
+</CardGroup>

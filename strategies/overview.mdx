@@ -5,7 +5,7 @@ description: "Compare trading strategies and choose the right one for your goals
 
 # Trading Strategy Overview
 
-Quant Dash offers three powerful automated trading strategies, each optimized for different market conditions and risk profiles.
+Quant Dash offers four powerful automated trading strategies, each optimized for different market conditions and risk profiles.
 
 ## Strategy Comparison
 
@@ -13,6 +13,7 @@ Quant Dash offers three powerful automated trading strategies, each optimized fo
 |----------|----------|------------|------------|---------------------|
 | **Vortex DCA** | Accumulation, trending markets | Medium | Low | $500+ |
 | **Perp Market Maker** | Range-bound, low volatility | Medium-High | High | $1,000+ |
+| **GLFT Optimal MM** | Range-bound, academic quoting | Medium-High | Medium | $500+ |
 | **XGrid** | High volatility, momentum | High | Medium | $500+ |
 
 ## Visual Guide: When to Use Each Strategy
@@ -28,8 +29,8 @@ Market Trending Up/Down?
           YES ─┴─ NO (High Volatility)
            │      │
            ▼      ▼
-         PERP    XGRID
-          MM
+      PERP MM    XGRID
+      or GLFT
 ```
 
 ---
@@ -103,6 +104,46 @@ Start with a preset and small position sizes until you understand the behavior.
 
 ---
 
+## GLFT Optimal Market Maker
+
+<Card title="Best For" icon="brain">
+  Academic-grade quoting with mathematically optimal spreads
+</Card>
+
+### How It Works
+
+GLFT (Gueant-Lehalle-Fernandez-Tapia) computes optimal bid and ask quotes using a closed-form solution from academic market microstructure research. Instead of heuristic rules, it uses three key inputs:
+
+```
+Inputs:
+  σ (sigma)  = realized volatility
+  κ (kappa)  = order arrival rate
+  γ (gamma)  = risk aversion
+         │
+         ▼
+  GLFT Engine → optimal bid/ask offsets
+         │
+         ▼
+  BID ←──┤──→ ASK
+  (skewed by inventory penalty)
+```
+
+### Key Features
+- **Optimal Quoting**: Spreads derived from closed-form equations, not rules of thumb
+- **Inventory Penalty**: Gamma parameter controls how aggressively quotes skew to reduce position risk
+- **Regime Detection**: ADX-based classification adjusts gamma for ranging, trending, and volatile markets
+- **Recovery Grid**: Orderbook DCA with martingale sizing at support/resistance walls
+- **Multi-Symbol**: Run up to 5 pairs from a single bot instance
+
+### Supported Exchanges
+- **BloFin** and **Bybit** (with auto fee detection on Bybit)
+
+<Card title="Learn More" icon="arrow-right" href="/strategies/glft-market-maker">
+  Complete GLFT Market Maker Guide
+</Card>
+
+---
+
 ## XGrid (Momentum Scalping)
 
 <Card title="Best For" icon="bolt">
@@ -144,6 +185,8 @@ Start with **Vortex DCA** using a conservative preset:
 - Easier to understand
 - Works in most market conditions
 - Built-in position recovery
+
+Or try a **GLFT Vault** from the [Vaults page](/features/vaults) for zero-configuration optimal quoting.
 </Note>
 
 ### I Have $500-1000
@@ -178,12 +221,15 @@ Start with **Vortex DCA** using a conservative preset:
 
 ## Next Steps
 
-<CardGroup cols={3}>
+<CardGroup cols={4}>
   <Card title="Vortex DCA" icon="chart-simple" href="/strategies/vortex-dca">
     Learn DCA strategy in detail
   </Card>
   <Card title="Perp MM" icon="scale-balanced" href="/strategies/perp-market-maker">
     Master market making
+  </Card>
+  <Card title="GLFT MM" icon="brain" href="/strategies/glft-market-maker">
+    Explore optimal quoting
   </Card>
   <Card title="XGrid" icon="bolt" href="/strategies/xgrid">
     Understand momentum scalping
