@@ -1,92 +1,109 @@
 ---
-title: Welcome to VoidX
-description: 'Professional automated cryptocurrency trading with institutional-grade DCA bots'
+title: Welcome to VOIDX
+description: 'Algorithmic trading terminal — deploy automated strategies on your own exchange API keys, plus an on-chain DEX on Sui'
 ---
 
-## What is VoidX?
+## What is VOIDX?
 
-VoidX is a **multi-user institutional-grade cryptocurrency trading platform** that provides automated DCA (Dollar Cost Averaging) trading bots across multiple exchanges.
+VOIDX is an **algorithmic trading terminal** at [voidx.trade](https://voidx.trade). It does two things:
+
+1. **Automated trading bots** — deploy ready-made strategies that trade on **your own exchange API keys**. VOIDX never holds your funds.
+2. **On-chain DEX** — a separate decentralized exchange at [voidx.trade/dex](https://voidx.trade/dex), built on DeepBook on Sui. See the [DEX docs](/dex/overview).
+
+<Frame>
+  <img src="/images/2026-06/terminal-overview.png" alt="VOIDX terminal Overview tab showing the navigation bar, quick start panel, and live market data" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+Click **Launch App** to open the terminal. You can browse everything — the Marketplace, Markets, strategy details — **without connecting a wallet**. Connecting is only needed when you want to act.
 
 <CardGroup cols={2}>
   <Card
-    title="Multi-Exchange Support"
-    icon="repeat"
-    href="/exchanges/blofin"
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
   >
-    Trade on BloFin, Bybit, HTX, WEEX, and Defx from a single dashboard
+    From zero to your first deployed bot, step by step
   </Card>
   <Card
-    title="Advanced Strategies"
+    title="Bot Marketplace"
+    icon="store"
+    href="/features/marketplace"
+  >
+    41 preset bots across 4 strategy families — browse, compare, deploy
+  </Card>
+  <Card
+    title="Strategies"
     icon="brain"
     href="/strategies/overview"
   >
-    Vortex DCA, Perp Market Maker, and XGrid strategies
+    How Vortex DCA, XGrid, GLFT MM, and Long-Only DCA work
   </Card>
   <Card
-    title="Real-Time Monitoring"
-    icon="chart-line"
-    href="/features/dashboard-overview"
+    title="On-Chain DEX"
+    icon="arrow-right-arrow-left"
+    href="/dex/overview"
   >
-    Live WebSocket updates for positions, P&L, and system logs
-  </Card>
-  <Card
-    title="Token-Gated Access"
-    icon="lock"
-    href="/pumpkin-token"
-  >
-    Hold any PUMPKIN tokens on SUI, Solana, or BASE for access
+    Trade on-chain on Sui via DeepBook — no API keys needed
   </Card>
 </CardGroup>
 
-<Card
-  title="New: VOIDX Vaults — Zero-Config Trading"
-  icon="vault"
-  href="/features/vaults"
->
-  Skip the setup. Vaults are pre-configured trading strategies you can deploy in one click. Connect wallet, paste API keys, and start trading. [Learn more](/features/vaults)
-</Card>
-
 ---
 
-## Key Features
+## The Terminal
 
-<AccordionGroup>
-  <Accordion icon="robot" title="Automated Trading">
-    Set up your bot once and let it trade 24/7 with advanced DCA and market making strategies
-  </Accordion>
+The app is organized into tabs:
 
-  <Accordion icon="shield-halved" title="Risk Management">
-    Built-in liquidation safeguards, auto-hedging, virtual chunking for position recovery, and configurable exposure limits
-  </Accordion>
+| Tab | What it's for |
+|-----|---------------|
+| **Overview** | Quick start, market snapshot, and your account at a glance |
+| **Portfolio** | Equity curve (1D/7D/30D/90D), per-exchange allocation, bot performance, positions |
+| **Trade** | Manual trading on your connected exchanges |
+| **Bots** | Manage your running bots — status, logs, start/stop |
+| **Marketplace** | Browse and deploy preset bots |
+| **Markets** | Market data and discovery |
+| **Vaults** | Pre-configured one-click strategies |
+| **Docs** | Opens this documentation |
 
-  <Accordion icon="gear" title="Customizable Presets">
-    Choose from battle-tested presets like Minimalist Alpha—or build your own configuration
-  </Accordion>
+## Bot Marketplace
 
-  <Accordion icon="chart-simple" title="Optimal Symbols">
-    Real-time ATRP data to find the best trading pairs for current market conditions
-  </Accordion>
-</AccordionGroup>
+The Marketplace is where most users start. It shows **41 preset cards across 4 strategy families** — Vortex DCA, XGrid, GLFT MM, and Long-Only DCA — each with a plain-English description and stat tiles read directly from the preset's real configuration. No invented performance figures.
+
+<Frame>
+  <img src="/images/2026-06/marketplace.png" alt="VOIDX Bot Marketplace showing preset cards with strategy family badges, stat tiles, and deploy buttons" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+Click a card to open its detail view, pick your exchange variant (Bybit, BloFin, or DEFX), and hit **Deploy** — the deploy wizard opens prefilled with that preset's settings.
 
 ## How It Works
 
 <Steps>
-  <Step title="Get PUMPKIN Tokens">
-    Hold any amount of PUMPKIN tokens in your SUI, Solana, or BASE wallet for Tier 1 access
+  <Step title="Browse freely">
+    Open [voidx.trade](https://voidx.trade) and explore. No wallet, no signup — guests see everything.
   </Step>
 
-  <Step title="Connect Exchange">
-    Add API credentials for BloFin, Bybit, HTX, WEEX, or Defx
+  <Step title="Connect a wallet">
+    Connect a Sui, Solana, or EVM wallet. **No PUMPKIN tokens needed for the Free tier.**
   </Step>
 
-  <Step title="Configure Bot">
-    Select a preset like Minimalist Alpha or customize your trading parameters
+  <Step title="Add exchange API keys">
+    Add API keys for your exchange (trade permission only — never enable withdrawals). Keys are stored encrypted.
   </Step>
 
-  <Step title="Start Trading">
-    Launch your bot and monitor real-time performance
+  <Step title="Deploy from the Marketplace">
+    Pick a preset, deploy it, and monitor it in the Bots and Portfolio tabs. Each bot runs as its own process and trades through your keys.
   </Step>
 </Steps>
+
+<Note>
+**Non-custodial by design.** Bots trade through your exchange API keys. Your funds never leave your exchange account, and VOIDX cannot withdraw them.
+</Note>
+
+## Free and Pro Tiers
+
+- **Free** — connect a wallet and start: 1 bot, 1 symbol, 1 exchange. No PUMPKIN required.
+- **Pro** — 5 bots, 10 symbols, 5 exchanges. A 14-day Pro trial is available (no card required). Upgrading via PUMPKIN burn is coming soon.
+
+See the [PUMPKIN Token page](/pumpkin-token) for details.
 
 ## Supported Exchanges
 
@@ -94,15 +111,7 @@ VoidX is a **multi-user institutional-grade cryptocurrency trading platform** th
 - **Bybit** - Popular derivatives exchange
 - **HTX** (Huobi) - Global exchange platform
 - **WEEX** - Low-fee trading
-- **Defx** - Decentralized derivatives
-
-<Card
-  title="Quick Start Guide"
-  icon="rocket"
-  href="/quickstart"
->
-  Get your first bot running in under 30 minutes
-</Card>
+- **DEFX** - Decentralized derivatives
 
 ## Affiliates
 

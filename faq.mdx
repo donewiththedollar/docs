@@ -1,27 +1,44 @@
 ---
 title: "FAQ"
-description: "Frequently asked questions about VoidX"
+description: "Frequently asked questions about VOIDX"
 ---
 
 # Frequently Asked Questions
 
-Quick answers to common questions about VoidX.
+Quick answers to common questions about VOIDX.
 
 ---
 
 ## Getting Started
 
-<Accordion title="How much capital do I need to start?">
-  **Minimum recommended**: $500 USDT
+<Accordion title="Can I look around without connecting a wallet?">
+  **Yes.** Open [voidx.trade](https://voidx.trade), click Launch App, and browse freely.
 
-  **Breakdown:**
-  - Any amount of PUMPKIN tokens (for platform access)
-  - $500+ for trading (more is better for diversification)
+  Guests can see everything — the Bot Marketplace, preset details, Markets data, strategy descriptions. Only *actions* (deploying bots, trading) require a connected wallet. Deploy buttons simply say "Connect wallet to deploy" until you do.
+</Accordion>
+
+<Accordion title="Do I need PUMPKIN tokens to use VOIDX?">
+  **Not for the Free tier.** Connect a Sui, Solana, or EVM wallet and you're in — no PUMPKIN required.
+
+  PUMPKIN is relevant for upgrading: burning PUMPKIN for the Pro tier is coming soon. See [PUMPKIN Token](/pumpkin-token).
+</Accordion>
+
+<Accordion title="What are the Free and Pro tiers?">
+  - **Free**: 1 bot, 1 symbol, 1 exchange
+  - **Pro**: 5 bots, 10 symbols, 5 exchanges, plus priority support and advanced strategies
+
+  A 14-day Pro trial is available — no card required. Upgrading to Pro via PUMPKIN burn is coming soon.
+</Accordion>
+
+<Accordion title="How much capital do I need to start?">
+  **Minimum recommended**: $500 USDT in your exchange futures wallet.
 
   **By strategy:**
   - Vortex DCA: $500+ recommended
-  - Perp Market Maker: $1,000+ recommended
+  - Market making strategies: $1,000+ recommended
   - Multiple symbols: $2,000+ recommended
+
+  More capital gives DCA strategies more room to average in safely.
 </Accordion>
 
 <Accordion title="What exchanges are supported?">
@@ -30,94 +47,78 @@ Quick answers to common questions about VoidX.
   - **Bybit** - Full support, popular choice
   - **HTX (Huobi)** - Perpetual futures
   - **WEEX** - Perpetual futures
-  - **Defx** - Decentralized exchange on Base
+  - **DEFX** - Decentralized derivatives
 
   Each exchange has a dedicated setup guide in the [Exchange Setup](/exchanges/bybit) section.
 </Accordion>
 
 <Accordion title="Do I need coding skills?">
-  **No!** VoidX is designed for non-technical users.
+  **No!** VOIDX is designed for non-technical users.
 
-  - Use the dashboard to configure bots
-  - Select from pre-built presets like Minimalist Alpha
-  - Advanced users can edit JSON configs if desired
+  - Browse the Bot Marketplace and deploy presets with plain-English descriptions
+  - The deploy wizard comes prefilled with the preset's settings
+  - Advanced users can customize parameters if desired
 </Accordion>
 
-<Accordion title="Is my money safe?">
-  **Your funds never leave your exchange account.**
+---
 
-  - API keys have NO withdrawal permission
-  - Even if keys are compromised, funds cannot be withdrawn
+## Funds & Custody
+
+<Accordion title="Do you custody my funds?">
+  **No. VOIDX is non-custodial.**
+
+  - Your funds never leave your exchange account
+  - Bots only use your API keys to place orders on your behalf
   - We never have access to your private keys or passwords
-  - All trading happens directly on your exchange account
+  - You can revoke API access at any time from your exchange
+</Accordion>
+
+<Accordion title="What API key permissions should I use?">
+  **Read + Trade only. Never enable withdrawal permission.**
+
+  With trade-only keys, even if your keys were somehow compromised, funds cannot be withdrawn from your exchange account. Every exchange guide in these docs walks you through creating keys with the right permissions.
+</Accordion>
+
+<Accordion title="How do bots actually run?">
+  Each bot runs as its own process on VOIDX servers and trades through your exchange API keys.
+
+  - No software to install, no VPS to manage
+  - Bots keep running when your browser is closed
+  - They cannot withdraw funds — withdrawal permission should stay disabled on your API key
 </Accordion>
 
 ---
 
-## PUMPKIN Token
+## Marketplace & Bots
 
-<Accordion title="What is the PUMPKIN token?">
-  PUMPKIN is a utility token available on SUI, Solana, and BASE that grants access to VoidX.
+<Accordion title="What is the Bot Marketplace?">
+  The **Marketplace** tab shows 41 preset bots across 4 strategy families:
 
-  - **Required**: Hold any amount to access Tier 1 features
-  - **Not spent**: Just hold in your wallet, not consumed
-  - **Tradeable**: Can be sold anytime on DEXs
-  - **Higher tiers**: Coming soon for larger holders
+  - **Vortex DCA** — dollar-cost-averaging grid strategy
+  - **XGrid** — high-frequency grid / momentum scalping
+  - **GLFT MM** — quantitative market making
+  - **Long-Only DCA** — long-only geometric DCA
+
+  Each card has a plain-English description, a risk label, and stat tiles read directly from the preset's real configuration — no invented performance numbers. Click a card for details, pick your exchange variant (Bybit, BloFin, or DEFX), and Deploy opens a prefilled wizard.
 </Accordion>
-
-<Accordion title="Where do I buy PUMPKIN?">
-  PUMPKIN is available on multiple chains:
-
-  **On SUI:**
-  - [BlueFin](https://trade.bluefin.io/swap/SUI-PUMPKIN)
-  - [Aftermath](https://aftermath.finance/trade?from=SUI&to=PUMPKIN)
-
-  **On Solana:**
-  - Any Solana DEX supporting the PUMPKIN token
-
-  See the [PUMPKIN Token Guide](/pumpkin-token) for contract addresses and step-by-step instructions.
-</Accordion>
-
-<Accordion title="Why is there a token requirement?">
-  Token-gating serves multiple purposes:
-  - Prevents spam/abuse
-  - Aligns user interests with platform
-  - Creates sustainable development funding
-  - Enables tiered access for different user levels
-</Accordion>
-
-<Accordion title="Which chain should I use for PUMPKIN?">
-  All chains grant the same access. Choose based on your preference:
-  - **SUI** - Native chain, best liquidity
-  - **Solana** - Fast and cheap transactions
-  - **BASE** - EVM-compatible, works with MetaMask
-</Accordion>
-
----
-
-## Trading & Strategies
 
 <Accordion title="Which strategy should I use?">
   **Quick guide:**
 
   | Your Situation | Recommended Strategy |
   |---------------|---------------------|
-  | Beginner | Minimalist Alpha preset |
-  | Want to accumulate | Vortex DCA |
-  | Range-bound market | Perp Market Maker |
+  | Beginner | A Conservative preset from the Marketplace |
+  | Want to accumulate | Vortex DCA or Long-Only DCA |
+  | Range-bound market | GLFT MM |
   | High volatility | XGrid |
   | $500-1000 capital | Single strategy, 1-2 symbols |
-  | $2000+ capital | Multiple strategies/symbols |
+  | $2000+ capital | Multiple strategies/symbols (Pro tier) |
 
   See the [Strategy Overview](/strategies/overview) for detailed comparison.
 </Accordion>
 
 <Accordion title="What returns can I expect?">
-  **Honest answer:** Returns vary significantly based on market conditions, strategy, and settings.
-
-  - Market making in good conditions: 0.1-0.5% daily
-  - DCA in trending markets: Depends on entry/exit timing
-  - Bad conditions can result in losses
+  **Honest answer:** Returns vary significantly based on market conditions, strategy, and settings. Bad conditions can result in losses.
 
   **Important:**
   - Past performance doesn't guarantee future results
@@ -126,24 +127,42 @@ Quick answers to common questions about VoidX.
 </Accordion>
 
 <Accordion title="Can I run multiple bots?">
-  **Yes!** You can run multiple bots simultaneously:
+  **Yes, depending on your tier:**
 
-  - Different symbols on the same exchange
-  - Same symbol on different exchanges (arbitrage)
-  - Different strategies for diversification
+  - **Free**: 1 bot, 1 symbol, 1 exchange
+  - **Pro**: up to 5 bots, 10 symbols, 5 exchanges
 
-  **Recommendation:** Start with one bot, add more as you learn.
+  Each bot runs as its own independent process. **Recommendation:** start with one bot, add more as you learn.
 </Accordion>
 
 <Accordion title="How do I know if my bot is working?">
   Check these indicators:
 
-  1. **Status**: Green = running, Red = error
-  2. **Orders**: Should see open orders in dashboard
-  3. **Logs**: Trading console shows activity
-  4. **Positions**: Track open positions and P&L
+  1. **Status**: Green = running, Red = error (Bots tab)
+  2. **Orders**: Should see open orders in the terminal and on your exchange
+  3. **Logs**: The bot's log stream shows activity
+  4. **Portfolio**: Track positions, P&L, and your equity curve
 
   If orders appear and fill, the bot is working correctly.
+</Accordion>
+
+<Accordion title="Can I test without real money?">
+  **Yes.** When adding exchange credentials, toggle the **Testnet** flag to connect to your exchange's paper-trading environment instead of live markets.
+</Accordion>
+
+---
+
+## Portfolio & Tracking
+
+<Accordion title="How does the Portfolio tab work?">
+  Once you've added exchange API keys, VOIDX records an equity snapshot every 5 minutes. The Portfolio tab shows:
+
+  - **Equity curve** with 1D / 7D / 30D / 90D timeframes
+  - Per-exchange allocation
+  - Bot performance
+  - Open positions
+
+  The curve starts empty and fills in as history is recorded.
 </Accordion>
 
 ---
@@ -161,7 +180,6 @@ Quick answers to common questions about VoidX.
 
   **Mitigation:**
   - Start with conservative presets
-  - Use auto-hedging for protection
   - Never risk more than you can afford to lose
   - Diversify across symbols/strategies
 </Accordion>
@@ -175,22 +193,7 @@ Quick answers to common questions about VoidX.
 
   **Protection:**
   - Set stop losses on exchange manually
-  - Use auto-hedging for large positions
   - Monitor positions even when bot is off
-</Accordion>
-
-<Accordion title="How does loss management work?">
-  The bot uses tiered loss management:
-
-  | Loss Level | Action |
-  |------------|--------|
-  | 0-1% | Normal trading |
-  | 1-3% | Widen spreads, reduce size |
-  | 3-6% | Stop new entries, defend only |
-  | 6%+ | Exit priority mode |
-  | 10% | Hard stop - close all |
-
-  See [Risk Management](/risk-management/risk-management-best-practices) for details.
 </Accordion>
 
 <Accordion title="What is liquidation and how do I avoid it?">
@@ -198,10 +201,11 @@ Quick answers to common questions about VoidX.
 
   **Avoid by:**
   - Using lower leverage (start with 10x or less)
-  - Keeping wallet exposure under 30%
-  - Enabling auto-hedging
+  - Keeping wallet exposure conservative
   - Setting hard stop losses
   - Monitoring positions regularly
+
+  See [Risk Management](/risk-management/risk-management-best-practices) for details.
 </Accordion>
 
 ---
@@ -214,7 +218,7 @@ Quick answers to common questions about VoidX.
   1. **API Keys**: Verify correct and have Trade permission
   2. **Balance**: Ensure funds in correct wallet (Futures, not Spot)
   3. **Symbol**: Check symbol is valid and tradeable
-  4. **Exchange**: Verify exchange connection works
+  4. **Exchange**: Use the Test button on your credentials to verify the connection
 
   See [Troubleshooting](/troubleshooting) for detailed solutions.
 </Accordion>
@@ -226,21 +230,18 @@ Quick answers to common questions about VoidX.
   - Orders cancel when price moves too far
   - Rate limiting may cancel excess orders
 
-  If excessive:
-  - Increase `grid_refresh_interval`
-  - Reduce number of grid levels
-  - Check exchange rate limits
+  If excessive, see [Troubleshooting](/troubleshooting).
 </Accordion>
 
 <Accordion title="What are the system requirements?">
-  VoidX is a web application - no installation needed!
+  VOIDX is a web application - no installation needed!
 
   Requirements:
   - Modern web browser (Chrome, Firefox, Safari, Edge)
   - Stable internet connection
   - Exchange account with API access
 
-  No server, VPS, or technical setup required.
+  No server, VPS, or technical setup required — bots run as processes on VOIDX servers.
 </Accordion>
 
 ---
@@ -248,20 +249,17 @@ Quick answers to common questions about VoidX.
 ## Account & Billing
 
 <Accordion title="Is there a monthly fee?">
-  No monthly subscription fees.
+  **The Free tier is free** — no subscription, no PUMPKIN requirement.
 
-  - One-time token requirement (any PUMPKIN)
-  - No trading fees beyond exchange fees
-  - No hidden charges
+  - Free: 1 bot, 1 symbol, 1 exchange
+  - Pro: more bots/symbols/exchanges; a 14-day trial is available, and upgrading via PUMPKIN burn is coming soon
+  - No trading fees beyond your exchange's own fees
 </Accordion>
 
-<Accordion title="Can I use the platform for free?">
-  You need to hold any amount of PUMPKIN tokens to access the platform.
+<Accordion title="What is the on-chain DEX?">
+  VOIDX also runs a separate decentralized exchange at [voidx.trade/dex](https://voidx.trade/dex), built on DeepBook on Sui. It's fully on-chain — no exchange API keys involved.
 
-  The tokens are:
-  - Your own asset (not spent)
-  - Sellable anytime
-  - A one-time purchase
+  See the [DEX documentation](/dex/overview).
 </Accordion>
 
 <Accordion title="How do I contact support?">
@@ -280,15 +278,14 @@ Quick answers to common questions about VoidX.
 
 <Accordion title="Can I create custom strategies?">
   Currently, you can:
-  - Customize presets extensively
-  - Adjust 100+ parameters
-  - Create your own config files
+  - Deploy any Marketplace preset and customize its parameters in the deploy wizard
+  - Adjust extensive configuration options
 
   Fully custom strategies require code changes (advanced users only).
 </Accordion>
 
 <Accordion title="Is there an API?">
-  Yes! The dashboard uses a REST API that advanced users can access:
+  Yes! The terminal uses a REST API that advanced users can access:
   - WebSocket for real-time updates
   - REST for configuration and control
 

@@ -1,119 +1,65 @@
 ---
 title: 'Quickstart'
-description: 'Get your first trading bot running in 30 minutes'
+description: 'From browsing to your first deployed bot'
 ---
 
-# Your First Trading Bot in 30 Minutes
+# Your First Bot on VOIDX
 
-This guide walks you through setting up your first automated trading bot. By the end, you'll have a working bot placing real trades.
+This guide walks you through the current VOIDX flow: **browse → connect → add API keys → deploy from the Marketplace**. By the end, you'll have a bot running on your own exchange account.
 
 <Note>
-**Estimated time:** 30 minutes
-
 **What you'll need:**
-- Any amount of PUMPKIN tokens (SUI, Solana, or BASE)
-- Exchange account with $500+ for trading
-- 30 minutes of focused time
+- A wallet — Sui, Solana, or EVM (MetaMask, Phantom, Sui Wallet, etc.)
+- An exchange account — BloFin, Bybit, HTX, WEEX, or DEFX
+- Trading capital in your exchange futures wallet ($500+ recommended)
+
+**You do NOT need PUMPKIN tokens.** The Free tier requires none.
 </Note>
 
----
-
-## Choose Your Path
-
-<CardGroup cols={2}>
-  <Card title="I'm a Beginner" icon="seedling">
-    Use the **Minimalist Alpha** preset.
-    - Simple configuration
-    - Battle-tested defaults
-    - Great for learning
-  </Card>
-  <Card title="I'm Experienced" icon="rocket">
-    Choose from multiple strategies.
-    - Full parameter control
-    - Advanced features
-    - Custom configurations
-  </Card>
-</CardGroup>
-
-<Tip>
-**Fastest path:** Use [VOIDX Vaults](/features/vaults) for zero-configuration deployment. No preset selection, no parameter tuning — just connect your wallet, paste API keys, and deploy.
-</Tip>
-
-**This guide uses the beginner path.** Advanced users can skip to [Bot Configuration](/bot-configuration).
-
----
-
-## Prerequisites Checklist
-
-Before starting, ensure you have:
-
-<Check>**Wallet** - SUI, Solana, or EVM wallet</Check>
-<Check>**Any PUMPKIN tokens** - Required for Tier 1 platform access</Check>
-<Check>**Exchange account** - BloFin, Bybit, HTX, WEEX, or Defx</Check>
-<Check>**$500+ trading capital** - In your exchange futures wallet</Check>
-
 <Warning>
-**Security First:** Never share your API keys, wallet private keys, or passwords with anyone. VoidX will NEVER ask for your private keys.
+**Security first:** Never share your API keys, wallet private keys, or passwords with anyone. VOIDX will NEVER ask for your private keys, and your API keys should never have withdrawal permission.
 </Warning>
 
 ---
 
-## Step 1: Get PUMPKIN Tokens (10 minutes)
+## Step 1: Browse Without Connecting (0 minutes setup)
 
-<Accordion title="Already have PUMPKIN? Skip to Step 2">
-  If you already hold any PUMPKIN tokens in your wallet, you can skip this step.
-</Accordion>
+Go to [voidx.trade](https://voidx.trade) and click **Launch App**.
 
-### Option A: SUI Network
+You don't need a wallet or an account to look around. As a guest you can:
 
-<Steps>
-  <Step title="Get a SUI Wallet">
-    Download [Sui Wallet](https://chrome.google.com/webstore/detail/sui-wallet) or [Suiet](https://suiet.app/)
-  </Step>
-  <Step title="Get SUI Tokens">
-    Buy SUI on Binance, Coinbase, OKX, etc. and withdraw to your wallet
-  </Step>
-  <Step title="Swap for PUMPKIN">
-    Use [BlueFin](https://trade.bluefin.io/swap/SUI-PUMPKIN) or [Aftermath](https://aftermath.finance/trade?from=SUI&to=PUMPKIN) to swap SUI for PUMPKIN
-  </Step>
-</Steps>
+- Open the **Marketplace** tab and browse all preset bots
+- Click any card to see its full detail view — strategy explanation, stat tiles, exchange variants
+- Check the **Markets** tab for market data
+- Read strategy descriptions before risking anything
 
-### Option B: Solana Network
+Actions (deploying, trading) are gated — buttons will say **"Connect wallet to deploy"** until you connect.
 
-<Steps>
-  <Step title="Get a Solana Wallet">
-    Download [Phantom](https://phantom.app/) or Solflare
-  </Step>
-  <Step title="Get SOL Tokens">
-    Buy SOL on any major exchange and withdraw to your wallet
-  </Step>
-  <Step title="Swap for PUMPKIN">
-    Use any Solana DEX to swap SOL for PUMPKIN
-  </Step>
-</Steps>
+<Tip>
+Spend a few minutes in the Marketplace first. Picking a strategy you understand matters more than any setting.
+</Tip>
 
 ---
 
-## Step 2: Connect to VoidX (2 minutes)
+## Step 2: Connect Your Wallet (2 minutes)
 
 <Steps>
-  <Step title="Visit the Dashboard">
-    Go to [voidx.trade](https://voidx.trade)
+  <Step title="Click Connect Wallet">
+    In the top bar, click **Connect Wallet** and choose your chain: Sui, Solana, or EVM (BSC, Base, Ethereum).
   </Step>
-  <Step title="Connect Wallet">
-    Click **"Connect Wallet"** and choose your wallet type (SUI, SOL, or EVM)
+  <Step title="Approve the connection">
+    Your wallet extension will prompt you — click Approve.
   </Step>
-  <Step title="Approve Connection">
-    Your wallet will prompt you - click Approve
-  </Step>
-  <Step title="Sign Authentication">
-    Sign the message to verify wallet ownership (no transaction, just signature)
+  <Step title="Sign the authentication message">
+    Sign the message to verify wallet ownership. This is a signature only — no transaction, no gas, nothing leaves your wallet.
   </Step>
 </Steps>
 
 <Note>
-The platform verifies your PUMPKIN balance automatically. Any amount of PUMPKIN grants Tier 1 access.
+**No PUMPKIN needed for the Free tier.** Connecting a wallet gives you Free tier access: 1 bot, 1 symbol, 1 exchange. Pro (5 bots, 10 symbols, 5 exchanges) is available via a 14-day trial. See [PUMPKIN Token](/pumpkin-token).
 </Note>
+
+**What you'll see:** the top bar now shows your wallet address and a tier badge (FREE or PRO). The Overview tab's Quick Start panel switches to prompt you for exchange API keys.
 
 ---
 
@@ -163,86 +109,57 @@ The platform verifies your PUMPKIN balance automatically. Any amount of PUMPKIN 
   </Tab>
 </Tabs>
 
-### 3.2 Add Keys to VoidX
+For DEFX (decentralized derivatives), see the [DEFX guide](/exchanges/defx).
+
+### 3.2 Add Keys to VOIDX
 
 <Steps>
-  <Step title="Navigate to Exchanges">
-    Dashboard → **Settings** → **Exchanges**
+  <Step title="Open Add Exchange">
+    On the **Overview** tab, the Quick Start panel shows an **Add Exchange** button once your wallet is connected.
   </Step>
-  <Step title="Add New Exchange">
-    Click **"Add Exchange"**
-  </Step>
-  <Step title="Enter Credentials">
+  <Step title="Enter credentials">
     - Select your exchange
-    - Paste API Key
-    - Paste Secret Key
-    - Enter Password/Passphrase (if required)
+    - Paste API Key and Secret
+    - Enter Password/Passphrase (BloFin and WEEX require it; BloFin's broker ID is filled in automatically)
   </Step>
-  <Step title="Test Connection">
-    Click **"Test Connection"** - should show success
-  </Step>
-  <Step title="Save">
-    Click **"Save"** to store credentials securely
+  <Step title="Test the connection">
+    Use **Test** to confirm the keys work before relying on them.
   </Step>
 </Steps>
+
+<Tip>
+**Want to practice first?** When adding credentials you can toggle **Testnet** to connect to your exchange's paper-trading environment instead of live markets.
+</Tip>
+
+**What you'll see:** your exchange appears in your credentials list, and the Portfolio tab starts recording your equity (a snapshot every 5 minutes) so the equity curve fills in over time.
 
 ---
 
-## Step 4: Launch Your First Bot (5 minutes)
+## Step 4: Deploy a Bot from the Marketplace (5 minutes)
 
-### 4.1 Choose a Symbol
-
-For beginners, we recommend:
-- **DOGEUSDT** - High volume, good for learning
-- **1000PEPEUSDT** - Volatile, good profits in good conditions
-
-### 4.2 Select a Preset
+<Frame>
+  <img src="/images/2026-06/marketplace.png" alt="VOIDX Bot Marketplace showing preset cards grouped by strategy family with stat tiles and deploy buttons" style={{ borderRadius: '0.5rem' }} />
+</Frame>
 
 <Steps>
-  <Step title="Go to Bot Management">
-    Dashboard → **Bot Management**
+  <Step title="Open the Marketplace tab">
+    You'll see 41 preset cards across 4 strategy families: **Vortex DCA**, **XGrid**, **GLFT MM**, and **Long-Only DCA**. Filter by family using the chips at the top.
   </Step>
-  <Step title="Click Create Bot">
-    Click **"New Bot"** or **"Create Bot"**
+  <Step title="Pick a preset">
+    Each card shows a plain-English description, a risk label (Conservative / Moderate / Aggressive), and stat tiles read from the preset's actual configuration. Beginners: start with a **Conservative** preset.
   </Step>
-  <Step title="Select Exchange">
-    Choose the exchange you just configured
+  <Step title="Open the detail view">
+    Click the card to see the full breakdown of how the strategy behaves and what each stat means.
   </Step>
-  <Step title="Select Symbol">
-    Enter `DOGEUSDT` (or your chosen symbol)
+  <Step title="Choose your exchange variant">
+    If a preset is available on multiple exchanges (Bybit, BloFin, DEFX), toggle to the exchange you added keys for.
   </Step>
-  <Step title="Choose Preset">
-    Select **"Minimalist Alpha"** preset for your exchange (BloFin or Bybit)
-
-    <Note>
-    Minimalist Alpha presets use battle-tested defaults. Perfect for beginners.
-    </Note>
+  <Step title="Click Deploy">
+    The deploy wizard opens **prefilled** with the preset's settings. Review them, pick your symbol, and confirm.
   </Step>
 </Steps>
 
-### 4.3 Review Settings
-
-Before starting, review these key settings:
-
-| Setting | Recommended for Beginners | What It Does |
-|---------|--------------------------|--------------|
-| Wallet Exposure | 10-15% | Maximum capital at risk |
-| Leverage | 10-20x | Position multiplier |
-| Position Limits | $2,000 max | Maximum position size |
-
-### 4.4 Start the Bot
-
-<Steps>
-  <Step title="Click Start">
-    Click the **"Start Bot"** button
-  </Step>
-  <Step title="Confirm">
-    Review the confirmation dialog and confirm
-  </Step>
-  <Step title="Watch Status">
-    Status should change to **Running** (green)
-  </Step>
-</Steps>
+**What you'll see:** your new bot appears in the **Bots** tab with a status indicator. Each bot runs as its own process on VOIDX servers and trades through your API keys.
 
 ---
 
@@ -250,26 +167,25 @@ Before starting, review these key settings:
 
 ### Check These Indicators
 
-<Check>**Status is Green** - Bot is running without errors</Check>
-<Check>**Orders Visible** - Open orders appear in dashboard</Check>
-<Check>**Logs Updating** - Trading Console shows activity</Check>
+<Check>**Status is green** — the bot is running without errors (Bots tab)</Check>
+<Check>**Orders visible** — open orders appear on your exchange and in the terminal</Check>
+<Check>**Logs updating** — the bot's log stream shows activity</Check>
+<Check>**Portfolio filling in** — the equity curve on the Portfolio tab starts recording</Check>
 
 ### What to Expect
 
 **First few minutes:**
 - Bot analyzes market conditions
-- Places initial grid orders
-- You'll see orders in the dashboard
+- Places initial orders
+- You'll see orders in the terminal and on your exchange
 
-**First hour:**
-- Some orders may fill (depending on market movement)
-- Position may open
-- P&L starts tracking
+**First hours:**
+- Some orders may fill, depending on market movement
+- A position may open and P&L starts tracking
 
 **First day:**
-- Multiple fills likely
-- Position may grow and shrink
-- Take-profit orders execute
+- Multiple fills are likely in normal conditions
+- Positions grow and shrink as the strategy works
 
 ---
 
@@ -277,7 +193,7 @@ Before starting, review these key settings:
 
 <CardGroup cols={2}>
   <Card title="Understand Strategies" icon="book" href="/strategies/overview">
-    Learn how each strategy works
+    Learn how each strategy family works
   </Card>
   <Card title="Customize Settings" icon="gear" href="/bot-configuration">
     Adjust parameters for your style
@@ -285,8 +201,8 @@ Before starting, review these key settings:
   <Card title="Risk Management" icon="shield" href="/risk-management/risk-management-best-practices">
     Protect your capital
   </Card>
-  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
-    Fix common issues
+  <Card title="On-Chain DEX" icon="arrow-right-arrow-left" href="/dex/overview">
+    Trade on-chain on Sui via DeepBook
   </Card>
 </CardGroup>
 
@@ -302,18 +218,17 @@ Before starting, review these key settings:
 </Accordion>
 
 <Accordion title="What if my position goes negative?">
-  This is normal! The strategy is designed to average into positions and recover.
+  This is normal! DCA-style strategies are designed to average into positions and recover.
 
-  - Small losses are expected
+  - Small unrealized losses are expected
   - The system has recovery mechanisms
-  - Auto-hedging provides protection (if enabled)
-  - Only panic at 10%+ losses
+  - Only worry at large drawdowns
 </Accordion>
 
 <Accordion title="Should I watch it constantly?">
   **First week:** Check daily to understand behavior
   **After learning:** Weekly checks are usually fine
-  **Exception:** Highly volatile markets - check more often
+  **Exception:** Highly volatile markets — check more often
 </Accordion>
 
 <Accordion title="When should I stop the bot?">
@@ -323,7 +238,7 @@ Before starting, review these key settings:
   - You don't understand what's happening
   - You're approaching loss limits
 
-  Don't stop just because of small fluctuations - that's normal!
+  Don't stop just because of small fluctuations — that's normal!
 </Accordion>
 
 ---
