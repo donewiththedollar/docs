@@ -57,11 +57,22 @@
           {
             "group": "Features",
             "pages": [
-              "features/vaults",
+              "features/marketplace",
               "features/dashboard-overview",
+              "features/portfolio",
               "features/bot-management",
-              "features/scaling-agent",
-              "features/trading-console"
+              "features/trading-console",
+              "features/vaults",
+              "features/scaling-agent"
+            ]
+          },
+          {
+            "group": "On-Chain DEX",
+            "pages": [
+              "dex/overview",
+              "dex/trading",
+              "dex/swap",
+              "dex/pools"
             ]
           },
           {

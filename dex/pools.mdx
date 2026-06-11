@@ -1,0 +1,114 @@
+---
+title: 'Markets & Pools'
+description: 'Discovering DeepBook markets on the VOIDX DEX and creating new pools permissionlessly'
+---
+
+# Markets & Pools
+
+Every market on the VOIDX DEX is a **DeepBook pool** — a shared on-chain order book for one coin pair on Sui. This page covers both sides: finding markets to trade, and creating brand-new ones yourself.
+
+---
+
+## Browsing Markets
+
+The Markets page at [voidx.trade/dex/markets](https://voidx.trade/dex/markets) is a discovery view across every DeepBook market:
+
+- **Ranked market rows** (cards on mobile) with token logos, price, 24h change, 24h volume, and 24h high/low.
+- **Trending highlights** surfacing the most active markets.
+- **Search** to filter by symbol.
+- **Click-to-trade** — selecting any market takes you straight to the [Trade page](/dex/trading) with that pool loaded.
+
+All figures come from the public DeepBook indexer in two batched calls, and token logos are resolved from each coin's on-chain metadata.
+
+<Note>
+Brand-new permissionless pools take time to appear in the public indexer. Until then they're still listed, with stats shown honestly as "—" rather than fabricated numbers.
+</Note>
+
+---
+
+## Creating a Pool
+
+The VOIDX DEX includes a **permissionless pool creator**: anyone can list a new market for any Sui coin pair, directly from the UI, with no permission from VOIDX or anyone else. Under the hood it calls DeepBook's `create_permissionless_pool` function on-chain.
+
+<Warning>
+**Pool creation is irreversible and costs real money.** It requires a one-time fee of **500 DEEP** (paid to the DeepBook protocol, not to VOIDX) plus gas, and it creates a *permanent* shared on-chain market. There is no edit and no refund. Wrong tick/lot/min parameters produce a permanently broken market that burned the fee — which is exactly why the creator validates everything hard before letting you sign.
+</Warning>
+
+### What you need
+
+- A connected Sui wallet (the creator is connect-gated).
+- At least **500 DEEP** in your wallet, plus SUI for gas.
+- The full coin type of your base asset (e.g. `0x…::mycoin::MYCOIN`). Quick-pick chips are provided for **SUI** and **USDC** as the quote side.
+
+### The three parameters
+
+Every DeepBook pool is defined by three numbers. Choose them carefully — they are permanent:
+
+| Parameter | Meaning | Denominated in |
+|-----------|---------|----------------|
+| **Tick size** | The smallest price increment orders can use | Quote coin per base coin |
+| **Lot size** | The smallest quantity increment for orders | Base coin |
+| **Min size** | The smallest order the pool accepts | Base coin |
+
+### Built-in validation
+
+The creator shows a live math preview of your parameters and refuses to enable **Create** until all of these pass:
+
+- Base and quote coin types resolve on-chain (symbol and decimals are fetched from coin metadata) and are different coins.
+- Tick, lot, and min are all positive — and not so small that they round to zero in the pool's on-chain units (which would create a broken market).
+- **Min size ≥ lot size**, and min size is an exact integer multiple of lot size.
+
+Each failed check produces a plain-language error so you can fix it before anything is signed.
+
+### Creating it
+
+<Steps>
+  <Step title="Open the pool creator">
+    From the DEX, open the **Create Pool** modal and connect your wallet if you haven't.
+  </Step>
+  <Step title="Set the pair">
+    Paste the base coin type and pick or paste the quote coin type. The creator resolves both coins' metadata on-chain and shows their symbols and decimals.
+  </Step>
+  <Step title="Set tick, lot, and min size">
+    Enter the three parameters and check the live preview. Fix any validation errors — the Create button stays disabled until everything is sane.
+  </Step>
+  <Step title="Sign and pay the fee">
+    Confirm and sign in your wallet. The transaction pays the one-time 500 DEEP fee to the DeepBook registry and creates the pool as a permanent shared object. On success you get the new pool's object ID with a Suiscan link.
+  </Step>
+  <Step title="Trade it immediately">
+    The new market appears in your market selector right away and is fully tradeable on the [Trade page](/dex/trading).
+  </Step>
+</Steps>
+
+### Phase 1 scope — what to expect honestly
+
+Pool creation is currently **Phase 1**, and there are real limits worth understanding:
+
+- **Local listing at first.** Your new pool is saved in your browser and surfaced in the market selector immediately, so *you* can trade it right away. The public DeepBook indexer takes time to pick up new permissionless pools — until it does, other users won't discover the market through the indexer-backed lists, and stats render as "—".
+- **No history until indexed.** Charts, 24h stats, and order/trade history all come from the indexer, so a fresh pool shows honest empty states rather than data.
+- **No liquidity included.** Creating a pool creates an *empty* order book. A market is only as good as the orders resting in it — you (or a market maker) need to place limit orders to give it prices and depth.
+- **Pools are public.** Anyone can trade on a pool once they have it, regardless of who created it.
+
+<Tip>
+After creating a pool, seed it with resting limit orders from the [Trade page](/dex/trading) so the market has a real book for others to trade against.
+</Tip>
+
+---
+
+## FAQ
+
+<Accordion title="Does VOIDX receive the 500 DEEP fee?">
+  No. The fee is defined by the DeepBook protocol and paid to the DeepBook registry as part of the on-chain pool-creation call. VOIDX takes nothing.
+</Accordion>
+
+<Accordion title="Can I change a pool's tick, lot, or min size later?">
+  No. DeepBook pools are permanent shared objects with no edit function. That is why the creator validates so aggressively before letting you sign — a wrong parameter cannot be fixed afterward.
+</Accordion>
+
+<Accordion title="Why doesn't my new pool show a chart or 24h stats?">
+  Those come from the public DeepBook indexer, which lags behind newly created permissionless pools. The market is fully tradeable on-chain in the meantime; the stats fill in once the indexer picks it up.
+</Accordion>
+
+<Accordion title="Where do I find my pool's object ID again?">
+  The success state links the pool on Suiscan. The pool is also remembered in your browser and shown in the market selector.
+</Accordion>

@@ -1,0 +1,87 @@
+---
+title: 'Swap'
+description: 'Swapping coins on the VOIDX DEX — DeepBook-routed market swaps with slippage protection'
+---
+
+# Swap
+
+The Swap page at [voidx.trade/dex/swap](https://voidx.trade/dex/swap) is the simplest way to use the VOIDX DEX: a single card where you pick a pair, enter an amount, and sign one transaction. No order types, no BalanceManager, no setup — the swap spends directly from your wallet and the output comes straight back to your address.
+
+<Frame>
+  <img src="/images/2026-06/dex-swap.png" alt="VOIDX DEX swap card with pair selection, amount entry, quote readout, and slippage controls." style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+<Note>
+Unlike most "swap" interfaces, this is **not an AMM**. Your swap executes against real resting orders in DeepBook's on-chain central limit order book. The quote you see is computed by walking the live book level by level — the same prices a manual trader would get.
+</Note>
+
+---
+
+## How a Swap Works
+
+1. **Routing** — the page loads every DeepBook pool and routes your pair through the matching order book. Real liquidity only: if no DeepBook pool exists for a pair, you get an honest "no route" instead of a synthetic price.
+2. **Quoting** — the live level-2 order book is walked to compute your expected output, the realized average price, and whether the book has enough depth to fill your whole amount.
+3. **Protection** — your slippage tolerance converts the expected output into a guaranteed **minimum output**. The transaction enforces it on-chain: if the book moves beyond your tolerance before the transaction lands, the swap fails instead of filling worse.
+4. **Settlement** — one transaction, signed by your wallet. The output coin and any unused input are transferred back to your address. The success state links the transaction on Suiscan.
+
+The card's fine print states it plainly: *"On-chain swap signed by your wallet. Fees paid in [the input coin]. Output and any unused coins are returned to your address."*
+
+---
+
+## Making a Swap
+
+<Steps>
+  <Step title="Connect your Sui wallet">
+    Click **Connect Wallet** and approve in your wallet extension.
+  </Step>
+  <Step title="Pick the pair and direction">
+    Choose what you're paying and what you want to receive. Pairs map to DeepBook pools (e.g. SUI/USDC).
+  </Step>
+  <Step title="Enter an amount">
+    Enter the amount in the input coin, or flip the unit toggle to type the amount in the other coin — the card converts via the current mid price. The quote updates live: expected output, average price, and USD reference values from the Pyth oracle.
+  </Step>
+  <Step title="Set slippage tolerance">
+    Presets are **0.1% / 0.5% / 1%** (default 0.5%). You can change the default in the DEX settings; once you touch the control on the card, your manual choice wins. Lower tolerance = tighter price protection but higher chance the transaction fails in a fast market.
+  </Step>
+  <Step title="Review and confirm">
+    The review step shows exactly what you're sending, the minimum you'll receive, and the average price — nothing executes on a single click. Confirm, then sign in your wallet.
+  </Step>
+</Steps>
+
+---
+
+## Constraints to Know
+
+### Minimum size
+
+Every DeepBook pool has a **min size** — the smallest order it accepts, denominated in the base coin. If your swap works out to less base than the pool's minimum, the card blocks it with a "below min size" message. Increase the amount to proceed.
+
+### Book depth
+
+Order-book liquidity is finite. If the resting orders can't absorb your full amount, the quote tells you the book can only partially fill it. For large swaps, check the expected average price against the top of the book — a big gap means you're eating through multiple price levels.
+
+### Lot alignment
+
+Quantities on a DeepBook pool move in increments of the pool's **lot size**. The card aligns amounts for you; you may notice your effective amount round slightly.
+
+---
+
+## Fees
+
+Swap fees are DeepBook protocol fees, **paid in the input coin** as part of the transaction — no DEEP token balance is required. VOIDX never holds your funds or your fees. You also pay normal Sui network gas.
+
+---
+
+## Troubleshooting
+
+| Message | Meaning |
+|---------|---------|
+| "No route" | No DeepBook pool exists for this pair. |
+| "Below min size" | The swap is smaller than the pool's minimum order — increase the amount. |
+| "Price moved beyond slippage tolerance" | The book moved while your transaction landed — try again, or raise the tolerance. |
+| "Insufficient balance or gas for this swap" | Top up the input coin, or SUI for gas. |
+| "Transaction rejected in wallet" | You declined the signature — nothing happened on-chain. |
+
+<Tip>
+Want more control — choosing your exact price and resting in the book instead of crossing it? Use a limit order on the [Trade page](/dex/trading).
+</Tip>
