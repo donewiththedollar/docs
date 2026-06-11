@@ -1,244 +1,151 @@
 ---
 title: "XGrid Strategy"
-description: "Momentum-based scalping using technical analysis signals"
+description: "High-frequency momentum grid scalping and the XGrid trend signal engine"
 ---
 
 # XGrid Strategy
 
-XGrid is a momentum scalping strategy that uses technical analysis (EMA crossovers, Donchian channels, volatility filters) to identify trend direction and capture quick profits.
+## What It Does
 
-## How It Works
+**XGrid is a high-frequency momentum grid scalper: it detects short-term trend direction with technical signals, places a tight grid of orders in that direction, and takes profits within seconds-to-minutes rather than hours.**
 
-### Signal Generation
-
-XGrid generates trading signals based on multiple technical indicators:
-
-```
-EMA 11 vs EMA 23:
-         │
-    CROSS UP ──► LONG SIGNAL
-    CROSS DOWN ─► SHORT SIGNAL
-         │
-         ▼
-Donchian Channel Confirmation:
-    Price > Upper Band? ─► Confirms LONG
-    Price < Lower Band? ─► Confirms SHORT
-         │
-         ▼
-NATR Volatility Check:
-    Volatility sufficient? ─► EXECUTE
-    Volatility too low? ─► WAIT
-```
-
-### Visual Example
-
-```
-Price Action with EMA Crossover:
-
-        ╱╲      ╱╲
-       ╱  ╲    ╱  ╲
-      ╱    ╲  ╱    ╲
-─────╱──────╲╱──────╲─────
-    ╱        ╳        ╲
-   ╱    EMA11╱╲EMA23   ╲
-  ╱         ╱  ╲         ╲
-           ▲    ▲
-           │    │
-        LONG  SHORT
-       SIGNAL SIGNAL
-```
-
-### Why EMA 11/23?
-
-- **EMA 11**: Fast-moving average, responsive to recent price
-- **EMA 23**: Slower, filters out noise
-- **Crossover**: When EMA11 crosses EMA23, momentum is shifting
+<Note>
+**Naming, to avoid confusion:** in the **Marketplace tab**, the "XGrid" family label covers the high-frequency **Perp Market Maker** presets (MM Professional, v7/v8 Counterscalp, HFT v6, …) — the two-sided grid scalper documented in the [Perp Market Maker guide](/strategies/perp-market-maker). This page covers the **XGrid trend signal engine** that powers those presets' counter-scalp features, plus the standalone XGrid strategy. If you came here from a Marketplace card, start with the [Perp MM guide](/strategies/perp-market-maker) and come back here for the signal details.
+</Note>
 
 ---
 
-## Key Parameters
+## The XGrid Trend Signal
 
-### Signal Configuration
+The signal engine answers one question every 30 seconds: **is short-term momentum long, short, or unclear?** It returns `LONG`, `SHORT`, or neutral, and is consumed by the Perp MM's counter-scalp and entry logic.
 
-<ParamField path="ema_short" type="integer" default="11">
-  Fast EMA period. Lower = more responsive, more signals.
+### How a signal is built
+
+```
+1-minute candles
+      │
+      ▼
+EMA 11 vs EMA 23  ──────────►  EMA11 > EMA23 → bullish bias
+                               EMA11 < EMA23 → bearish bias
+      │                        roughly equal → no signal
+      ▼
+Donchian breakout check ────►  price near the 15-candle high/low
+                               (within 0.30% tolerance) confirms direction
+      │
+      ▼
+NATR volatility filter ─────►  volatility must exceed its own recent
+                               baseline (1.1x the 60-candle NATR) and an
+                               absolute floor — no signals in dead markets
+      │
+      ▼
+Peak/trough confirmation ───►  recent swing structure must agree
+      │
+      ▼
+SIGNAL: LONG / SHORT  (cached for 30 seconds)
+```
+
+### Signal parameters (actual engine defaults)
+
+<ParamField path="timeframe" type="string" default="1m">
+  Candle timeframe the signal runs on. The engine is designed for 1-minute momentum.
 </ParamField>
 
-<ParamField path="ema_long" type="integer" default="23">
-  Slow EMA period. Higher = smoother, fewer signals.
+<ParamField path="donch_len" type="integer" default="15">
+  Donchian channel lookback (candles) for the breakout confirmation.
 </ParamField>
 
-<ParamField path="donchian_period" type="integer" default="20">
-  Donchian channel lookback period.
+<ParamField path="breakout_tol_pct" type="float" default="0.30">
+  How close to the channel boundary (in %) price must be to count as a breakout.
 </ParamField>
 
-<ParamField path="natr_period" type="integer" default="14">
-  Normalized ATR period for volatility measurement.
+<ParamField path="natr_len" type="integer" default="60">
+  Lookback for the Normalized ATR volatility baseline.
 </ParamField>
 
-<ParamField path="natr_threshold" type="float" default="0.5">
-  Minimum volatility (NATR %) to generate signals.
+<ParamField path="natr_mult" type="float" default="1.1">
+  Current volatility must exceed `natr_mult ×` its baseline for a signal to fire.
 </ParamField>
 
-### Signal Behavior
-
-<ParamField path="signal_cache_seconds" type="integer" default="30">
-  How long to cache a signal before re-calculating.
-
-  Lower = more responsive but more API calls.
+<ParamField path="min_natr_abs" type="float" default="0.02">
+  Absolute NATR floor (%). Below this the market is too quiet to scalp regardless of relative volatility.
 </ParamField>
 
-<ParamField path="require_peak_confirmation" type="boolean" default="true">
-  Require price to confirm peak/trough before signal.
+<ParamField path="cache_seconds" type="float" default="30">
+  Signals are cached for 30 seconds to limit API load; the engine re-evaluates when the cache expires.
 </ParamField>
+
+The EMA pair (11/23) is fixed in the engine — the fast EMA reacts to the last ~10 minutes, the slow one filters noise, and their cross defines the bias.
 
 ---
 
-## Signal States
+## Standalone XGrid Strategy
 
-XGrid signals have three possible states:
+The standalone XGrid strategy (selectable as `strategy: "xgrid"`) is a faster, tighter sibling of Vortex DCA:
 
-| Signal | Meaning | Action |
-|--------|---------|--------|
-| `LONG` | Bullish momentum detected | Open/add to long positions |
-| `SHORT` | Bearish momentum detected | Open/add to short positions |
-| `NEUTRAL` | No clear direction | No new entries |
+- **2-second take-profit refresh** (vs 60s for Vortex) — exits are managed near-continuously
+- **2-minute default grid refresh** (vs 3 minutes for Vortex)
+- **Exponential level spacing**: levels start at a configurable `first_level_distance` from price and spread out with a power curve toward `outer_distance`, packing more orders close to the action
+- **Startup cleanup**: cancels existing orders on boot so stale orders from a previous run can't interfere
+- Shares Vortex's virtual-chunking position recovery (3% threshold, 5 chunks, 0.1% per-chunk target by default)
 
-### Signal Lifecycle
-
-```
-1. EMA Crossover Detected
-         │
-         ▼
-2. Donchian Confirmation (optional)
-         │
-         ▼
-3. NATR Volatility Check
-         │
-         ▼
-4. Peak/Trough Confirmation (if enabled)
-         │
-         ▼
-5. SIGNAL EMITTED (LONG/SHORT)
-         │
-         ▼
-6. Signal Cached for 30 seconds
-         │
-         ▼
-7. Re-evaluate after cache expires
-```
+It uses the same core parameters as Vortex (`nr_clusters`, `outer_distance`, `wallet_exposure`, `minimum_tp`) with tighter values. Current Marketplace presets deploy the perp_mm implementation instead, which layers full two-sided quoting and risk tiers on top of the same high-frequency idea.
 
 ---
 
-## Integration with Perp MM
-
-XGrid signals are primarily used to enhance the Perp Market Maker strategy:
+## How the Signal Drives Perp MM
 
 ### XGrid Counter Scalp
 
-When your main position is underwater and XGrid signals the opposite direction, open a counter-position to scalp:
+When the Perp MM's main position is underwater and the XGrid signal points the *other* way, the bot opens a counter-position to scalp the move against you:
 
 ```
-Scenario:
-- Main Position: LONG 100 units, -5% underwater
-- XGrid Signal: SHORT
-
-Action:
-- Open SHORT counter-position (50% of main)
-- Target quick 5-10 bps profit
-- Helps offset losses while waiting for main recovery
+Main position: LONG, underwater
+XGrid signal:  SHORT (downtrend confirmed)
+        │
+        ▼
+Open SHORT counter-position (capped at max_counter_pct of main, default 50%)
+Quick take-profit on the counter
+→ losses on the main position are partially offset while it waits to recover
 ```
 
-### Godmode Scalp
-
-Advanced feature that uses XGrid confirmation for high-confidence counter entries:
-
-```
-Requirements:
-1. Main position underwater > 3%
-2. XGrid confirms opposite trend
-3. Whale wall present on counter side
-4. Position age > 5 minutes
-
-If ALL conditions met → Godmode Scalp entry
-```
-
----
-
-## XGrid Configuration in Perp MM
-
-When using XGrid signals with Perp Market Maker:
-
-```json
-{
-  "xgrid_counter_scalp": {
-    "enabled": true,
-    "max_counter_pct": 50,
-    "quote_size_usdt": 7.0,
-    "min_main_age_seconds": 300,
-    "require_signal_cycle": true,
-    "use_main_loss_management": true,
-    "min_main_underwater_pct": 0.0
-  }
-}
-```
-
-### Key Settings
+Key behavioral guards:
 
 <ParamField path="xgrid_counter_scalp.enabled" type="boolean" default="false">
-  Enable XGrid-based counter scalping.
+  Enable counter-trend scalping. On in the v7/v8 Counterscalp and HFT v6 presets.
 </ParamField>
 
 <ParamField path="xgrid_counter_scalp.max_counter_pct" type="integer" default="50">
-  Maximum counter position as percentage of main position.
+  Counter position cap as % of the main position.
 </ParamField>
 
 <ParamField path="xgrid_counter_scalp.require_signal_cycle" type="boolean" default="true">
-  Require signal to cycle (e.g., LONG → NEUTRAL → SHORT) before re-entry.
-
-  Prevents whipsaw re-entries on noisy signals.
+  The signal must cycle through neutral before re-entry (prevents whipsaw churn on a noisy signal).
 </ParamField>
 
 <ParamField path="xgrid_counter_scalp.min_main_age_seconds" type="integer" default="300">
-  Main position must exist for at least this long before counter-scalping.
+  The main position must be at least this old before counter-scalping starts.
 </ParamField>
+
+### Godmode Scalp
+
+A stricter variant that only fires when multiple confirmations align: main position underwater past a threshold, XGrid confirming the opposite trend, and a whale wall present on the counter side. Fewer entries, higher conviction.
 
 ---
 
-## Best Practices
+## When the Signal Works Well (and When It Doesn't)
 
-### Timeframe Selection
+| Market | Signal quality |
+|--------|---------------|
+| Quiet, low volatility | No signals by design — the NATR filter blocks them |
+| Steady directional moves | Good — EMA cross + Donchian breakout align |
+| High volatility with follow-through | Good — strong, early signals |
+| Violent chop / whipsaw | Weakest case — crosses flip; the signal-cycle guard and peak confirmation reduce but don't eliminate false entries |
 
-XGrid works best on **1-minute candles** with the default EMA 11/23 settings.
+Prefer liquid symbols (majors, high-volume alts). On illiquid pairs, the 1-minute candles are too noisy for the breakout logic.
 
-<Note>
-Longer timeframes (5m, 15m) produce fewer but more reliable signals.
-Shorter timeframes produce more signals but more false positives.
-</Note>
-
-### Volatility Requirements
-
-XGrid performs best in **moderately volatile** markets:
-
-| Volatility | XGrid Performance |
-|------------|-------------------|
-| Very Low (<0.3% NATR) | Poor - few signals, small moves |
-| Low (0.3-0.5% NATR) | Fair - occasional signals |
-| Moderate (0.5-1.0% NATR) | Good - optimal conditions |
-| High (1.0-2.0% NATR) | Good - strong signals |
-| Very High (>2.0% NATR) | Fair - risk of whipsaw |
-
-### Symbol Selection
-
-Best symbols for XGrid:
-- **High liquidity**: BTCUSDT, ETHUSDT, DOGEUSDT
-- **Moderate volatility**: SOLUSDT, PEPEUSDT
-- **Strong trends**: Assets with clear directional moves
-
-Avoid:
-- Low-liquidity altcoins
-- Extremely stable assets
-- Assets in consolidation (ranging)
+<Warning>
+Counter-scalping trades **against** your own underwater position. It can offset losses in a continued trend, but if the market V-reverses, the counter position loses while the main recovers. The caps above (`max_counter_pct`, signal-cycle requirement) bound that risk — they don't remove it.
+</Warning>
 
 ---
 
@@ -246,52 +153,13 @@ Avoid:
 
 ### "No signals generated"
 
-1. Check NATR threshold - may be too high for current volatility
-2. Verify candle data is being fetched correctly
-3. Check signal cache - wait 30 seconds for refresh
+1. Volatility below `min_natr_abs` or below `natr_mult ×` baseline — the market is too quiet, which is intended behavior
+2. EMA11 ≈ EMA23 (no clear bias) — check the log's rejection reason
+3. Signal cached — changes only propagate after the 30s cache expires
 
 ### "Too many false signals"
 
-1. Increase `ema_long` period (e.g., 23 → 30)
-2. Enable `require_peak_confirmation`
-3. Increase `natr_threshold` to filter low-volatility noise
-
-### "Signals lagging"
-
-1. Reduce `signal_cache_seconds` for faster updates
-2. Use shorter EMA periods (but expect more noise)
-3. Check API rate limits - may be throttled
-
----
-
-## Example: Full XGrid + Perp MM Config
-
-```json
-{
-  "strategy": "perp_mm",
-  "perp_market_maker": {
-    "enabled": true,
-    "max_position_usdt": 1500,
-    "quote_size_usdt": 10,
-
-    "xgrid_counter_scalp": {
-      "enabled": true,
-      "max_counter_pct": 50,
-      "quote_size_usdt": 7.0,
-      "min_main_age_seconds": 300,
-      "require_signal_cycle": true
-    },
-
-    "godmode_scalp": {
-      "enabled": true,
-      "min_underwater_pct": 3.0,
-      "require_xgrid": true,
-      "require_wall": true,
-      "max_size_usdt": 100
-    }
-  }
-}
-```
+Whipsaw conditions. The signal-cycle requirement (`require_signal_cycle`) is the main defense; verify it's enabled before tuning anything else.
 
 ---
 
@@ -299,9 +167,9 @@ Avoid:
 
 <CardGroup cols={2}>
   <Card title="Perp Market Maker" icon="scale-balanced" href="/strategies/perp-market-maker">
-    Learn the main MM strategy
+    The strategy these signals power (Marketplace "XGrid" family)
   </Card>
-  <Card title="Bot Configuration" icon="gear" href="/bot-configuration">
-    Full parameter reference
+  <Card title="Preset Guide" icon="list-check" href="/strategies/preset-guide">
+    Which counterscalp preset to pick
   </Card>
 </CardGroup>

@@ -1,336 +1,229 @@
 ---
 title: "Vortex DCA Strategy"
-description: "Complete guide to the Vortex Dollar-Cost Averaging strategy"
+description: "Complete guide to the Vortex Dollar-Cost Averaging strategy: grids, take-profits, wave queue, and anchor-stable pricing"
 ---
 
 # Vortex DCA Strategy
 
-Vortex DCA is an intelligent dollar-cost averaging system that automatically accumulates positions during price dips while managing risk through geometric grid spacing and optional auto-hedging.
+## What It Does
 
-## How It Works
+**Vortex DCA buys dips on a widening grid and takes quick small profits — typically around 0.2% per cycle. If price keeps falling past the grid, a wave queue extends it with fresh, larger orders to rescue the position.**
 
-### The Basic Concept
-
-Instead of buying all at once (and risking bad timing), Vortex DCA spreads your purchases across multiple price levels:
+In plain terms: instead of guessing where price will go, the bot places a ladder of buy orders below the current price. Small dips fill the closest orders; bigger dips fill bigger orders deeper down, pulling your average entry lower each time. As soon as price recovers a small distance above that average, the entire position exits at a profit and the cycle restarts. Most current presets run the same logic on the short side at the same time (selling rips, buying back lower).
 
 ```
-Your Budget: $1000
-         │
-    ┌────┴────┐
-    │ VORTEX  │
-    │   DCA   │
-    └────┬────┘
-         │
-    $250 at $100.00 (current price)
-    $250 at $98.00  (2% dip)
-    $250 at $95.00  (5% dip)
-    $250 at $91.00  (9% dip)
-         │
-    Average Entry: Lower than $100!
+Price now: $100
+                                 ← TP: whole position exits ~0.2% above avg entry
+   $99.3  ── buy (small)
+   $98.4  ── buy (bigger)
+   $97.3  ── buy (bigger still)
+   $95.8  ── buy (biggest)        ← deepest order ≈ outer_distance below price
+
+Each fill lowers your average entry → a smaller bounce is enough to exit green.
 ```
 
-### Geometric Grid Spacing
+<Warning>
+The flip side: a market that keeps falling keeps filling your buy orders. Vortex DCA converts price drawdowns into position drawdowns by design. The wave queue, drawdown stop, and hedging features below exist to manage that risk — not eliminate it.
+</Warning>
 
-Unlike simple DCA, Vortex uses **geometric spacing** - orders are placed closer together near the current price and wider apart as price moves further away:
+---
 
-```
-Price    │ Order Size │ Distance from Previous
-─────────┼────────────┼───────────────────────
-$100.00  │ $100       │ Entry
-$99.50   │ $120       │ 0.5% (tight)
-$98.80   │ $144       │ 0.7% (wider)
-$97.80   │ $173       │ 1.0% (wider still)
-$96.50   │ $207       │ 1.3% (widest)
-```
+## The Core Cycle
 
-**Why?** Small dips are common - you want to catch them. Large dips are rare but significant - bigger orders at those levels maximize your advantage.
+<Steps>
+  <Step title="Entry">
+    The bot opens a small initial position (current presets use a **staged entry** that waits for an order-book wall or a wick into the entry band rather than market-buying immediately).
+  </Step>
+  <Step title="Grid">
+    A ladder of `nr_clusters` buy orders (4 in most presets) is placed between the current price and `outer_distance` below it (about 3–5% in presets, adjusted live by volatility).
+  </Step>
+  <Step title="Average down">
+    Dips fill grid levels. Order **value grows geometrically with depth** — with preset settings each deeper level is roughly 2x the previous — so deep fills move your average entry meaningfully.
+  </Step>
+  <Step title="Take profit">
+    A post-only reduce-only limit order sits at `average entry × (1 + minimum_tp)`. It is refreshed every 60 seconds, and if price has already moved past the target the TP "chases" at the current price so the exit isn't left behind.
+  </Step>
+  <Step title="Reset">
+    After the TP fills, the position is flat and a fresh grid is built around the new price.
+  </Step>
+</Steps>
+
+---
+
+## Grid Mechanics
+
+### Geometric sizing
+
+Order quantities follow a geometric progression controlled by `ratio_power`. Presets use `ratio_power: 0.75`, which makes each deeper level worth about **2.2x the previous one** in dollar terms. Small frequent dips cost you little; rare deep dips deploy the most capital where it improves your average entry the most.
+
+### Volatility-aware spacing (dynamic spacing)
+
+The grid span is not fixed. With `dynamic_spacing` enabled (it is in current presets), the bot measures recent volatility (1-minute price movement plus tick-level data) and widens or tightens `outer_distance` between configured bounds — presets use **1.5% in calm markets up to 6% in violent ones**. Reactive spacing additionally widens the grid when the order book thins out, spreads blow out, or book imbalance spikes.
+
+### Gridspan-normalized sizing
+
+When volatility shrinks the grid span, order sizes shrink proportionally (`gridspan_normalized_sizing`). A grid compressed to 1.5% span deploys a fraction of the budget that a full 5% grid would, so a calm-market grid that fills completely doesn't create the same exposure as a full-width one. The risk ceiling (see hard cap below) stays pinned to the wallet-derived value regardless of volatility.
+
+### Order-book aware levels
+
+In `grid_mode: "orderbook"` (used by current presets), grid prices snap to detected liquidity rather than purely mathematical spacing, placing levels where real support exists.
+
+---
+
+## The Wave Queue (Position Rescue)
+
+The wave queue is the system that keeps Vortex from getting stranded when price falls through the entire grid. The featured "Vortex Waves" presets are built around it.
+
+### Soft cap vs. hard cap
+
+Two budget lines matter:
+
+- **Soft cap** — `wallet_balance × wallet_exposure`. This is the normal per-side budget; the initial grid (wave 0) deploys a share of it.
+- **Hard cap** — `soft cap × max_total_exposure_pct` (presets use **1.5**). This is the absolute risk ceiling across **all** waves. No wave activation, and no individual order, may push cumulative deployed cost past it.
+
+Example: $1,000 wallet, `wallet_exposure: 60`, `max_total_exposure_pct: 1.5` → soft cap $600, hard cap $900.
+
+### How waves progress
+
+When the active wave's grid is fully consumed (price fell through every level) and the position is still open, the bot **activates the next wave**: a fresh grid of `nr_clusters` levels anchored at the *then-current* price, sized from that wave's share of the budget and clipped to whatever room remains under the hard cap. The previous wave is marked exhausted. With `wave_share: [0.6, 0.4]` and two waves, wave 0 gets 60% of the budget and the rescue wave 40%.
+
+A wave activation is refused — and logged — when the hard cap is reached, the remaining budget is below `min_wave_notional_usd`, or `max_waves` is exhausted. The wave queue also **supersedes** the older `extend_grid_when_exhausted` and `deep_rescue_extension` paths; when it's enabled those are suppressed.
+
+### auto_max_waves
+
+Instead of hand-picking `max_waves` and `wave_share`, presets enable `auto_max_waves`: at startup the bot reads your **live wallet balance** and computes the largest number of waves such that every wave still gets a meaningful budget (at least `min_wave_pct_of_budget` of the total, default 2% in presets) and at least 2 levels that survive the exchange's minimum order size. Shares follow a `geometric_back` distribution (factor 1.3): **later waves get progressively bigger budgets**, so the deepest rescue waves hit hardest — this is the "never stuck" design.
+
+### Escape valves (why grids don't get stranded)
+
+Three independent mechanisms advance a stuck wave:
+
+1. **Fill-driven progression** — the normal path: all levels fill, next wave activates.
+2. **Force-advance gate** — if a wave is mostly consumed (more than ~50% of its quantity filled) but its last 1–2 levels have been left stranded more than ~2% from the live price by re-pricing, the wave is declared done and the next wave builds a fresh grid near the current price.
+3. **Wave-anchor drift advance** (anchor-stable mode) — if price drifts more than `wave_anchor_drift_advance_pct` (4% in presets) in the adverse direction from the wave's anchor, the next wave activates at the current price to restore coverage. This replaces the force-advance gate when anchor-stable grids are on.
+
+---
+
+## Anchor-Stable Grids (Why Orders "Don't Run Away")
+
+Without anchoring, grid prices are re-derived from the *current* price on every refresh. In a slow bleed this makes buy orders drift down with the market — they chase price, never fill, and the position never averages down. Users see this as "my orders keep running away."
+
+With `anchor_stable_grid: true` (the "Vortex Waves Anchored" presets):
+
+- Each wave records its **activation anchor price**, and every level stores its fixed percentage offset from that anchor. On refresh, prices are recomputed from the *anchor*, not from wherever price happens to be — the grid stays put and lets price come to it.
+- The grid still **breathes with volatility**: if dynamic spacing has changed the span materially (beyond a ±3% tolerance), level offsets are scaled by the ratio of the current span to the span at activation. Small wiggles inside the tolerance change nothing.
+- **Per-order tolerance**: an existing order within 5 bps (`price_tolerance_bps`) of its target is left alone instead of being cancelled and re-placed. This eliminates most order churn — fewer cancels, less rate-limit pressure, no flickering grid.
+- The drift-advance valve above guarantees an anchored grid can never lock itself permanently far from the market.
+
+---
+
+## Take-Profit Behavior
+
+- TP target: `average_entry × (1 ± minimum_tp)` — presets use **0.0018–0.0024** (0.18–0.24%).
+- Placed as a **post-only, reduce-only limit** so it earns maker fees and can never increase the position.
+- Refreshed every **60 seconds** as the average entry changes with each fill.
+- If price has already moved past the target, the TP is re-placed at the current price ("chasing") so a fast move doesn't leave the exit behind.
+
+---
+
+## Risk & Safety Systems
+
+### Max-drawdown stop
+
+`max_drawdown_usdt` (presets use $150 per symbol) closes the position at market if unrealized loss exceeds the threshold, then pauses the symbol for `stop_cooldown_seconds` (300s) before re-entering. `0` disables it.
+
+### Liquidation safeguard
+
+With `liquidation_safeguard` on, the bot reduces risk when price approaches the liquidation level (presets trigger at 5% distance).
+
+### Entry filters
+
+Presets gate new entries through a candle-trend filter and a **spike block** (no fresh entries while a 5-minute candle exceeds ~1.2% range), so grids aren't opened into a knife.
+
+### Auto-hedging (optional)
+
+When enabled, the bot opens an opposing position when the main position is in trouble. Current code defaults:
+
+<ParamField path="vortex_autohedge_enabled" type="boolean" default="false">
+  Enable auto-hedging. Off in the wave-queue presets (the wave queue is the primary rescue path); on in the dedicated "Auto-Hedge" presets.
+</ParamField>
+
+<ParamField path="vortex_autohedge_ratio" type="float" default="0.5">
+  Hedge size as a fraction of the main position.
+</ParamField>
+
+<ParamField path="vortex_autohedge_on_drawdown_pct" type="float" default="0.04">
+  Trigger hedge when drawdown exceeds this fraction (4%).
+</ParamField>
+
+<ParamField path="vortex_autohedge_on_liquidation_distance_pct" type="float" default="0.10">
+  Also trigger when within this distance of liquidation.
+</ParamField>
+
+<ParamField path="vortex_autohedge_tp_target" type="float" default="0.002">
+  Hedge take-profit target (0.2%), with a trailing stop (0.2% trail distance) enabled by default.
+</ParamField>
+
+See [Auto-Hedging](/risk-management/auto-hedging-overview) for the full system.
+
+### Virtual chunking (optional, legacy recovery)
+
+An older recovery system, still available and used by some DEFX presets: when a position is underwater past a threshold it is virtually split into chunks, large "attack" orders average it down, and each chunk exits at a small profit. Current code defaults: **3% threshold, 5 chunks, 0.1% profit target per chunk, 15x attack multiplier** (capped). The wave queue is the recommended rescue path for new deployments.
 
 ---
 
 ## Key Parameters
 
-### Grid Configuration
-
 <ParamField path="nr_clusters" type="integer" default="4">
-  Number of buy orders in the grid. More clusters = more granular entries.
-
-  **Recommended:**
-  - Conservative: 3-4 clusters
-  - Moderate: 4-5 clusters
-  - Aggressive: 5-6 clusters
+  Number of grid levels per side. All current presets use 4.
 </ParamField>
 
-<ParamField path="outer_distance" type="float" default="0.02">
-  How far from current price to place the furthest order (as decimal).
-
-  `0.02` = 2% below current price
-
-  **Example:** If price is $100, outer order at $98
+<ParamField path="outer_distance" type="float" default="0.05">
+  Distance from current price to the deepest order, as a decimal (`0.042` = 4.2%). With dynamic spacing on, this is the baseline — the live value moves between `min_outer_distance` and `max_outer_distance` (1.5%–6% in presets).
 </ParamField>
 
-<ParamField path="ratio_power" type="float" default="1.6">
-  Controls the geometric curve of order spacing.
-
-  - `1.0` = Linear (equal spacing)
-  - `1.2` = Slight curve
-  - `1.6` = Moderate curve (recommended)
-  - `2.0` = Aggressive curve (orders clustered near entry)
+<ParamField path="ratio_power" type="float" default="0.7">
+  Controls how steeply order value grows with depth (geometric progression). Presets use `0.75` ≈ 2.2x value per level. Higher values concentrate more budget in the deepest orders.
 </ParamField>
 
-<ParamField path="wallet_exposure" type="float" default="0.40">
-  Maximum percentage of wallet to use per symbol.
-
-  `0.40` = 40% of available balance
-
-  <Warning>
-  Higher exposure = higher profit potential but also higher risk.
-  Start with 10-20% for new users.
-  </Warning>
+<ParamField path="wallet_exposure" type="float">
+  Per-symbol budget as a **percent of wallet balance** (`60` = 60%). Featured single-symbol presets use 60–70; multi-symbol presets use 30 per symbol. This is the soft cap; the wave-queue hard cap is `wallet_exposure × max_total_exposure_pct`.
 </ParamField>
-
-### Take Profit Settings
 
 <ParamField path="minimum_tp" type="float" default="0.002">
-  Minimum take-profit target (as decimal).
-
-  `0.002` = 0.2% profit target
-
-  **Note:** Actual TP is calculated dynamically based on fees and position size.
+  Take-profit distance from average entry as a decimal (`0.002` = 0.2%). Presets: 0.0018–0.0024.
 </ParamField>
 
-<ParamField path="grid_refresh_interval" type="integer" default="120">
-  Seconds between grid recalculations.
-
-  The grid follows price - if price moves significantly, orders are repositioned.
+<ParamField path="grid_refresh_interval" type="integer" default="180">
+  Seconds between grid recalculations. Presets use 90. With anchor-stable grids, refreshes mostly verify orders instead of moving them.
 </ParamField>
 
-### Position Sizing
-
-<ParamField path="initial_entry_size" type="float" default="0.01">
-  Size of the first entry as percentage of wallet exposure.
+<ParamField path="wave_queue.max_total_exposure_pct" type="float" default="1.5">
+  Hard cap multiplier over the soft cap. Total deployed cost across all waves can never exceed `soft cap × this value`.
 </ParamField>
 
-<ParamField path="qty_multiplier" type="float" default="1.2">
-  Each subsequent order is this multiple of the previous.
+<ParamField path="wave_queue.wave_share" type="array" default="[1.0]">
+  Budget share per wave, e.g. `[0.6, 0.4]`. Overridden at boot when `auto_max_waves` is enabled.
+</ParamField>
 
-  `1.2` = 20% larger per level
+<ParamField path="wave_queue.auto_max_waves.anchor_stable_grid" type="boolean" default="false">
+  Pin wave grid prices to the wave's activation anchor instead of re-deriving from the current price every refresh. The "Anchored" presets enable this.
+</ParamField>
 
-  **Example:** $100 → $120 → $144 → $173...
+<ParamField path="max_drawdown_usdt" type="float" default="0">
+  Per-symbol USD stop loss. `0` = disabled; presets use 150.
 </ParamField>
 
 ---
 
-## Position Recovery: Virtual Chunking
+## Recommended Presets
 
-<Note>
-Virtual Chunking is Vortex DCA's secret weapon for recovering underwater positions.
-</Note>
+| Preset | Span | Exposure | Min TP | Wave queue | Notes |
+|--------|------|----------|--------|-----------|-------|
+| **Vortex Waves Never Stuck** | 4.2% | 70% | 0.18–0.2% | 2 waves, hard cap 1.5x, auto_max_waves | Featured; geometric-back rescue waves |
+| **Vortex Waves Anchored** | 5.2% | 60% | 0.18–0.2% | Same + anchor-stable grid | Minimal order churn; grids hold their ground |
+| **Vortex Waves Never Stuck (Multi-Symbol)** | 4.2% | 30%/symbol | 0.18–0.2% | Same as single | Spreads the budget across symbols |
 
-### What Is It?
-
-When a position goes significantly underwater (e.g., 8%+ loss), Virtual Chunking activates:
-
-```
-Position: 100 units at $100 (now trading at $92)
-Loss: -8%
-         │
-    ┌────┴────┐
-    │ VIRTUAL │
-    │CHUNKING │
-    └────┬────┘
-         │
-    Split into 5 "chunks" of 20 units each
-    Target small profit (0.3%) per chunk
-    Use "attack" orders to average down
-```
-
-### How It Works
-
-1. **Detection**: Position underwater exceeds threshold (default 8%)
-2. **Chunking**: Virtually split position into N pieces
-3. **Attack Orders**: Place large buy orders to average down
-4. **Small TPs**: Take 0.3% profit on each chunk
-5. **Repeat**: Continue until position recovered
-
-### Virtual Chunking Parameters
-
-<ParamField path="virtual_chunking_enabled" type="boolean" default="false">
-  Enable the position recovery system.
-</ParamField>
-
-<ParamField path="virtual_chunking_threshold_pct" type="float" default="8.0">
-  Percentage underwater before chunking activates.
-</ParamField>
-
-<ParamField path="virtual_chunking_chunk_count" type="integer" default="5">
-  Number of virtual chunks to create.
-</ParamField>
-
-<ParamField path="virtual_chunking_profit_target" type="float" default="0.003">
-  Profit target per chunk (0.3%).
-</ParamField>
-
-<ParamField path="virtual_chunking_attack_multiplier" type="float" default="2.5">
-  Size multiplier for "attack" averaging orders.
-</ParamField>
-
----
-
-## Auto-Hedging
-
-Auto-hedging opens an opposing position when your main position is in danger, protecting against further losses.
-
-### When Does It Trigger?
-
-```
-Trigger Conditions (OR):
-├── Drawdown > 10% (configurable)
-└── Distance to liquidation < 10% (configurable)
-```
-
-### How It Works
-
-```
-Main Position: LONG 100 units, -12% underwater
-         │
-    ┌────┴────┐
-    │  HEDGE  │
-    │ TRIGGER │
-    └────┬────┘
-         │
-    Open SHORT position (30% of main size)
-    Set TP at 0.3% profit
-    Close hedge when main recovers
-```
-
-### Auto-Hedge Parameters
-
-<ParamField path="vortex_autohedge_enabled" type="boolean" default="false">
-  Enable auto-hedging.
-</ParamField>
-
-<ParamField path="vortex_autohedge_ratio" type="float" default="0.3">
-  Hedge size as percentage of main position. `0.3` = 30%
-</ParamField>
-
-<ParamField path="vortex_autohedge_on_drawdown_pct" type="float" default="0.10">
-  Trigger hedge when drawdown exceeds this percentage.
-</ParamField>
-
-<ParamField path="vortex_autohedge_on_liquidation_distance_pct" type="float" default="0.10">
-  Trigger hedge when within this distance of liquidation.
-</ParamField>
-
-<ParamField path="vortex_autohedge_tp_target" type="float" default="0.003">
-  Take-profit target for hedge position (0.3%).
-</ParamField>
-
----
-
-## Example Configurations
-
-### Conservative (Beginners)
-
-```json
-{
-  "nr_clusters": 4,
-  "outer_distance": 0.06,
-  "ratio_power": 1.2,
-  "wallet_exposure": 0.15,
-  "minimum_tp": 0.003,
-  "qty_multiplier": 1.2,
-  "virtual_chunking_enabled": false,
-  "vortex_autohedge_enabled": false
-}
-```
-
-**Characteristics:**
-- Wide grid (6% outer distance)
-- Low wallet exposure (15%)
-- Higher minimum TP (0.3%)
-- No advanced recovery features
-
-### Balanced (Intermediate)
-
-```json
-{
-  "nr_clusters": 4,
-  "outer_distance": 0.04,
-  "ratio_power": 1.4,
-  "wallet_exposure": 0.30,
-  "minimum_tp": 0.002,
-  "qty_multiplier": 1.4,
-  "virtual_chunking_enabled": true,
-  "virtual_chunking_threshold_pct": 8.0,
-  "vortex_autohedge_enabled": true,
-  "vortex_autohedge_on_drawdown_pct": 0.10
-}
-```
-
-**Characteristics:**
-- Moderate grid (4% outer distance)
-- Medium wallet exposure (30%)
-- Position recovery enabled
-- Auto-hedging on 10% drawdown
-
-### Aggressive (Experienced)
-
-```json
-{
-  "nr_clusters": 5,
-  "outer_distance": 0.02,
-  "ratio_power": 1.6,
-  "wallet_exposure": 0.45,
-  "minimum_tp": 0.0015,
-  "qty_multiplier": 1.8,
-  "virtual_chunking_enabled": true,
-  "virtual_chunking_threshold_pct": 5.0,
-  "vortex_autohedge_enabled": true,
-  "vortex_autohedge_on_drawdown_pct": 0.08
-}
-```
-
-**Characteristics:**
-- Tight grid (2% outer distance)
-- High wallet exposure (45%)
-- Quick recovery activation (5%)
-- Early hedging (8% drawdown)
-
----
-
-## Best Practices
-
-### Do's
-
-<Check>
-  **Start small** - Use 10-20% wallet exposure until comfortable
-</Check>
-
-<Check>
-  **Pick liquid symbols** - Higher volume = better fills
-</Check>
-
-<Check>
-  **Use auto-hedging** for capital > $1000
-</Check>
-
-<Check>
-  **Monitor daily** during learning period
-</Check>
-
-### Don'ts
-
-<Warning>
-  **Don't** use 100% wallet exposure - leave room for recovery
-</Warning>
-
-<Warning>
-  **Don't** trade illiquid symbols - wide spreads eat profits
-</Warning>
-
-<Warning>
-  **Don't** ignore positions for weeks - check at least weekly
-</Warning>
+All three are available on both Bybit and BloFin via the exchange toggle on the Marketplace card.
 
 ---
 
@@ -338,31 +231,33 @@ Main Position: LONG 100 units, -12% underwater
 
 ### "Bot not placing orders"
 
-1. Check wallet exposure - may have insufficient balance
-2. Verify symbol is supported on your exchange
-3. Check if price is within your `no_entry_above`/`no_entry_below` limits
+1. Staged entry may be waiting for an order-book wall or wick — check the logs for entry-filter messages
+2. Spike block active (recent 5m candle range above threshold)
+3. Insufficient free balance for the configured `wallet_exposure`
 
-### "Position keeps growing without TP"
+### "Orders sit far from price and never move"
 
-1. Market is trending strongly against you
-2. Consider enabling auto-hedging
-3. Check if virtual chunking is enabled for recovery
+With anchor-stable presets this is intentional — the grid is anchored and waits for price to come to it. If price drifts more than 4% adversely from the wave anchor, the drift-advance valve activates a fresh wave near the current price automatically.
 
-### "Orders keep getting cancelled"
+### "Position keeps growing without a TP fill"
 
-1. Grid refresh is repositioning orders as price moves
-2. Normal behavior - orders follow price
-3. Reduce `refresh_threshold` for less frequent updates
+The market is trending against the grid. Check: how many waves are used (`wave-queue` log lines show `deployed/hard_cap`), whether `max_drawdown_usdt` is set, and whether you're comfortable with the hard-cap exposure. In a sustained trend the strategy will sit at its cap and wait — that is the designed behavior, and it can take a long time or end at the drawdown stop.
 
 ---
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Bot Configuration" icon="gear" href="/bot-configuration">
-    Full parameter reference
+  <Card title="Preset Guide" icon="list-check" href="/strategies/preset-guide">
+    Pick the right preset in the Marketplace
   </Card>
-  <Card title="Risk Management" icon="shield" href="/risk-management/risk-management-best-practices">
-    Learn risk management
+  <Card title="Auto-Hedging" icon="shield" href="/risk-management/auto-hedging-overview">
+    The optional hedging layer
+  </Card>
+  <Card title="Risk Management" icon="triangle-exclamation" href="/risk-management/risk-management-best-practices">
+    Sizing and survival rules
+  </Card>
+  <Card title="Bot Management" icon="sliders" href="/features/bot-management">
+    Deploy, monitor, stop
   </Card>
 </CardGroup>

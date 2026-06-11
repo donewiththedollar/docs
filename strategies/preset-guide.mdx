@@ -1,319 +1,168 @@
 ---
 title: 'Preset Selection Guide'
-description: 'Choose the right trading preset for your goals and risk tolerance'
+description: 'How to read the Bot Marketplace and pick the right preset for your goals and risk tolerance'
 ---
 
 # Preset Selection Guide
 
-Not sure which preset to use? This guide breaks down each preset in plain English so you can pick the right one.
+Every bot on VOIDX is deployed from a **preset** — a complete, ready-to-run configuration. You browse them in the **Marketplace tab** of the trading terminal. This page explains everything you see there and how to choose.
+
+<Note>
+Every number on a Marketplace card is read **straight from the preset's real configuration** — grid levels, spans, exposure, take-profit targets. Nothing on a card is a performance figure, because the platform does not invent performance figures.
+</Note>
 
 ---
 
-## Quick Decision Tree
+## What You'll See in the Marketplace
 
-```
-What's your experience level?
-│
-├─ Beginner → Vortex DCA Conservative
-│
-├─ Intermediate → Which exchange?
-│   ├─ BloFin → BloFin v7 Long Short Counterscalp
-│   ├─ Bybit → Bybit v7 Long Short Counterscalp
-│   └─ DEFX → DEFX Conservative Single
-│
-└─ Advanced → What's your goal?
-    ├─ Max profit → HFT v6 presets
-    ├─ Auto-hedging → Vortex Auto-Hedge Multi
-    └─ Multiple symbols → Multi-Symbol presets
-```
+The catalog currently shows **41 preset cards** built from 54 underlying presets across **4 strategy families**:
 
----
+| Family | Cards | What it does in one line |
+|--------|-------|--------------------------|
+| **Vortex DCA** | 24 | Buys dips on a widening grid, takes quick ~0.2% profits; a wave queue extends the grid to rescue the position if price keeps falling |
+| **XGrid** (Perp MM) | 10 | High-frequency grid scalper that quotes around price and follows momentum with tight take-profits |
+| **GLFT MM** | 4 | Quotes both sides of the book around fair value, earning the spread while keeping inventory in check |
+| **Long-Only DCA** | 3 | Long-only ladder that accumulates on the way down and sells each rung at a small fixed profit |
 
-## Preset Categories
+Filter chips at the top of the catalog switch between families; the count badge on each chip shows how many cards it contains.
 
-### 1. Vortex DCA Presets (Beginner-Friendly)
+### Exchange variant toggle
 
-**What is Vortex DCA?** A one-sided strategy that buys dips and sells when price recovers. Simpler than market making.
+When the same preset exists on more than one exchange (e.g. "v7 Long Short Counterscalp" on both Bybit and BloFin), the Marketplace merges them into **one card with an exchange toggle** — small Bybit/BloFin buttons in the card footer. Switching the toggle swaps in that exchange's actual config, so the stat tiles update to the variant you'd deploy. Thirteen cards currently have both Bybit and BloFin variants, including all four GLFT cards and the featured Vortex Waves presets. Other presets are single-exchange (including three DEFX presets on Base).
 
-<CardGroup cols={2}>
-  <Card title="Conservative Single Symbol">
-    - **Risk**: Low
-    - **Exchange**: Any
-    - **Best for**: Learning the platform
-    - **Wallet exposure**: 5%
-    - **Take profit**: 0.5%
-  </Card>
-  <Card title="Geometric Long Only">
-    - **Risk**: Medium
-    - **Exchange**: Any
-    - **Best for**: Bull market DCA
-    - **Wallet exposure**: 100%
-    - **Take profit**: 0.3-0.5%
-  </Card>
-</CardGroup>
+### Featured row
 
-**When to use Vortex DCA:**
-- You're new to algorithmic trading
-- You believe the asset will go up long-term
-- You want simpler P&L to understand
-- You're okay with potentially holding bags
+The top of the unfiltered catalog shows three **featured** presets — the first suggested presets in the registry. Currently these are the Vortex DCA wave-queue lineup:
+
+1. **Vortex Waves Never Stuck** — wave-queue rescue with back-loaded wave budgets
+2. **Vortex Waves Anchored** — same, plus anchor-stable grids for minimal order churn
+3. **Vortex Waves Never Stuck (Multi-Symbol)** — the same engine across multiple symbols at 30% exposure each
+
+These are the current recommended starting points. See the [Vortex DCA guide](/strategies/vortex-dca) for what "wave queue" and "anchored" mean.
+
+### Risk pills
+
+Each card carries a risk tier pill: **Conservative**, **Moderate**, or **Aggressive**. These reflect the preset author's classification of the configuration (sizing, leverage, stops) — they are not predictions. Most presets are Moderate; the GLFT family splits explicitly into Conservative and Aggressive variants.
 
 ---
 
-### 2. Perp Market Maker Presets (Intermediate+)
+## Reading the Stat Tiles
 
-**What is Perp MM?** A two-sided strategy that quotes buy AND sell orders, profiting from the spread between them.
+Each card shows 3–4 stat tiles read from the preset's config. What they mean depends on the family:
 
-#### BloFin v7 Long Short Counterscalp (Recommended for BloFin)
+### Vortex DCA cards
 
-<ParamField path="Risk Level" type="string">
-  Aggressive
-</ParamField>
+| Tile | Config field | Meaning |
+|------|-------------|---------|
+| **Grid levels** | `nr_clusters` | Buy orders in the ladder per side (4 in current presets) |
+| **Grid span** | `outer_distance` | Distance from current price to the deepest order (e.g. 4.2%). With dynamic spacing the live value breathes around this |
+| **Max exposure** | `wallet_exposure` | Percent of your wallet budgeted per symbol (the soft cap). Wave-queue presets can deploy up to 1.5x this during a rescue (the hard cap) |
+| **Min TP** | `minimum_tp` | Take-profit distance from average entry (e.g. 0.2%) |
 
-**Plain English:** This preset makes money by placing orders on both sides of the market. When you get stuck in a losing position, it automatically opens trades in the opposite direction to offset losses while waiting for recovery.
+### XGrid (Perp MM) cards
 
-**Key Features:**
-| Feature | What It Does |
-|---------|--------------|
-| **equity_pct: 5%** | Sizes your grid based on 5% of account. As you profit, positions grow automatically. |
-| **75x leverage** | High capital efficiency. A 1% move = 75% position change. |
-| **XGrid Counter Scalp** | When stuck long and price dropping, opens shorts to scalp profits. |
-| **Reactive Spacing** | Widens spreads automatically when orderbook gets thin or volatile. |
-| **24h Force Exit** | Won't let positions age forever - forces exit after 24 hours. |
-| **10% Hard Stop** | Emergency exit if losses hit 10% of position. |
+| Tile | Config field | Meaning |
+|------|-------------|---------|
+| **Base spread** | `spread.base_spread_bps` | Starting distance of quotes from mid-price (shown when the preset sets it) |
+| **Quote levels** | `proactive_multilevel.levels` | Orders per side (2–6) |
+| **Max position** | `position.max_position_usdt` | Hard position ceiling in USDT |
+| **Leverage** | `position.leverage` | All current presets: 75x |
 
-**Who should use this:**
-- Traders comfortable with leverage
-- Those who can check the bot at least once daily
-- Accounts with $500+ capital
+### GLFT MM cards
 
----
+| Tile | Config field | Meaning |
+|------|-------------|---------|
+| **Min profit** | `min_profit_bps` | Minimum profit target per round trip (12–16 bps) |
+| **Max position** | `max_position_usdt` | Position cap per symbol |
+| **Quote levels** | `grid.levels` | Quote levels per side (2) |
+| **Leverage** | `leverage` | All current presets: 20x |
 
-#### Bybit v7 Long Short Counterscalp
+### Long-Only DCA cards
 
-Same as BloFin v7 but tuned for Bybit's fee structure and leverage limits.
+| Tile | Config field | Meaning |
+|------|-------------|---------|
+| **Rung spacing** | `grid_spacing` | Distance between ladder rungs (0.3–0.5%) |
+| **Max levels** | `maximum_levels` | Maximum rungs in the ladder (10–12) |
+| **Take profit** | `tp_percentage` | Profit target per rung (0.3–0.5%) |
 
-**Differences from BloFin:**
-- 50x max leverage (vs 75x on BloFin)
-- Slightly wider base spread (accounts for different liquidity)
-- Same risk management features
+### The detail modal
 
----
-
-#### HFT v6 Long Short MM
-
-<ParamField path="Risk Level" type="string">
-  Very Aggressive
-</ParamField>
-
-**Plain English:** High-frequency version with faster quote refresh and tighter spreads. More trades, smaller profits per trade.
-
-**Key Features:**
-- $10 quote size (vs $7 on v7)
-- 2-second refresh cycle
-- Geometric sizing (50 levels)
-- No equity-based scaling
-
-**Who should use this:**
-- Experienced traders only
-- High-volume symbols (DOGE, BTC, ETH)
-- Those comfortable with high trade frequency
+Clicking a card opens a detail view with the plain-English summary, the full **technical description** from the registry, and a **key parameters grid** listing the preset's scalar settings — useful for comparing two candidates before deploying. The Deploy button opens the same deploy wizard the rest of the platform uses, prefilled with the preset.
 
 ---
 
-### 3. Auto-Hedge Presets
+## How to Choose
 
-**What is Auto-Hedge?** Automatically opens opposite positions when your main position is losing, protecting against large drawdowns.
+### Start from your situation
 
-#### 2026 Vortex Auto-Hedge Multi
+**"I'm new to trading bots."**
+→ Featured **Vortex Waves Never Stuck** (or **Anchored**) on your exchange. The buy-dip → average → take-profit cycle is the easiest to follow in the logs, and the wave queue plus a $150 drawdown stop bound the downside better than the older Vortex presets. Run it on one symbol first.
 
-<ParamField path="Risk Level" type="string">
-  Moderate
-</ParamField>
+**"I want market making with few knobs."**
+→ **GLFT Optimal MM Conservative**: $10 quotes, $500 max position, $100–$200 drawdown stop, 20x leverage. Spread placement is computed by the model, not by you.
 
-**Plain English:** Runs Vortex DCA on multiple symbols. When any position draws down 10% OR gets close to liquidation, the bot automatically hedges to limit losses.
+**"I'm experienced and want the configurable scalper."**
+→ **MM Professional 2-Level** to start (2 levels, 1.5–3% equity sizing), then **v7/v8 Counterscalp** once you understand the loss-tier and counter-scalp behavior. All run 75x leverage — read the [Perp MM guide](/strategies/perp-market-maker) first.
 
-**Default Setup:**
-- Symbols: DOGE + 1000PEPE
-- 40% total wallet exposure (20% each)
-- Hedge triggers at 10% drawdown
-- Also hedges when liquidation price gets close
+**"I'm long-term bullish on one asset and accept holding through drawdowns."**
+→ **Long-Only DCA** (Conservative: 0.5% rungs, 0.5% TP; Aggressive: 0.3% rungs, deeper ladder). Note the martingale sizing: deeper rungs are roughly double the previous.
 
-**Who should use this:**
-- Traders wanting automated risk management
-- Those trading multiple symbols
-- Medium to large accounts ($2000+)
+**"I want to spread risk across symbols."**
+→ Multi-symbol variants exist in three families: **Vortex Waves Never Stuck (Multi-Symbol)** (30% per symbol), **GLFT Multi** (BTC/ETH/SOL/SUI/XRP, $500–$1,000 cap per symbol), and **MM Professional 2-Level Multi-Symbol**.
 
----
+### Then sanity-check three numbers
 
-### 4. Multi-Symbol Presets
-
-For trading multiple assets simultaneously.
-
-<Tabs>
-  <Tab title="Balanced Multi-Symbol">
-    **Risk:** Moderate
-    **Symbols:** DOGE, MNT
-    **Exposure:** 20% each (40% total)
-
-    Good for diversified exposure across liquid assets.
-  </Tab>
-  <Tab title="5-Symbol Moderate">
-    **Risk:** Moderate
-    **Symbols:** Top trending tokens
-    **Exposure:** 20% per symbol
-
-    Spreads risk across 5 different assets.
-  </Tab>
-  <Tab title="Aggressive Multi-Symbol">
-    **Risk:** High
-    **Symbols:** DOGE, MNT, H, SAPIEN
-    **Exposure:** 20% each (80% total)
-
-    Higher exposure for experienced traders.
-  </Tab>
-</Tabs>
-
----
-
-### 5. DEFX Presets (Base Network)
-
-For trading on DEFX (Aster DEX on Base).
-
-<CardGroup cols={2}>
-  <Card title="DEFX Conservative Single">
-    - **Risk**: Low
-    - **Symbol**: ASTER/USDC
-    - **Exposure**: 10%
-    - Best for learning DEFX
-  </Card>
-  <Card title="DEFX Chefs Choice Long Only">
-    - **Risk**: High
-    - **Symbol**: ASTER
-    - **Exposure**: 50%
-    - Aggressive long-only with virtual chunking
-  </Card>
-</CardGroup>
-
----
-
-## Preset Comparison Table
-
-| Preset | Strategy | Risk | Exchange | Best For |
-|--------|----------|------|----------|----------|
-| **Conservative Single** | Vortex DCA | Low | Any | Beginners |
-| **Geometric Long Only** | Vortex DCA | Medium | Any | Bull market DCA |
-| **BloFin v7 Counterscalp** | Perp MM | High | BloFin | Active trading |
-| **Bybit v7 Counterscalp** | Perp MM | High | Bybit | Active trading |
-| **HFT v6** | Perp MM | Very High | Any | High frequency |
-| **Auto-Hedge Multi** | Vortex + Hedge | Moderate | Bybit | Risk management |
-| **Multi-Symbol** | Vortex DCA | Varies | Any | Diversification |
-
----
-
-## Understanding Key Settings
-
-### equity_pct (v7 presets)
-
-This controls how your position sizes scale with your account.
-
-```
-Account: $1,000
-equity_pct: 5%
-
-Grid uses: $1,000 × 5% = $50 per cycle
-
-After profits, account: $1,200
-Grid uses: $1,200 × 5% = $60 per cycle
-```
-
-**Higher = more aggressive growth, more risk.**
-
----
-
-### xgrid_counter_scalp
-
-When enabled, if your main position is underwater:
-
-```
-Main position: LONG 100 ASTER, -5% loss
-XGrid detects: Downtrend continuing
-
-Counter position opened: SHORT 50 ASTER
-→ Scalps quick profits while main recovers
-→ Offsets some of the main position's losses
-```
-
----
-
-### time_decay / force_exit
-
-Prevents positions from aging forever:
-
-| Setting | Typical Value | What Happens |
-|---------|---------------|--------------|
-| breakeven_after | 48 hours | Tries to exit at breakeven |
-| exit_loss_after | 48 hours | Accepts small loss to exit |
-| force_exit_after | 24 hours | Market order exit regardless |
-
----
-
-## Making Your Choice
-
-### Start Here If...
-
-**You're brand new:**
-→ Use **Conservative Single Symbol** with DOGE
-
-**You have some experience:**
-→ Use **BloFin/Bybit v7 Counterscalp** with your preferred exchange
-
-**You want automation:**
-→ Use **Vortex Auto-Hedge Multi** for hands-off trading
-
-**You want maximum returns (and accept maximum risk):**
-→ Use **HFT v6** presets
+1. **Max exposure / max position** — is the worst-case deployed amount something you can hold through a drawdown? For Vortex wave-queue presets multiply the exposure tile by 1.5 (the hard cap).
+2. **Leverage** — 75x (XGrid family) and 20x (GLFT) change what a 1% move does to margin.
+3. **The stop** — Vortex Waves: $150 drawdown stop; GLFT: $100–$500; XGrid family: 10% hard stop plus timed force-exits; Long-Only DCA: **no stop** — it holds by design.
 
 ---
 
 ## Customizing After Selection
 
-Every preset is a starting point. Common adjustments:
+A preset is a starting point. In the deploy wizard (or later via bot settings) the common adjustments are:
 
-<Accordion title="Reduce Risk">
-- Lower `equity_pct` from 5% to 2-3%
-- Increase `base_spread_bps` from 15 to 25+
-- Lower `leverage` from 75x to 25-50x
-- Reduce `max_position_usdt`
-</Accordion>
+<AccordionGroup>
+  <Accordion title="Reduce risk">
+    - Vortex: lower `wallet_exposure`; keep the wave queue on (it's the rescue system, not the risk)
+    - XGrid family: lower `equity_pct` (e.g. 5 → 2), reduce `max_position_usdt`, lower leverage
+    - GLFT: use the Conservative variant rather than tuning the Aggressive one down
+  </Accordion>
+  <Accordion title="Trade a different symbol">
+    Change the symbol in the deploy wizard. Prefer liquid markets — thin books widen spreads, worsen fills, and break the assumptions behind all four families.
+  </Accordion>
+  <Accordion title="Increase aggression">
+    Raise `equity_pct` / `wallet_exposure` or quote sizes — after you've watched the preset run at stock settings long enough to know what its drawdowns look like.
+  </Accordion>
+</AccordionGroup>
 
-<Accordion title="Increase Aggression">
-- Raise `equity_pct` from 5% to 8-10%
-- Tighten `base_spread_bps` from 15 to 8-12
-- Increase `quote_size_usdt`
-</Accordion>
+<Tip>
+The [Scaling Agent](/features/scaling-agent) can make these adjustments conversationally — e.g. `/set equity_pct 3`.
+</Tip>
 
-<Accordion title="Change Timing">
-- Adjust `force_exit_after_seconds` (default 24h)
-- Modify `breakeven_after_seconds` (default 48h)
-- Set `force_exit_enabled: false` to disable forced exits
-</Accordion>
+---
+
+## Risk Reminder
+
+<Warning>
+Risk pills, stat tiles, and descriptions are **configuration facts, not return forecasts**. Grid and DCA presets buy more as price falls — they draw down in trends by design. Market-making presets carry leveraged inventory risk. Any preset can lose money; deploy sizes you can afford to lose and monitor your bots.
+</Warning>
 
 ---
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="BloFin Quickstart" icon="bolt" href="/exchanges/blofin-perp-mm-quickstart">
-    Step-by-step BloFin setup
+  <Card title="Strategy Overview" icon="map" href="/strategies/overview">
+    The four families compared
   </Card>
-  <Card title="Perp MM Deep Dive" icon="book" href="/strategies/perp-market-maker">
-    All 100+ parameters explained
+  <Card title="Vortex DCA" icon="water" href="/strategies/vortex-dca">
+    The featured family in depth
   </Card>
-  <Card title="Vortex DCA Guide" icon="chart-line" href="/strategies/vortex-dca">
-    DCA strategy details
+  <Card title="Perp MM / XGrid" icon="bolt" href="/strategies/perp-market-maker">
+    The configurable scalper family
   </Card>
-  <Card title="Scaling Agent" icon="robot" href="/features/scaling-agent">
-    Adjust settings with AI
+  <Card title="GLFT MM" icon="brain" href="/strategies/glft-market-maker">
+    Model-driven market making
   </Card>
 </CardGroup>
