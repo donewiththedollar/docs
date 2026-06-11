@@ -1,372 +1,112 @@
 ---
 title: 'Trading Console'
-description: 'Real-time monitoring and debugging tools for your trading bots'
+description: 'The Trade tab — live chart, order book, and a full order ticket for manual perp trading'
 ---
 
 # Trading Console
 
-The **Trading Console** is your mission control for monitoring bot activity, debugging issues, and tracking live market data. Access detailed logs, position tracking, and order flow in real-time.
+The **Trade** tab is a full manual trading terminal for perpetual futures: a live candlestick chart, a real-time order book, and an order ticket that supports everything from a simple market order to TWAP and scaled-ladder execution. Orders are placed through your own saved exchange API keys.
+
+Guests can explore the whole view — the chart and order book are live. Placing orders requires a connected wallet and saved exchange credentials.
+
+<Frame>
+  <img src="/images/2026-06/terminal-trade.png" alt="The Trade tab with live chart, order book, order ticket and bottom drawer." style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+<Tip>First time here? A **"Take the tour"** pill appears for new visitors — an optional guided walkthrough that points out each part of the Trade view. Dismiss it any time.</Tip>
 
 ---
 
-## 📜 Bot Logs
+## Layout
 
-### Real-Time Event Streaming
+### Top Ribbon
 
-The bot logs display every action your bot takes:
+- **Symbol selector** — search any market, with a **Favorites** section for quick access to the pairs you trade most.
+- **Exchange selector** — switch between your connected exchanges; each shows its own equity.
+- Logged-out users see a prompt to connect an exchange instead of balance figures.
 
-**Log Categories:**
-- 🟢 **INFO** - Normal operations (orders placed, positions updated)
-- 🟡 **WARNING** - Non-critical issues (rate limits, retries)
-- 🔴 **ERROR** - Critical failures (API errors, order rejections)
-- 🔵 **DEBUG** - Detailed technical information
+### Chart
 
-### Log Format
+A native candlestick chart with selectable timeframes (1m, 5m, 15m, and more). It refreshes live without yanking your pan/zoom position back to default.
 
-```
-[2025-10-20 04:25:31] [INFO] BTCUSDT | Placed buy order: 0.05 BTC @ $67,234.50
-[2025-10-20 04:25:45] [INFO] BTCUSDT | Order filled: 0.05 BTC @ $67,234.50
-[2025-10-20 04:26:12] [INFO] BTCUSDT | Take profit placed: 0.05 BTC @ $67,570.00
-[2025-10-20 04:27:03] [WARNING] Rate limit approaching: 85/100 requests
-[2025-10-20 04:28:15] [ERROR] ETHUSDT | Order rejected: Insufficient balance
-```
+### Order Book Panel
 
-### Filtering & Search
+- **Order Book / Trades tabs** — switch between book depth and the live trade tape.
+- **My Orders toggle** — highlight your own resting orders inside the book.
+- **Price aggregation control** — group price levels into wider buckets to read depth at a glance.
+- **Depth toggle** — adjust how much of the book is shown.
 
-- **Symbol Filter** - View logs for specific trading pairs
-- **Log Level** - Show only errors, warnings, or all levels
-- **Time Range** - Last hour, day, or custom range
-- **Keyword Search** - Find specific orders or events
+### Order Ticket
 
-<Tip>Always check ERROR logs first when troubleshooting issues!</Tip>
+The right-hand panel where orders are built. Core order types are inline tabs, with advanced execution methods under **More**:
 
----
+| Method | What it does |
+|--------|--------------|
+| **Limit** | Resting order at your price |
+| **Market** | Immediate fill at the best available price |
+| **Stop** | Triggered order once price crosses your level |
+| **TWAP** | Splits your size into N slices spread evenly across a time window |
+| **Scale** | Ladders multiple limit orders across a price range |
+| **Iceberg** | Shows only part of your size at a time |
+| **Chase** | Re-prices your order to the top of the book every few seconds |
+| **Sniper** | Waits for a trigger price to cross, then fires a market order |
 
-## 📊 Position Tracker
+**Ticket controls:**
 
-### Live Position Display
+- **Buy / Sell** side selection
+- **Leverage slider** with quick-set buttons; cost and margin impact are estimated live, along with an approximate liquidation price
+- **Time in force** — GTC, IOC, or FOK
+- **Post Only** — ensures your limit order only adds liquidity (maker)
+- **Reduce Only** — order can only shrink an existing position, never open or grow one
+- **TP / SL** — attach take-profit and stop-loss brackets to the order
+- **Hedge / Cross badges** — the account runs in hedge mode (long and short can coexist on a symbol; required by the bot strategies) and cross margin. Switch to isolated margin from your exchange's own web UI if you need per-position risk caps.
 
-Monitor all open positions across exchanges:
+<Warning>Large orders get a confirmation gate: live orders at **25x leverage or higher**, or with **notional of $10,000 or more**, ask you to confirm before submission.</Warning>
 
-**Position Details:**
-- **Symbol** - Trading pair (e.g., BTC/USDT)
-- **Side** - Long or Short
-- **Size** - Position size in base currency
-- **Entry Price** - Average entry price
-- **Current Price** - Live market price
-- **Unrealized P&L** - Current profit/loss
-- **Liquidation Price** - Price at which position gets liquidated
-- **Margin Used** - Collateral locked
+### Bottom Drawer
 
-### Visual Indicators
+A tabbed drawer along the bottom keeps your account state next to the chart:
 
-- **Green Background** - Profitable position
-- **Red Background** - Losing position
-- **Yellow Warning** - Near liquidation (within 10%)
-- **Pulse Animation** - Recently updated position
-
-<Warning>Watch liquidation prices closely—add margin if positions get too close!</Warning>
-
----
-
-## 📈 Order Flow Monitor
-
-### Active Orders Table
-
-Track all open orders placed by your bots:
-
-**Order Information:**
-- **Symbol** - Trading pair
-- **Side** - Buy or Sell
-- **Type** - Limit, Market, or Stop
-- **Price** - Order price
-- **Amount** - Order quantity
-- **Filled** - Percentage filled (0-100%)
-- **Status** - Open, Partially Filled, Filled, Cancelled
-- **Created** - Timestamp
-
-### Order Actions
-
-- **Cancel** - Cancel individual order
-- **Cancel All** - Emergency cancel all orders for a symbol
-- **Modify** - Adjust price or quantity (coming soon)
-
-### Order Statistics
-
-- **Total Open Orders** - Count of active orders
-- **Average Fill Time** - How long orders take to fill
-- **Fill Rate** - Percentage of orders that execute
-- **Cancelled Rate** - Orders cancelled vs. filled
+| Tab | Contents |
+|-----|----------|
+| **Positions** | Open positions with size, entry, mark, and unrealized PnL |
+| **Orders** | Resting orders, with cancel controls |
+| **Bots** | Your bots, viewable without leaving the Trade view |
+| **Fills** | Recent executions |
+| **Activity** | Event feed — fills, bot events, errors |
 
 ---
 
-## 🔍 Advanced Debugging
+## How to Place an Order
 
-### Grid Visualization
-
-See your bot's grid structure in real-time:
-
-**Grid Display:**
-- **Current Price Line** - Where market is trading
-- **Buy Grid Levels** - Levels below current price (green)
-- **Sell Grid Levels** - Levels above current price (red)
-- **Filled Orders** - Executed grid levels (solid)
-- **Pending Orders** - Waiting to fill (dashed)
-
-### Example Grid Visualization:
-
-```
-$68,500 ─────────────── [SELL] Take Profit ⬆️
-$68,000 ───────────────────────────────────
-$67,500 ───────────────────────────────────
-$67,234 ══════════════ CURRENT PRICE 💰
-$67,000 ─────────────── [BUY] Grid Level 1 ⬇️
-$66,500 ─────────────── [BUY] Grid Level 2 ⬇️
-$66,000 ─────────────── [BUY] Grid Level 3 ⬇️
-```
-
-<Tip>Use grid visualization to understand where your bot will buy/sell next!</Tip>
+<Steps>
+  <Step title="Pick the market">
+    Use the symbol selector (star your regulars as Favorites) and choose the exchange you want to trade on.
+  </Step>
+  <Step title="Build the ticket">
+    Choose an order method, side, price, and size. Use the percentage shortcuts to size relative to your available balance at the current leverage.
+  </Step>
+  <Step title="Set protections (optional)">
+    Toggle Post Only / Reduce Only, set time in force, and attach TP/SL brackets.
+  </Step>
+  <Step title="Submit">
+    Review the estimated cost, margin impact, and liquidation price, then submit. The order appears in the Orders tab; fills appear in Fills and Positions.
+  </Step>
+</Steps>
 
 ---
 
-## 📉 Performance Analytics
+## Tips
 
-### Real-Time Metrics
-
-Track bot performance with live statistics:
-
-**Core Metrics:**
-- **Win Rate** - % of profitable trades
-- **Total P&L** - Cumulative profit/loss
-- **Daily P&L** - Last 24 hours performance
-- **Best Trade** - Largest winning trade
-- **Worst Trade** - Largest losing trade
-- **Average Trade** - Mean profit per trade
-
-### Time-Series Charts
-
-- **P&L Over Time** - Cumulative profit chart
-- **Trade Distribution** - Win/loss histogram
-- **Volume Analysis** - Trading volume trends
-- **Drawdown Chart** - Maximum drawdown tracking
-
-### Export Data
-
-Download performance reports:
-- **CSV Export** - All trades and metrics
-- **JSON Export** - Raw data for analysis
-- **PDF Report** - Visual performance summary
+- **Click into the book** — use the order book to gauge where liquidity sits before placing limit orders; widen the aggregation to see the bigger structure.
+- **Markets tab first** — the [Markets scanner](/features/dashboard-overview#the-markets-tab) finds high-volume, high-volatility pairs; clicking a row lands here with the symbol preloaded.
+- **Watch bots from the drawer** — the Bots tab in the bottom drawer lets you watch a bot's orders hit the tape on the chart above it.
+- **Advanced methods need the engine running** — TWAP, Scale, Iceberg, Chase, and Sniper are executed client-side over time; keep the terminal open while they work.
 
 ---
 
-## 🚨 Alert System
+## Related Documentation
 
-### Customizable Alerts
-
-Set up notifications for important events:
-
-**Alert Types:**
-- **Position Alerts** - Large P&L changes, near liquidation
-- **Order Alerts** - Failed orders, rejections
-- **Balance Alerts** - Low balance warnings
-- **Performance Alerts** - Drawdown thresholds hit
-
-### Notification Channels
-
-- **In-App** - Pop-up notifications in dashboard
-- **Telegram** - Instant messages to your phone (coming soon)
-- **Email** - Digest reports (coming soon)
-- **Webhooks** - Custom integrations (coming soon)
-
-<Tip>Set alerts for drawdown limits to know when to intervene manually!</Tip>
-
----
-
-## 🔧 Diagnostic Tools
-
-### Connection Health
-
-Monitor API and exchange connectivity:
-
-**Health Indicators:**
-- **API Status** - Connected, Disconnected, Rate Limited
-- **WebSocket** - Active, Reconnecting, Failed
-- **Latency** - Response time in milliseconds
-- **Request Rate** - API calls per minute
-- **Error Rate** - Failed requests percentage
-
-### Rate Limit Monitor
-
-Track API usage to avoid hitting limits:
-
-**BloFin Rate Limits:**
-- **IP-Based**: 500 req/min (displayed as 240/500)
-- **User-Based**: 30 req/10s (displayed as 12/30)
-- **Cooldown Status**: Shows if in temporary ban
-
-**Bybit Rate Limits:**
-- **IP-Based**: 120 req/min
-- **UID-Based**: Varies by endpoint
-
-<Warning>If you hit rate limits, the bot automatically slows down—no action needed!</Warning>
-
----
-
-## 🛠️ Troubleshooting Console
-
-### Common Issues & Solutions
-
-**Orders Not Placing:**
-```
-[ERROR] Order rejected: Insufficient balance
-✅ Solution: Deposit more USDT or reduce wallet_exposure
-```
-
-**Rate Limit Errors:**
-```
-[WARNING] BloFin rate limit: 429 Too Many Requests
-✅ Solution: Bot auto-slows—wait 60s for cooldown
-```
-
-**Position Not Updating:**
-```
-[ERROR] Failed to fetch positions: API timeout
-✅ Solution: Check exchange status, retry connection
-```
-
-**Bot Stuck:**
-```
-[WARNING] No activity for 10 minutes
-✅ Solution: Check logs for errors, restart bot if needed
-```
-
-### Debug Mode
-
-Enable verbose logging for detailed troubleshooting:
-
-```json
-{
-  "logging": {
-    "level": "DEBUG"
-  }
-}
-```
-
-**Debug Output Includes:**
-- Exact API requests and responses
-- Grid calculation details
-- Order placement logic
-- Position management steps
-
-<Warning>Debug mode generates LOTS of logs—disable after troubleshooting!</Warning>
-
----
-
-## 📊 Multi-Bot Console View
-
-### Consolidated Dashboard
-
-When running multiple bots, see aggregated data:
-
-**Multi-Bot Features:**
-- **Combined P&L** - Total across all bots
-- **Per-Bot Breakdown** - Individual performance
-- **Symbol Heatmap** - Which pairs are profitable
-- **Exchange Comparison** - Performance by exchange
-
-### Bot Selector
-
-Quickly switch between bot logs:
-
-```
-[All Bots] ▼
-├── Bybit - BTCUSDT (Geometric Long Only)
-├── Bybit - ETHUSDT (Geometric Long Only)
-├── BloFin - SOLUSDT (Vortex DCA)
-└── HTX - DOGEUSDT (Vortex DCA)
-```
-
----
-
-## 🎛️ Console Settings
-
-### Customization Options
-
-Tailor the console to your preferences:
-
-**Display Settings:**
-- **Font Size** - Small, Medium, Large
-- **Refresh Rate** - 5s, 10s, 30s, manual
-- **Max Log Lines** - 100, 500, 1000, unlimited
-- **Theme** - Dark, Light, Matrix
-
-**Auto-Scroll:**
-- Enable auto-scroll for real-time log tailing
-- Disable to review historical logs without interruption
-
-**Timestamps:**
-- UTC or local timezone
-- Relative (5m ago) or absolute (04:25:31)
-
----
-
-## 📱 Mobile Console
-
-The trading console is fully responsive:
-
-**Mobile Features:**
-- **Compact Log View** - Optimized for small screens
-- **Swipe Navigation** - Switch between tabs
-- **Touch-Friendly** - Large buttons for actions
-- **Pull-to-Refresh** - Update data with a swipe
-
-<Tip>Use landscape mode on mobile for better log readability!</Tip>
-
----
-
-## 🚀 Pro Tips
-
-### Efficient Monitoring
-
-1. **Use Filters** - Focus on specific symbols or error levels
-2. **Set Alerts** - Don't watch 24/7, let alerts notify you
-3. **Check Logs Daily** - Catch issues early
-4. **Export Data Weekly** - Analyze performance trends
-5. **Monitor Rate Limits** - Avoid temporary bans
-
-### Reading Logs Like a Pro
-
-**Good Signs:**
-```
-✅ Regular order placement
-✅ High fill rates
-✅ Balanced buy/sell activity
-✅ Low error counts
-```
-
-**Warning Signs:**
-```
-⚠️ Repeated order rejections
-⚠️ Unusual gaps in activity
-⚠️ Rate limit warnings increasing
-⚠️ Connection errors
-```
-
-**Emergency Indicators:**
-```
-🚨 Multiple ERROR logs in short time
-🚨 "Insufficient balance" repeatedly
-🚨 Liquidation price approaching
-🚨 API credentials invalid
-```
-
----
-
-## 📚 Related Documentation
-
-- **[Bot Management](/features/bot-management)** - Configure and control bots
-- **[Dashboard Overview](/features/dashboard-overview)** - Main dashboard features
-- **[Bot Configuration](/bot-configuration)** - Parameter reference
-- **[Exchange Setup](/exchanges/blofin)** - Connect your exchange
-
-**Master the console, master your bots! 🎮**
+- **[Terminal Overview](/features/dashboard-overview)** — the full terminal tour
+- **[Bot Management](/features/bot-management)** — manage bots from the Bots tab
+- **[Marketplace](/features/marketplace)** — automate instead of trading manually

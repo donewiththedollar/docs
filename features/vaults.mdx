@@ -1,592 +1,164 @@
 ---
 title: 'VOIDX Vaults'
-description: 'Automated trading vaults with zero configuration — browse, connect, deploy'
+description: 'Curated one-click strategy vaults — pick a card, deploy on your own exchange API keys'
 ---
 
 # VOIDX Vaults
 
-VOIDX Vaults are the fastest way to start trading on the platform. Instead of choosing strategies, tuning parameters, and configuring presets manually, Vaults package everything into a single click. Browse available vaults, connect your wallet, paste your exchange API keys, and deploy — zero configuration required.
+Vaults are the fastest way to start a bot on VOIDX. Each vault card is a curated, pre-configured strategy: pick the card that matches your exchange and risk appetite, optionally tweak the symbol, and click **Deploy Vault**. The strategy launches through the standard deploy wizard, prefilled with the vault's settings, running on your own exchange API keys.
 
-Your funds never leave your exchange account. Vaults are **non-custodial** — the platform only places and manages orders on your behalf through read/trade-only API keys.
+Your funds never leave your exchange account. Vaults are **non-custodial** — the platform only places and manages orders on your behalf through read/trade-only API keys. You retain custody of funds at all times.
 
-<Note>
-**PUMPKIN tokens required for access.** Hold any amount of PUMPKIN in your wallet for Tier 1 access. Higher tiers unlock additional features. All you need is a wallet, PUMPKIN tokens, and an exchange account.
-</Note>
-
----
-
-## What Are Vaults?
-
-A Vault is a pre-configured trading strategy wrapped in a simple deployment flow. Each vault bundles a specific exchange, strategy, symbol, and set of parameters that have been tested and optimized for consistent performance.
-
-**Traditional bot setup** requires you to:
-1. Understand strategy types (Vortex DCA, Perp MM, XGrid)
-2. Choose from dozens of presets
-3. Configure parameters like equity percentage, grid levels, spacing, and take-profit
-4. Understand features like inventory balancing and drawdown spacing
-
-**Vaults** reduce this to:
-1. Pick a vault card
-2. Paste API credentials
-3. Click deploy
-
-Think of Vaults like a managed fund interface — you choose the vault that matches your exchange and risk appetite, and the strategy runs with professional-grade defaults.
-
-<CardGroup cols={2}>
-  <Card
-    title="BloFin USDT Vault"
-    icon="vault"
-    href="#blofin-usdt-vault"
-  >
-    Perp market making on BloFin with reactive quoting and two-sided mode. Minimum $500 balance. 1.5% equity per trade.
-  </Card>
-  <Card
-    title="Bybit USDT Vault"
-    icon="vault"
-    href="#bybit-usdt-vault"
-  >
-    Perp market making on Bybit with profit chase and profit floor. Minimum $1,000 balance. 3.0% equity per trade.
-  </Card>
-  <Card title="BloFin GLFT Vault" icon="brain" href="#blofin-glft-vault">
-    GLFT optimal market maker on BloFin. Academic quoting with inventory penalty and recovery grid. Minimum $500 balance.
-  </Card>
-  <Card title="BloFin GLFT Multi-Symbol Vault" icon="brain" href="#blofin-glft-multi-symbol-vault">
-    Run GLFT across up to 5 symbols on BloFin. Diversified optimal quoting. Minimum $1,000 balance.
-  </Card>
-  <Card title="Bybit GLFT Vault" icon="brain" href="#bybit-glft-vault">
-    GLFT optimal market maker on Bybit with auto fee detection. Minimum $500 balance.
-  </Card>
-  <Card title="Bybit GLFT Multi-Symbol Vault" icon="brain" href="#bybit-glft-multi-symbol-vault">
-    Run GLFT across up to 5 symbols on Bybit. Auto fee detection. Minimum $1,000 balance.
-  </Card>
-</CardGroup>
+<Frame>
+  <img src="/images/2026-06/vaults.png" alt="The Vaults tab showing curated strategy vault cards with min balance, risk tier and deploy buttons." style={{ borderRadius: '0.5rem' }} />
+</Frame>
 
 ---
 
-## Getting Started with Vaults
+## What You See
+
+The Vaults tab header shows two counters: **Available** (the number of vaults in the catalog — currently 14) and **Your Live** (how many of them you have running right now).
+
+Each vault card carries:
+
+- **Name** and a one-paragraph description of the strategy
+- **Exchange badge** with a colored dot (BloFin blue, Bybit gold)
+- **Strategy badge** — Professional MM, GLFT Optimal, or Vortex DCA Waves
+- **Risk tier badge** — Conservative (green) or Moderate (amber)
+- **Min balance** — anchored top-right; the suggested minimum futures-wallet balance
+- **Symbol picker** — single-symbol vaults let you pick from popular symbols (BTC, ETH, SOL, XRP, ASTER, SUI, DOGE, LINK, AVAX) or type a custom one before deploying; multi-symbol vaults list their pairs (editable in the deploy modal)
+- **Stats row** — Equity (per-trade or wallet exposure), Levels, Risk
+- **Features line** — the strategy features bundled into the preset
+- **Deploy Vault** button — or **Connect wallet to deploy** for guests
+
+Vortex vaults add two extra controls directly on the card:
+
+- **Wallet Exposure slider** — override the preset's default exposure (70% single-symbol, 60% anchored, 30% per symbol on multi)
+- **Leverage slider** — only applied if you actually move it; left untouched, the bot keeps your exchange's current leverage setting
+
+If a vault already has a running bot, the card shows a green **Live** badge and the button becomes **Active — Deploy Another**.
+
+---
+
+## Getting Started
 
 <Steps>
-  <Step title="Visit voidx.trade">
-    Go to [voidx.trade](https://voidx.trade) in your browser.
-  </Step>
-  <Step title="Click Launch Vault">
-    On the landing page, click the **"Launch Vault"** button to enter the Vaults interface.
-  </Step>
   <Step title="Connect your wallet">
-    Connect a SUI, Solana, or EVM wallet. This serves as your identity on the platform. You must hold any amount of PUMPKIN tokens for Tier 1 access.
+    Open the **Vaults** tab and connect a wallet — this is your identity on the platform. Signing the authentication message moves no funds.
   </Step>
-  <Step title="Sign in to authenticate">
-    After connecting, click **"Sign In to Continue"** to authenticate. Your wallet will prompt you to sign a message — this verifies ownership. No transaction is made and no funds are moved.
-  </Step>
-  <Step title="Choose a vault">
-    Browse the available vault cards and select the one that matches your exchange account.
-  </Step>
-  <Step title="Enter API credentials">
-    Paste your exchange API key and secret (and passphrase, if required). If you have already saved credentials through the main dashboard, the vault will detect them and show **"Credentials saved"** — you can skip this step.
+  <Step title="Add exchange API keys (once)">
+    If you haven't already, save your exchange API keys via the Add Exchange flow. Keys are stored encrypted.
 
-    <Warning>
-    Only enable **Read** and **Trade** permissions on your API key. Never enable **Withdraw**.
-    </Warning>
+    <Warning>Only enable **Read** and **Trade** permissions on your API key. Never enable **Withdraw**.</Warning>
   </Step>
-  <Step title="Deploy and start">
-    Click **"Deploy & Start Bot"**. The vault creates a bot named `Vault-{VaultName}-{timestamp}` and begins trading immediately.
+  <Step title="Pick a vault">
+    Choose a card matching your exchange and risk appetite. Adjust the symbol (and, for Vortex vaults, exposure/leverage) if you want.
+  </Step>
+  <Step title="Deploy">
+    Click **Deploy Vault**. The deploy wizard opens prefilled with the vault's configuration — confirm and the bot starts trading.
   </Step>
 </Steps>
 
-<Tip>
-If your exchange already has a running bot, the vault card will show **"Bot already running on [Exchange]"** with a **Manage** button that takes you to the full dashboard for that bot.
-</Tip>
-
-### Choosing a Symbol
-
-Each vault comes with a default symbol, but you can change it before deploying. The vault card expands to show a symbol selector with popular options:
-
-**Popular symbols:** BTC, ETH, SOL, DOGE, XRP, SUI, PEPE, LINK, AVAX, ARB, OP, WIF
-
-You can also type any custom symbol in `SYMBOL/USDT:USDT` format if the pair is available on your exchange.
-
-<Tip>
-If you're unsure which symbol to trade, start with the default. The vault presets are optimized for the default symbol's characteristics.
-</Tip>
-
 ---
 
-## Available Vaults
+## The Catalog
 
-### BloFin USDT Vault
+### Professional Market Making
 
-The BloFin vault runs a **Perpetual Market Maker** strategy with two-sided quoting on the ASTER/USDT:USDT perpetual pair. It uses the `blofin_mm_professional_2level` preset, which is tuned for BloFin's fee structure and order book characteristics.
+Two-sided quoting on perpetuals with inventory-aware spacing.
 
-#### Strategy Parameters
+| Vault | Exchange | Equity/trade | Min balance | Highlights |
+|-------|----------|--------------|-------------|------------|
+| BloFin USDT Vault | BloFin | 1.5% | $500 | Drawdown spacing, inventory balancing, geometric levels, reactive quoting |
+| Bybit USDT Vault | Bybit | 3.0% | $1,000 | Profit chase 2bp, profit floor, drawdown spacing, inventory balancing |
+| BloFin Multi-Symbol Vault | BloFin | 1.5% | $1,000 | Runs across 3 pairs (ASTER, BTC, ETH) in one bot |
+| Bybit Multi-Symbol Vault | Bybit | 3.0% | $2,000 | 3 pairs with profit chase + floor on each |
 
-| Parameter | Value |
-|-----------|-------|
-| Strategy | Perp Market Maker (`perp_mm`) |
-| Default Symbol | ASTER/USDT:USDT (changeable) |
-| Equity per Trade | 1.5% |
-| Grid Levels | 2 |
-| Minimum Balance | $500 USDT |
+### GLFT Optimal Market Making
 
-#### Features Included
+Academic quoting based on the Gueant–Lehalle–Fernandez–Tapia equations — inventory-penalized spreads with regime detection. All four are **Conservative** tier with 2.0% equity per trade.
 
-<CardGroup cols={2}>
-  <Card title="Drawdown Spacing" icon="arrows-up-down">
-    Automatically widens grid spacing when positions are underwater, reducing the chance of adding to a losing position too aggressively.
-  </Card>
-  <Card title="Inventory Balancing" icon="scale-balanced">
-    Skews quotes toward reducing inventory when the position grows too large in one direction, maintaining a balanced book.
-  </Card>
-  <Card title="Geometric Levels" icon="chart-line">
-    Grid levels are spaced geometrically rather than linearly, placing orders further apart as distance from mid-price increases.
-  </Card>
-  <Card title="Reactive Quoting" icon="bolt">
-    Adjusts spread width and quote aggressiveness in response to real-time volatility and order flow conditions.
-  </Card>
-</CardGroup>
+| Vault | Exchange | Min balance | Highlights |
+|-------|----------|-------------|------------|
+| BloFin GLFT Vault | BloFin | $500 | GLFT optimal quoting, inventory penalty, regime detection, recovery grid |
+| BloFin GLFT Multi-Symbol | BloFin | $1,000 | GLFT across up to 5 pairs (BTC, ETH, SOL, SUI, XRP) |
+| Bybit GLFT Vault | Bybit | $500 | Adds auto fee detection (reads your Bybit fee tier automatically) |
+| Bybit GLFT Multi-Symbol | Bybit | $1,000 | 5 pairs with auto fee detection |
 
-<Card title="Two-Sided Mode" icon="arrows-left-right">
-  Simultaneously quotes on both the bid and ask sides of the order book, earning spread from both directions.
-</Card>
+### Vortex DCA Waves
 
-#### Who Is This For?
+Wave-queue DCA rescue ladders — small early waves cycle fast on chop, larger late waves catch deep moves. All are **Moderate** tier with low minimums, designed so the grid budget is resolved automatically from your live wallet balance and exposure setting.
 
-- Traders with a BloFin account and at least $500 USDT in their futures wallet
-- Anyone who wants to run a market making bot without understanding all the parameters
-- Users looking for a conservative entry point with lower equity exposure (1.5%)
+| Vault | Exchange | Exposure | Min balance | Highlights |
+|-------|----------|----------|-------------|------------|
+| BloFin Vortex Waves Vault | BloFin | 70% | $50 | Auto max waves, geometric-back rescue, scale-cap decouple, drift-reset |
+| Bybit Vortex Waves Vault | Bybit | 70% | $50 | Same ladder, Bybit-tuned 0.18% take-profit |
+| BloFin Vortex Waves Anchored | BloFin | 60% | $50 | Anchor-stable prices, per-order tolerance — dramatically less grid jitter |
+| Bybit Vortex Waves Anchored | Bybit | 60% | $50 | Anchored variant with Bybit-tuned 0.18% TP |
+| BloFin Vortex Waves Multi-Symbol | BloFin | 30% × 3 | $150 | Independent wave queues on 3 pairs |
+| Bybit Vortex Waves Multi-Symbol | Bybit | 30% × 3 | $150 | 3 pairs, Bybit-tuned TP |
 
-#### Required Credentials
-
-| Field | Description |
-|-------|-------------|
-| API Key | Your BloFin API key |
-| API Secret | Your BloFin API secret |
-| API Passphrase | The passphrase you set when creating the API key |
-
-<Tip>
-Need help creating BloFin API keys? See the [BloFin Exchange Setup Guide](/exchanges/blofin).
-</Tip>
-
----
-
-### Bybit USDT Vault
-
-The Bybit vault runs a **Perpetual Market Maker** strategy on the ASTER/USDT:USDT perpetual pair. It uses the `bybit_mm_professional_2level` preset, optimized for Bybit's deeper liquidity and fee tiers.
-
-#### Strategy Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Strategy | Perp Market Maker (`perp_mm`) |
-| Default Symbol | ASTER/USDT:USDT (changeable) |
-| Equity per Trade | 3.0% |
-| Grid Levels | 2 |
-| Minimum Balance | $1,000 USDT |
-
-#### Features Included
-
-<CardGroup cols={2}>
-  <Card title="Profit Chase (2bp)" icon="bullseye-arrow">
-    When a take-profit target is close to being hit, the bot dynamically trails the price by 2 basis points to capture additional upside.
-  </Card>
-  <Card title="Profit Floor" icon="shield-halved">
-    Once a position reaches a minimum profit threshold, the floor locks in that profit level — the bot will not let a winning position turn into a loss.
-  </Card>
-  <Card title="Drawdown Spacing" icon="arrows-up-down">
-    Widens grid spacing when positions are underwater, reducing exposure during adverse moves.
-  </Card>
-  <Card title="Inventory Balancing" icon="scale-balanced">
-    Skews quotes toward reducing inventory when the position grows too large in one direction.
-  </Card>
-</CardGroup>
-
-<Card title="Geometric Levels" icon="chart-line">
-  Grid levels are spaced geometrically, placing orders further apart as distance from mid-price increases for better risk distribution.
-</Card>
-
-#### Who Is This For?
-
-- Traders with a Bybit account and at least $1,000 USDT in their futures wallet
-- Users who want profit protection features (chase and floor) built in
-- Traders comfortable with slightly higher equity exposure (3.0%) for potentially higher returns
-
-#### Required Credentials
-
-| Field | Description |
-|-------|-------------|
-| API Key | Your Bybit API key |
-| API Secret | Your Bybit API secret |
-
-<Tip>
-Need help creating Bybit API keys? See the [Bybit Exchange Setup Guide](/exchanges/bybit).
-</Tip>
-
----
-
-### BloFin GLFT Vault
-
-The BloFin GLFT vault runs the **GLFT Optimal Market Maker** strategy — an academic quoting algorithm based on the Gueant-Lehalle-Fernandez-Tapia equations. It computes optimal bid/ask placement using inventory risk, volatility, and order flow rather than heuristic rules.
-
-#### Strategy Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Strategy | GLFT Optimal MM (`glft_mm`) |
-| Default Symbol | ASTER/USDT:USDT (changeable) |
-| Min Profit | 16 basis points |
-| Quote Size | $10 per order |
-| Max Position | $500 |
-| Leverage | 30x |
-| Grid Levels | 2 |
-| Minimum Balance | $500 USDT |
-
-#### Features Included
-
-<CardGroup cols={2}>
-  <Card title="GLFT Optimal Quoting" icon="brain">
-    Bid/ask spreads derived from academic equations that optimize inventory risk vs profit capture.
-  </Card>
-  <Card title="Inventory Penalty" icon="scale-balanced">
-    Gamma-based penalty that automatically skews quotes to reduce position risk as inventory grows.
-  </Card>
-  <Card title="Regime Detection" icon="chart-mixed">
-    Detects ranging, trending, and volatile markets via ADX and adjusts spread width accordingly.
-  </Card>
-  <Card title="Recovery Grid" icon="rotate">
-    Orderbook-aware DCA that places recovery orders at support/resistance walls with martingale sizing.
-  </Card>
-</CardGroup>
-
-<Card title="Time Decay" icon="clock">
-  Gradually reduces TP targets on aging positions with regime-aware decay rates, preventing positions from being held indefinitely.
-</Card>
-
-#### Who Is This For?
-
-- Traders with a BloFin account and at least $500 USDT in their futures wallet
-- Users who prefer academically-grounded quoting over heuristic market making
-- Anyone looking for an automated strategy that adapts to market regimes without manual tuning
-
-#### Required Credentials
-
-| Field | Description |
-|-------|-------------|
-| API Key | Your BloFin API key |
-| API Secret | Your BloFin API secret |
-| API Passphrase | The passphrase you set when creating the API key |
-
-<Tip>
-Need help creating BloFin API keys? See the [BloFin Exchange Setup Guide](/exchanges/blofin).
-</Tip>
-
----
-
-### BloFin GLFT Multi-Symbol Vault
-
-The BloFin GLFT Multi-Symbol vault runs the same **GLFT Optimal Market Maker** strategy as the single-symbol vault, but across **up to 5 symbols simultaneously** from a single bot instance. This provides diversified quoting across multiple markets, reducing single-asset risk.
-
-#### Strategy Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Strategy | GLFT Optimal MM (`glft_mm`) |
-| Default Symbols | BTC, ETH, SOL, SUI, XRP (changeable) |
-| Min Profit | 16 basis points |
-| Quote Size | $10 per order |
-| Max Position | $500 per symbol |
-| Leverage | 30x |
-| Grid Levels | 2 |
-| Minimum Balance | $1,000 USDT |
-
-#### Features Included
-
-<CardGroup cols={2}>
-  <Card title="GLFT Optimal Quoting" icon="brain">
-    Bid/ask spreads derived from academic equations that optimize inventory risk vs profit capture.
-  </Card>
-  <Card title="Inventory Penalty" icon="scale-balanced">
-    Gamma-based penalty that automatically skews quotes to reduce position risk as inventory grows.
-  </Card>
-  <Card title="Regime Detection" icon="chart-mixed">
-    Detects ranging, trending, and volatile markets via ADX and adjusts spread width accordingly.
-  </Card>
-  <Card title="Recovery Grid" icon="rotate">
-    Orderbook-aware DCA that places recovery orders at support/resistance walls with martingale sizing.
-  </Card>
-</CardGroup>
-
-<CardGroup cols={2}>
-  <Card title="Time Decay" icon="clock">
-    Gradually reduces TP targets on aging positions with regime-aware decay rates, preventing positions from being held indefinitely.
-  </Card>
-  <Card title="Multi-Symbol (5 pairs)" icon="layer-group">
-    Diversified quoting across multiple markets from a single bot, spreading risk across uncorrelated assets.
-  </Card>
-</CardGroup>
-
-#### Who Is This For?
-
-- Traders with a BloFin account and at least $1,000 USDT in their futures wallet
-- Users who want to diversify across multiple trading pairs from a single deployment
-- Anyone looking for broad market coverage with the GLFT optimal quoting engine
-
-#### Required Credentials
-
-| Field | Description |
-|-------|-------------|
-| API Key | Your BloFin API key |
-| API Secret | Your BloFin API secret |
-| API Passphrase | The passphrase you set when creating the API key |
-
-<Tip>
-Need help creating BloFin API keys? See the [BloFin Exchange Setup Guide](/exchanges/blofin).
-</Tip>
-
----
-
-### Bybit GLFT Vault
-
-The Bybit GLFT vault runs the same **GLFT Optimal Market Maker** strategy on Bybit. Key differences from the BloFin version include **auto fee detection** (automatically detects your Bybit fee tier instead of hardcoded rates), lower leverage, and tighter minimum profit targets tuned for Bybit's deeper liquidity.
-
-#### Strategy Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Strategy | GLFT Optimal MM (`glft_mm`) |
-| Default Symbol | ASTER/USDT:USDT (changeable) |
-| Min Profit | 14 basis points |
-| Quote Size | $10 per order |
-| Max Position | $500 |
-| Max Drawdown | $200 |
-| Leverage | 20x |
-| Grid Levels | 2 |
-| Minimum Balance | $500 USDT |
-
-#### Features Included
-
-<CardGroup cols={2}>
-  <Card title="GLFT Optimal Quoting" icon="brain">
-    Bid/ask spreads derived from academic equations that optimize inventory risk vs profit capture.
-  </Card>
-  <Card title="Auto Fee Detection" icon="wand-magic-sparkles">
-    Automatically detects your Bybit fee tier and adjusts quoting parameters accordingly — no manual fee configuration needed.
-  </Card>
-  <Card title="Regime Detection" icon="chart-mixed">
-    Detects ranging, trending, and volatile markets via ADX and adjusts spread width accordingly.
-  </Card>
-  <Card title="Recovery Grid" icon="rotate">
-    Orderbook-aware DCA that places recovery orders at support/resistance walls with martingale sizing.
-  </Card>
-</CardGroup>
-
-<Card title="Time Decay" icon="clock">
-  Gradually reduces TP targets on aging positions with regime-aware decay rates, preventing positions from being held indefinitely.
-</Card>
-
-#### Who Is This For?
-
-- Traders with a Bybit account and at least $500 USDT in their futures wallet
-- Users who want GLFT optimal quoting with automatic fee tier detection
-- Traders who prefer Bybit's deeper liquidity and tighter spreads
-
-#### Required Credentials
-
-| Field | Description |
-|-------|-------------|
-| API Key | Your Bybit API key |
-| API Secret | Your Bybit API secret |
-
-<Tip>
-Need help creating Bybit API keys? See the [Bybit Exchange Setup Guide](/exchanges/bybit).
-</Tip>
-
----
-
-### Bybit GLFT Multi-Symbol Vault
-
-The Bybit GLFT Multi-Symbol vault runs the **GLFT Optimal Market Maker** strategy across **up to 5 symbols simultaneously** on Bybit. It combines multi-symbol diversification with Bybit's auto fee detection for a hands-off, broad-market quoting experience.
-
-#### Strategy Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Strategy | GLFT Optimal MM (`glft_mm`) |
-| Default Symbols | BTC, ETH, SOL, SUI, XRP (changeable) |
-| Min Profit | 14 basis points |
-| Quote Size | $10 per order |
-| Max Position | $500 per symbol |
-| Max Drawdown | $200 per symbol |
-| Leverage | 20x |
-| Grid Levels | 2 |
-| Minimum Balance | $1,000 USDT |
-
-#### Features Included
-
-<CardGroup cols={2}>
-  <Card title="GLFT Optimal Quoting" icon="brain">
-    Bid/ask spreads derived from academic equations that optimize inventory risk vs profit capture.
-  </Card>
-  <Card title="Auto Fee Detection" icon="wand-magic-sparkles">
-    Automatically detects your Bybit fee tier and adjusts quoting parameters accordingly — no manual fee configuration needed.
-  </Card>
-  <Card title="Regime Detection" icon="chart-mixed">
-    Detects ranging, trending, and volatile markets via ADX and adjusts spread width accordingly.
-  </Card>
-  <Card title="Recovery Grid" icon="rotate">
-    Orderbook-aware DCA that places recovery orders at support/resistance walls with martingale sizing.
-  </Card>
-</CardGroup>
-
-<CardGroup cols={2}>
-  <Card title="Time Decay" icon="clock">
-    Gradually reduces TP targets on aging positions with regime-aware decay rates, preventing positions from being held indefinitely.
-  </Card>
-  <Card title="Multi-Symbol (5 pairs)" icon="layer-group">
-    Diversified quoting across multiple markets from a single bot, spreading risk across uncorrelated assets.
-  </Card>
-</CardGroup>
-
-#### Who Is This For?
-
-- Traders with a Bybit account and at least $1,000 USDT in their futures wallet
-- Users who want diversified GLFT quoting with automatic fee detection across multiple pairs
-- Traders looking for broad market coverage with minimal configuration
-
-#### Required Credentials
-
-| Field | Description |
-|-------|-------------|
-| API Key | Your Bybit API key |
-| API Secret | Your Bybit API secret |
-
-<Tip>
-Need help creating Bybit API keys? See the [Bybit Exchange Setup Guide](/exchanges/bybit).
-</Tip>
+<Tip>The same strategies — and many more variants — are available with full parameter visibility in the **[Marketplace](/features/marketplace)**. Vaults are the curated shortlist; the Marketplace is the full catalog.</Tip>
 
 ---
 
 ## Vault Features Explained
 
-Each vault bundles a combination of advanced trading features. Here is what each one does in plain language.
+**Drawdown spacing** — when a position is underwater, grid spacing widens automatically so the bot doesn't pile into a losing position too aggressively.
 
-### Drawdown Spacing
+**Inventory balancing** — quotes skew toward reducing inventory when the position grows too one-sided, keeping the book balanced over time.
 
-When the bot has an open position that is losing money (underwater), drawdown spacing automatically increases the distance between grid levels. This prevents the bot from placing new orders too close to the current price and piling into a bad position. The deeper the drawdown, the wider the spacing.
+**Geometric levels** — grid levels are spaced exponentially rather than evenly, committing less capital far from price.
 
-### Inventory Balancing
+**Reactive quoting** — spread width adapts to live volatility and order flow: tighter in calm markets, wider in fast ones.
 
-As trades fill, the bot can accumulate a net long or net short position. Inventory balancing adjusts quote prices to favor closing that position — if the bot is net long, it makes the ask price slightly more aggressive (easier to sell) and the bid price slightly less aggressive (harder to buy more). This keeps the book balanced over time.
+**Profit chase (2bp)** — instead of closing exactly at the take-profit target, the bot trails price by 2 basis points to capture extra upside.
 
-### Geometric Levels
+**Profit floor** — once a position reaches a minimum profit, the bot will not let it fall back below that level.
 
-Instead of placing grid orders at equal intervals (e.g., every $0.10), geometric levels space them exponentially. The first level might be $0.10 away, the second $0.15, the third $0.22, and so on. This means less capital is committed to orders far from the current price, which improves capital efficiency and reduces risk on large moves.
+**GLFT optimal quoting** — bid/ask offsets computed from the GLFT closed-form solution using volatility, order arrival rate, and risk aversion — no heuristic tuning.
 
-### Reactive Quoting
+**Inventory penalty** — a gamma-based penalty that skews GLFT quotes to shed position risk as inventory grows.
 
-The bot monitors real-time market conditions — volatility, order flow, and spread width — and adjusts its quoting behavior accordingly. In calm markets, it quotes tighter spreads for more fills. In volatile markets, it widens spreads to avoid being picked off by fast price moves.
+**Regime detection** — classifies the market as ranging, trending, or volatile (via ADX) and adjusts spreads accordingly.
 
-### Two-Sided Mode
+**Recovery grid** — orderbook-aware DCA that places recovery orders at support/resistance walls with escalating size.
 
-The bot places orders on both the buy (bid) and sell (ask) sides of the order book simultaneously. This is the core market making behavior — earning the spread from both directions. Without two-sided mode, the bot would only quote on one side, missing half the opportunity.
+**Auto fee detection** — Bybit vaults read your actual fee tier instead of assuming hardcoded rates.
 
-### Profit Chase
+**Auto max waves / wave queue** — Vortex vaults resolve their wave count at startup from your live wallet balance × exposure, and extend the grid with rescue waves if price keeps falling.
 
-When a position's unrealized profit approaches the take-profit target, profit chase activates a trailing mechanism. Instead of closing immediately at the target, it trails the price by a small amount (2 basis points in the Bybit vault). If the price continues moving favorably, the bot captures additional profit. If it reverses, it closes at the trailed level.
-
-### Profit Floor
-
-Once a position reaches a minimum profit level, the profit floor sets a hard boundary. The bot will close the position before allowing it to fall below that floor. This prevents the frustrating scenario where a position goes from profitable back to break-even or negative.
-
-### GLFT Optimal Quoting
-
-Instead of heuristic spread rules, GLFT uses the Gueant-Lehalle-Fernandez-Tapia closed-form solution. The engine takes volatility (sigma), order arrival rate (kappa), and risk aversion (gamma) as inputs and outputs the mathematically optimal bid and ask offsets. This produces tighter spreads in calm markets and wider spreads during volatility — automatically, without manual tuning.
-
-### Recovery Grid (Orderbook DCA)
-
-When a position goes underwater, the recovery grid scans the orderbook for support and resistance walls. It places DCA orders at these natural price levels instead of fixed intervals. Order sizing scales with unrealized loss: base size below 5% drawdown, 0.5x position at 5%, 1.0x at 10%, and 1.5x at 20%. This martingale approach averages down more aggressively as positions get deeper, while spike detection prevents catching falling knives.
-
-### Regime Detection
-
-The bot classifies the market as ranging, trending, or volatile using ADX (Average Directional Index) and price slope. In ranging markets, gamma is reduced for tighter spreads. In trending markets, spreads widen on the counter-trend side. In volatile markets, overall spread increases to avoid adverse selection.
+**Anchor-stable prices** — anchored Vortex vaults pin wave prices to an activation anchor and tolerate small drift per order instead of constantly cancelling and replacing — far less order churn.
 
 ---
 
-## Managing Your Vault
+## Managing a Deployed Vault
 
-Once a vault bot is deployed, it appears alongside any other bots you may be running.
+A vault deployment is a standard VOIDX bot. After deploying:
 
-### Monitoring
+- The vault card shows **Live**; the button becomes **Active — Deploy Another**
+- The bot appears in the **[Bots](/features/bot-management)** tab with live status, PnL, uptime, and Start/Stop/Settings/Delete controls
+- Its PnL is tracked in **[Portfolio](/features/portfolio)** alongside your other bots
+- Click the bot's **Settings** gear to customize any parameter — at that point it is your configuration to manage
 
-After deployment, the vault bot shows up in the main dashboard with:
-- **Status indicator** — green pulse when running
-- **Current P&L** — real-time profit and loss
-- **Trade count** — number of fills since deployment
-- **Bot name** — formatted as `Vault-{VaultName}-{timestamp}` for easy identification
-
-If you launched the vault without having the full dashboard open, you can access it by connecting your wallet at [voidx.trade](https://voidx.trade) and navigating to the dashboard.
-
-### Active Bots Overview
-
-When you have running bots, the Vaults page displays an **Active Bots** banner at the top showing all your bots at a glance. Each bot card shows:
-
-- **Exchange** — which exchange the bot is running on
-- **Symbol** — the trading pair
-- **P&L** — current profit and loss
-- **Uptime** — how long the bot has been running
-- **Stop button** — stop any bot directly from the banner
-
-This gives you a quick overview of everything running without switching to the full dashboard.
-
-### Switching to Advanced Mode
-
-Vault bots are standard VOIDX bots under the hood. If you want full control over the parameters:
-
-1. Go to the **Bot Management** section in the dashboard
-2. Find your vault bot by its name
-3. Click **Settings** to view and edit the full configuration
-4. Adjust any parameter — equity percentage, grid levels, features, and more
-
-<Note>
-Once you modify a vault bot's settings, it becomes a custom bot. The vault card on the Vaults page will still show the bot as active, but the configuration is now yours to manage.
-</Note>
-
-### Stopping a Vault Bot
-
-You can stop a vault bot directly from the vault card — no need to navigate to the full dashboard.
-
-If a vault shows a running bot, a **Stop Bot** button appears on the vault card itself. Click it to stop the bot immediately.
-
-Alternatively, you can stop any bot from the **Bot Management** section in the full dashboard.
-
-<Warning>
-Stopping a bot does not close open positions. You may need to manually close positions on your exchange after stopping the bot.
-</Warning>
+<Warning>Stopping a vault bot does not close its open positions. Close those from the Trade tab or your exchange if needed.</Warning>
 
 ---
 
 ## Coming Soon
 
-The Vaults system is expanding. Here is what is on the roadmap:
-
 <CardGroup cols={2}>
   <Card title="DEX Vaults" icon="circle-nodes">
-    Automated LP strategies across Uniswap, Raydium, and Cetus. No CEX account required.
-
-    **Target: Q2 2026**
+    Automated LP strategies across Uniswap, Raydium, and Cetus. **Target: Q2 2026**
   </Card>
   <Card title="HTX Vault" icon="chart-mixed">
-    Professional market making on HTX perpetual futures with exchange-specific optimizations.
-
-    **Target: Q2 2026**
+    Professional market making on HTX perpetual futures. **Target: Q2 2026**
   </Card>
   <Card title="Aftermath Vaults" icon="fire">
-    Automated market making on Aftermath DEX with optimized LP strategies.
-
-    **Target: Q3-Q4 2026**
+    Automated market making on Aftermath DEX with optimized LP strategies. **Target: Q3–Q4 2026**
   </Card>
   <Card title="Bluefin Vaults" icon="water">
-    Perpetual futures market making on Bluefin with on-chain settlement.
-
-    **Target: Q3-Q4 2026**
+    Perpetual futures market making on Bluefin with on-chain settlement. **Target: Q3–Q4 2026**
   </Card>
 </CardGroup>
 
@@ -594,58 +166,28 @@ The Vaults system is expanding. Here is what is on the roadmap:
 
 ## Frequently Asked Questions
 
-<Accordion title="Do I need PUMPKIN tokens to use Vaults?">
-  Yes — you need to hold any amount of PUMPKIN tokens in your wallet for Tier 1 access. Higher tiers exist with additional benefits. See the [PUMPKIN Token](/pumpkin-token) page for details.
-</Accordion>
-
 <Accordion title="Are my funds safe?">
-  Your funds never leave your exchange account. VOIDX Vaults use read/trade-only API keys to place and manage orders on your behalf. The platform cannot withdraw funds. Your wallet connection serves only as identity — no tokens or funds are transferred through it.
+  Your funds never leave your exchange account. Vaults place and manage orders through read/trade-only API keys; the platform cannot withdraw. Your wallet connection is identity only — no tokens or funds pass through it.
 
-  For maximum security:
-  - Never enable withdrawal permissions on your API key
-  - Use IP whitelisting on your exchange if available
-  - Enable 2FA on your exchange account
+  For maximum security: never enable withdrawal permissions, use IP whitelisting if your exchange offers it, and enable 2FA on your exchange account.
 </Accordion>
 
-<Accordion title="Can I customize vault settings after deployment?">
-  Yes. Vault bots are standard VOIDX bots with pre-configured settings. After deployment, you can navigate to Bot Management in the full dashboard, find your vault bot, and modify any parameter. Once you change settings, the bot operates with your custom configuration.
+<Accordion title="What is the difference between Vaults and the Marketplace?">
+  Both deploy the same kind of bot through the same wizard. **Vaults** are the curated shortlist — 14 picks with sensible defaults and minimal knobs. The **Marketplace** is the full catalog of 41 presets with full parameter detail and exchange variant toggles. Start with Vaults; graduate to the Marketplace when you want more choice.
 </Accordion>
 
-<Accordion title="What if I already have a bot running on that exchange?">
-  If you already have a running bot on the same exchange, the vault card will display **"Bot already running on [Exchange]"** with a **Manage** button. Click it to go directly to that bot's controls in the full dashboard. You do not need to deploy a second bot.
+<Accordion title="Can I change the symbol before deploying?">
+  Yes. Single-symbol vaults have a symbol picker on the card itself — pick a popular symbol or type a custom one. Multi-symbol vaults list their default pairs, editable in the deploy modal.
 </Accordion>
 
-<Accordion title="How do I stop a vault bot?">
-  Navigate to **Bot Management** in the dashboard, find your vault bot (named `Vault-{VaultName}-{timestamp}`), and click **Stop**. You can also access the bot from the Vaults page by clicking **Manage** on the active vault card.
-
-  Remember that stopping the bot does not close open positions — you may need to close those manually on your exchange.
+<Accordion title="Can I customize a vault after deployment?">
+  Yes. The deployed bot is a standard VOIDX bot — open its Settings from the Bots tab and adjust anything. Once changed, the configuration is yours to manage.
 </Accordion>
 
-<Accordion title="What is the difference between Vaults and Advanced Mode?">
-  **Vaults** are a simplified entry point — pre-configured strategies that you deploy with a single click. No parameter knowledge required.
-
-  **Advanced Mode** (the full VOIDX dashboard) gives you complete control over 100+ strategy parameters, multiple simultaneous bots, the Scaling Agent, Trading Console, analytics, and more.
-
-  Vaults are designed for users who want to start trading immediately without a learning curve. Advanced Mode is for traders who want full customization.
+<Accordion title="What do the wallet exposure and leverage sliders do?">
+  They only appear on Vortex vaults. **Wallet exposure** sets what share of your balance the wave ladder may use. **Leverage** is applied only if you actually move the slider — left untouched, the bot keeps whatever leverage your exchange account already has, so existing settings are never silently overridden.
 </Accordion>
 
-<Accordion title="What symbol do the vaults trade?">
-  Each vault has a default symbol (currently ASTER/USDT:USDT for single-symbol vaults), but you can select from 12 popular symbols or enter any custom symbol before deploying. Popular options include BTC, ETH, SOL, DOGE, XRP, SUI, PEPE, LINK, AVAX, ARB, OP, and WIF.
-
-  Multi-symbol vaults default to BTC, ETH, SOL, SUI, and XRP, with each symbol configurable before deployment.
-</Accordion>
-
-<Accordion title="What happens if I already have saved credentials from the main dashboard?">
-  If you have previously saved exchange credentials through the multi-exchange dashboard, the vault will automatically detect them and show **"Credentials saved."** You can skip the API key entry step and deploy directly.
-</Accordion>
-
-<Accordion title="What is the minimum balance required?">
-  - **BloFin USDT Vault:** $500 USDT in your BloFin futures wallet
-  - **Bybit USDT Vault:** $1,000 USDT in your Bybit futures wallet
-  - **BloFin GLFT Vault:** $500 USDT in your BloFin futures wallet
-  - **BloFin GLFT Multi-Symbol Vault:** $1,000 USDT in your BloFin futures wallet
-  - **Bybit GLFT Vault:** $500 USDT in your Bybit futures wallet
-  - **Bybit GLFT Multi-Symbol Vault:** $1,000 USDT in your Bybit futures wallet
-
-  These minimums ensure the bot has enough capital to place grid orders effectively. Running with less may result in orders too small to execute.
+<Accordion title="What are the minimum balances?">
+  Each card shows its own minimum, from **$50** (single-symbol Vortex vaults) up to **$2,000** (Bybit Multi-Symbol MM). These minimums ensure orders are large enough to execute; running with less may produce orders below exchange minimums.
 </Accordion>

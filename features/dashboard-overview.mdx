@@ -1,219 +1,124 @@
 ---
-title: 'Dashboard Overview'
-description: 'Explore the comprehensive features of the QuantumVoid trading dashboard'
+title: 'Terminal Overview'
+description: 'A tour of the VOIDX trading terminal — tabs, the Overview home screen, and how everything connects'
 ---
 
-# Dashboard Overview
+# Terminal Overview
 
-The **QuantumVoid Trading Dashboard** is your command center for algorithmic trading across multiple exchanges. Built with institutional-grade technology and designed for both beginners and advanced traders.
+The **VOIDX Terminal** is the single interface for everything on the platform: manual trading, bot deployment, the preset marketplace, vaults, market scanning, and portfolio tracking. It uses the dark VOIDX Dusk theme throughout and is designed so you can find your account value, your bots, and your positions at a glance.
 
----
+You can browse the entire terminal as a guest — every tab is open. Connecting a wallet is only required when you want to *act*: deploy a bot, place an order, or save exchange API keys.
 
-## 🎯 Key Features
-
-### Multi-Exchange Support
-
-Trade seamlessly across multiple centralized exchanges from a single interface:
-
-- **Bybit** - Global derivatives leader with deep liquidity
-- **BloFin** - Emerging exchange with competitive fees
-- **HTX** (Huobi) - Established platform with diverse markets
-- **Multi-Exchange Mode** - Manage all exchanges simultaneously
-
-<Tip>Each exchange has a dedicated dashboard with tailored features and controls.</Tip>
+<Frame>
+  <img src="/images/2026-06/terminal-overview.png" alt="The VOIDX terminal Overview tab showing the equity strip, running bots, open positions and open orders columns." style={{ borderRadius: '0.5rem' }} />
+</Frame>
 
 ---
 
-## 📊 Performance Metrics
+## The Tabs
 
-Real-time trading metrics displayed across all dashboards:
+The terminal is organized into eight top-level tabs:
 
-### Core Metrics
-- **Total P&L** - All-time profit/loss with percentage change
-- **Active Bots** - Number of running bot instances
-- **Win Rate** - Percentage of profitable trades
-- **Total Trades** - Cumulative executed orders
-- **Account Balance** - Current USDT balance
-- **Unrealized P&L** - Open position profit/loss
-- **Today's P&L** - 24-hour performance snapshot
-
-### Visual Indicators
-- **Trend Charts** - Mini sparklines showing performance direction
-- **Color-Coded Status** - Green (profit), Red (loss), Blue (neutral)
-- **Live Updates** - Auto-refresh every 30 seconds
-
-<Warning>Metrics update in real-time but may have a slight delay during high volatility.</Warning>
+| Tab | What it does |
+|-----|--------------|
+| **Overview** | Home screen — equity strip, running bots, open positions, open orders, recent activity |
+| **Portfolio** | Equity history chart, per-exchange allocation, bot performance, positions ([guide](/features/portfolio)) |
+| **Trade** | Manual trading — live chart, order book, order ticket ([guide](/features/trading-console)) |
+| **Bots** | Manage your deployed bots — start, stop, configure, monitor ([guide](/features/bot-management)) |
+| **Marketplace** | Browse and deploy ready-made bot presets ([guide](/features/marketplace)) |
+| **Markets** | Live volume and volatility scanner — find what's moving |
+| **Vaults** | Curated one-click strategy vaults ([guide](/features/vaults)) |
+| **Docs** | Opens this documentation site |
 
 ---
 
-## 🤖 Bot Management
+## The Overview Tab
 
-### Bot Instance Cards
+The Overview tab is the terminal's home screen. It is built from three bands.
 
-Each active bot displays:
-- **Status Badge** - Running (green pulse) or Stopped (red)
-- **Strategy Type** - Vortex DCA, Geometric Long Only, XGrid
-- **Trading Symbols** - Active trading pairs (e.g., BTC/USDT, ETH/USDT)
-- **P&L Display** - Current profit/loss for this instance
-- **Trade Count** - Number of completed trades
-- **Uptime** - How long the bot has been running
+### Band 1: Equity Strip
 
-### Quick Actions
-- **Start/Stop** - One-click bot control
-- **Settings** - Jump to configuration editor
-- **Delete** - Remove stopped bot instances
+A single row across the top anchored by **Total Equity** — rendered large so your account value is always the first thing you see. Next to it:
 
-<Tip>You can run multiple bots simultaneously on different symbols or exchanges!</Tip>
+- **Available** — balance available for trading
+- **Total PnL** — cumulative profit and loss
+- **Today** — last 24-hour performance
+- **Unrealized** — open position profit and loss
+- **Win Rate** — percentage of profitable trades
+- **Active Bots** — running vs. total (e.g. `3 / 5`)
+- **Trades** — total trade count
 
----
+On the right of the strip, an **equity sparkline** appears once equity history is being recorded, with 1D / 7D / 30D timeframe toggles. **Click the sparkline to open the full Portfolio view.**
 
-## 🔐 Exchange Credentials Management
+### Band 2: Live Columns
 
-Securely store and manage API credentials for each exchange:
+Three side-by-side columns give you the live state of your account:
 
-### Features:
-- **Encrypted Storage** - Credentials secured with industry-standard encryption
-- **Per-Exchange Setup** - Separate credentials for Bybit, BloFin, HTX
-- **API Key Masking** - Only last 4 characters visible
-- **Easy Editing** - Update credentials without bot restart
-- **Delete Protection** - Confirmation required before removal
+- **Running Bots** — each running bot with its exchange, primary symbol, and live PnL. Click a row to jump to that symbol's chart in the Trade tab. "View all" jumps to the Bots tab.
+- **Open Positions** — side (LONG/SHORT), symbol, size @ entry price, and unrealized PnL. Click a row to open it in the Trade tab.
+- **Open Orders** — side (BUY/SELL), symbol, and amount @ price for every resting order.
 
-### Required Fields:
-- **Bybit**: API Key + Secret
-- **BloFin**: API Key + Secret + Password
-- **HTX**: API Key + Secret
+<Tip>If you are a brand-new user (wallet connected, but no exchange keys, bots, or positions yet), this band is replaced by a single "Start in 60 seconds" hero with two clear actions: **Connect an Exchange** or **Browse Vaults**.</Tip>
 
-<Warning>Never share your API credentials. Disable withdrawal permissions for maximum security.</Warning>
+### Explore Tiles
 
----
+Below the columns, four clickable tiles describe and link to the main product areas: **Trade**, **Bot Marketplace**, **Vaults**, and **Markets**. These appear for guests and logged-in users alike — they are the fastest way to jump around the terminal.
 
-## 🎨 User Interface Highlights
+### Band 3: Quick Start and Recent Activity
 
-### Professional Design
-- **Clean, Modern Layout** - No clutter, focus on what matters
-- **Dark Mode Optimized** - Easy on the eyes during long trading sessions
-- **Responsive Design** - Works on desktop, tablet, and mobile
-- **Smooth Animations** - Polished transitions without distraction
-
-### Navigation
-- **Sidebar Menu** - Quick access to all features:
-  - Dashboard
-  - Exchanges
-  - Bot Management
-  - Optimal Symbols
-  - Trading Console
-  - Analytics
-  - Portfolio
-  - Settings
-
-### Theme Selection
-Choose from multiple color themes:
-- **QuantFin** (Cyan) - Default professional theme
-- **Cyberpunk** (Pink/Purple) - High-contrast futuristic
-- **Matrix** (Green) - Classic hacker aesthetic
-- **Ocean** (Blue) - Calm, professional blue tones
+- **Quick Start** — shown until you are fully set up. Guests get a **Connect Wallet** button; connected users without exchange keys get **Add Exchange** and **Deploy Bot** buttons. Once you have saved credentials, the card disappears and hands the space to activity.
+- **Recent Activity** — a live feed of fills and bot events with color-coded severity dots (green success, amber warning, red error) and timestamps.
+- **Jump links** — a slim toolbar at the bottom linking to Markets, Bots, Vaults, and Trade.
 
 ---
 
-## 🔔 Real-Time Notifications
+## The Markets Tab
 
-Stay informed with instant alerts:
+The Markets tab is a live **volume and volatility scanner** for Bybit perpetuals, refreshed every 60 seconds.
 
-- **Success Messages** - Bot started, credentials saved, orders placed
-- **Warning Alerts** - Low balance, rate limits approaching
-- **Error Notifications** - Failed orders, connection issues, API errors
-- **Info Updates** - Bot stopped, configuration changed
+<Frame>
+  <img src="/images/2026-06/markets.png" alt="The Markets tab showing the scanner table with volume, ATRP and trend columns." style={{ borderRadius: '0.5rem' }} />
+</Frame>
 
-<Tip>Notifications appear in the top-right corner and auto-dismiss after a few seconds.</Tip>
+**Summary band** (computed from the live scan):
 
----
+- **Markets** — number of symbols in the scan
+- **Top 1h Volume** — the highest-volume market right now
+- **Most Volatile (ATRP)** — the market with the highest Average True Range percentage
+- **MA Trend Breadth** — how many markets are trending bullish vs. bearish
 
-## 🎃 Special Features
+**Scanner table** — sortable by any column:
 
-### Pumpkin Quest Easter Egg
-A hidden mini-game accessible via the pumpkin emoji (🎃) in the top-right corner. Collect tokens while monitoring your bots!
+| Column | Meaning |
+|--------|---------|
+| Asset | Trading pair (with token logo) |
+| Price | Last price |
+| 1m / 5m / 1h Vol | Trading volume in USDT over each window |
+| ATRP | Average True Range as a percent of price — the volatility read |
+| 1m / 5m Spread | Recent bid/ask spread |
+| MA / EMA | Moving-average trend direction badges |
 
-### Slush Integration
-Quick access to trade on Slush DEX with the "🌊 Slush" button—opens directly in your Sui wallet.
+A search box filters by asset name. **Click any row to open that market in the Trade tab** with the symbol and exchange pre-selected.
 
-### Wallet Connection
-One-click Sui wallet connection with **Mysten dApp Kit** integration:
-- Auto-detects installed wallets
-- Sign-in authentication
-- Balance checking
-- Transaction signing
-
----
-
-## 📈 Optimal Symbols Feature
-
-AI-powered symbol recommendation system:
-
-- **Volatility Analysis** - Identifies high-opportunity trading pairs
-- **Volume Screening** - Filters by 24h trading volume
-- **Spread Analysis** - Checks bid/ask spreads for profitability
-- **Risk Scoring** - Rates symbols by risk level
-- **Exchange-Specific** - Recommendations tailored per exchange
-
-<Tip>Use Optimal Symbols to find the best trading pairs for your strategy!</Tip>
+<Tip>Sort by ATRP descending to find the most volatile markets — useful for picking symbols for grid and market-making bots.</Tip>
 
 ---
 
-## 🛡️ Security Features
+## Wallet Connection and Exchange Keys
 
-### Built-In Protection
-- **JWT Authentication** - Secure session management
-- **API Rate Limiting** - Prevents spam and abuse
-- **CORS Protection** - Restricts unauthorized access
-- **Encrypted Credentials** - Database-level encryption
-- **Read-Only Options** - Limit bot permissions
+VOIDX is **non-custodial**. Two separate connections power the terminal:
 
-### Best Practices Enforced
-- **2FA Required** - Encouraged for all exchange accounts
-- **IP Whitelisting** - Optional for API keys
-- **Withdrawal Disabled** - Bots never access withdrawal permissions
-- **Session Timeout** - Auto-logout after inactivity
+1. **Wallet** — your identity on the platform. Connecting and signing a message authenticates you; no transaction is made and no funds move.
+2. **Exchange API keys** — saved encrypted, per exchange, via the Add Exchange flow. Bots and manual orders are placed through these keys. Funds stay on your exchange account.
+
+<Warning>Only enable **Read** and **Trade** permissions on your exchange API keys. Never enable **Withdraw**.</Warning>
 
 ---
 
-## 🚀 Performance Optimizations
+## Where to Go Next
 
-### Speed & Reliability
-- **React Query Caching** - Instant data loading
-- **Debounced Updates** - Smooth UI during rapid changes
-- **Lazy Loading** - Fast initial page load
-- **WebSocket Support** - Real-time data streaming (coming soon)
-
-### Backend Infrastructure
-- **FastAPI** - High-performance Python backend
-- **PostgreSQL** - Production-grade database
-- **Redis Caching** - Lightning-fast data access
-- **Process Isolation** - Each bot runs independently
-
----
-
-## 📱 Mobile Experience
-
-Fully responsive design optimized for:
-- **Smartphones** - Compact layout, touch-friendly controls
-- **Tablets** - Expanded views with more metrics
-- **Desktop** - Full dashboard with all features
-
-<Tip>The dashboard works great on mobile, but we recommend desktop for active trading!</Tip>
-
----
-
-## 🆘 Support & Documentation
-
-### Getting Help
-- **In-App Links** - Direct access to relevant docs
-- **Telegram Community** - Fast support from experienced traders
-- **GitHub Issues** - Report bugs or request features
-
-### Learning Resources
-- **Setup Guides** - Step-by-step for each exchange
-- **Bot Configuration** - Detailed parameter explanations
-- **Strategy Docs** - How each algorithm works
-- **API Reference** - For developers and advanced users
-
-**Explore more features in the sidebar! Each section has its own dedicated guide.**
+- **[Marketplace](/features/marketplace)** — deploy your first bot from a preset
+- **[Vaults](/features/vaults)** — the one-click curated route
+- **[Trading Console](/features/trading-console)** — manual trading in the Trade tab
+- **[Portfolio](/features/portfolio)** — track your equity over time
+- **[Bot Management](/features/bot-management)** — manage running bots
